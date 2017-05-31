@@ -1,0 +1,54 @@
+{% load staticfiles %}
+<html>
+    <head>
+        <title>Easy Living</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat+Subrayada" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'css/easy_living_style.css' %}">
+    </head>
+    <body>
+        <div class="page-header">
+            <h1><a href="/">Easy Living</a></h1>
+        </div>
+        <div class="content container">
+            <section class="radio">
+                <h2>Easy Living Standortsuche</h2>
+                <fieldset>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <label class="suchLabel" for="usr">Suche nach Stadt:</label>
+                      <input type="text" name="suchanfrage" id = "usr" value="{{ suchanfrage }}"/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                    </div>
+                    <button type="submit" class="btn btn-default">Suchen</button> <!-- Später soll über diesen Button die Suchanfrage abgeschickt werden -->
+                </form>
+                    <br/>
+                    <br/>
+                    <legend>Filter</legend>
+
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Kindergärten</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Schulen</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Ärzte</label>
+                    </div>
+
+                    <div class="panel-group">
+                      <div class="panel panel-default">
+                        <div class="panel-body">Karte</div>
+                      </div>
+                    </div>
+
+                    </label>
+
+                </fieldset>
+            </section>
+        </div>
+
+
+    </body>
+</html>
