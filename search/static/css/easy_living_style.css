@@ -1,3 +1,6 @@
+
+
+
 .page-header {
     background-color: #2A5EE1;
     margin-top: 0;
@@ -96,3 +99,13 @@ body {
     border-width: 2px;
     border-style: solid;
 }
+
+/*
+.full {
+    background: url('Köln_Panoram.jpg') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+    height:100%;
+}*/
