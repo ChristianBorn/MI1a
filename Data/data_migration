@@ -1,0 +1,45 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+import importlib.util
+import psycopg2
+from psycopg2 import extensions
+import numpy as np
+import migrate_beschaeftigte
+
+
+def main():
+    conn = connect_to_db()
+    #erstelle die Tabelle "Beschaeftigte"
+    migrate_beschaeftigte.get_beschaeftigte(conn)
+    conn.close()
+
+def to_float(x):
+  """psycopg2 interpolation to float"""
+  return extensions.AsIs('%f' % float(x))
+def to_int(x):
+  """psycopg2 interpolation to int"""
+  return extensions.AsIs('%d' % int(x))
+def connect_to_db(path='../mysite/settings.py'):
+    #Holt die Datenbankeinstellungen aus der Settings.py
+    spec = importlib.util.spec_from_file_location('settings.DATABASES', path)
+    database_settings = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(database_settings)
+    database_settings = database_settings.DATABASES['default']
+    db_name = database_settings['NAME']
+    db_user = database_settings['USER']
+    db_pw = database_settings['PASSWORD']
+    #Verbindung mit den geholten Daten
+    conn = psycopg2.connect(dbname=db_name,
+                            user=db_user,
+                            password=db_pw)
+    #Mapping von Numpy Datentypen auf Postgres Datentypen
+    extensions.register_adapter(np.int64, to_float)
+    extensions.register_adapter(np.integer, to_int)
+    return conn
+
+
+
+
+
+if __name__ == '__main__':
+    main()
