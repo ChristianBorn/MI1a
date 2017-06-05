@@ -201,9 +201,6 @@ class PlanetOsmPolygon(models.Model):
             for p in PlanetOsmPolygon.objects.raw("SELECT p.osm_id, p.name, ST_asGEOJSON(ST_transform(p.way,4326)) AS way "
                                                   "FROM planet_osm_polygon p WHERE p.boundary = 'administrative' "
                                                   "AND p.admin_level = ANY ('{6,7,8}') AND p.name ILIKE %s", [city_var]):
-                print ("--")
-                print (p.name)
-                print ("--")
                 results.append((p.name, p.way))
         return results
 
