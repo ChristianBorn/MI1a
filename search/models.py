@@ -175,35 +175,13 @@ class PlanetOsmPoint(models.Model):
 
 class PlanetOsmPolygon(models.Model):
 
+    @staticmethod
     def get_city_point(city):
         results = []
         for p in PlanetOsmPolygon.objects.raw("SELECT name, ST_asGEOJSON(ST_transform(way,4326)) FROM planet_osm_point "
-                                              "WHERE place='city' "
-                                              "AND name = %s", [city]):
+                                              "WHERE place=ANY ('{city,town}')"
+                                              "AND name =%s", [city]):
             results.append((p.name, p.way))
-        return results
-
-
-    @staticmethod
-    def get_city_point(city_var):
-        results = []
-        plz = re.findall(r"[0-9]{4,5}", str(city_var))
-        if len(plz) == 1:
-            for p in PlanetOsmPolygon.objects.raw(
-                    "SELECT city.osm_id, city.name, St_asGeoJSON(ST_Transform(city.way,4326)) AS way "
-                    "FROM planet_osm_polygon city JOIN planet_osm_polygon postcode "
-                    "ON ST_INTERSECTS(city.way, postcode.way) "
-                    "WHERE city.boundary = 'administrative' "
-                    "AND city.admin_level = ANY ('{6,7,8}') "
-                    "AND postcode.boundary = 'postal_code' AND postcode.postal_code =%s", [plz[0]]):
-                results.append((p.name, p.way))
-
-        else:
-            for p in PlanetOsmPolygon.objects.raw(
-                    "SELECT p.osm_id, p.name, ST_asGEOJSON(ST_transform(p.way,4326)) AS way "
-                    "FROM planet_osm_polygon p WHERE p.boundary = 'administrative' "
-                    "AND p.admin_level = ANY ('{6,7,8}') AND p.name ILIKE %s", [city_var]):
-                results.append((p.name, p.way))
         return results
 
     @staticmethod
