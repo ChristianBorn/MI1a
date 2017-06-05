@@ -9,7 +9,7 @@ import migrate_beschaeftigte
 
 def main():
     conn = connect_to_db()
-    #erstelle die Tabelle "Beschaeftigte"
+    #erstelle die Tabelle "Beschaeftigte" und füge die Datensätze dort ein
     migrate_beschaeftigte.get_beschaeftigte(conn)
     conn.close()
 
