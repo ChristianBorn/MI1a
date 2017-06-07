@@ -204,6 +204,7 @@ class PlanetOsmPolygon(models.Model):
                                                   "ORDER BY city.admin_level::integer ASC", [plz[0]]):
                 results.append((p.name, p.admin_level, p.coord_way))
 
+            '''
             if '8' in ([x[1] for x in results]):
                 tmp_results = results[:]
                 results.clear()
@@ -212,7 +213,7 @@ class PlanetOsmPolygon(models.Model):
                 tmp_results = results[:]
                 results.clear()
                 results = [i for i in tmp_results if i[1] in ['6','10']]
-
+            '''
 
         else:
             for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, "
