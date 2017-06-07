@@ -2,3 +2,4 @@
 textfielinput.log
 
 /__pycache__*
+*.pyc
