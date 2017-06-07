@@ -94,6 +94,16 @@ class PlanetOsmNodes(models.Model):
 
 
 class PlanetOsmPoint(models.Model):
+
+    @staticmethod
+    def get_city_point(city):
+        results = []
+        for p in PlanetOsmPolygon.objects.raw("SELECT name, ST_asGEOJSON(ST_transform(way,4326)) FROM planet_osm_point "
+                                              "WHERE place=ANY ('{city,town}')"
+                                              "AND name =%s", [city]):
+            results.append((p.name, p.way))
+        return results
+
     osm_id = models.BigIntegerField(primary_key='osm_id', blank=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column='addr:housename', blank=True, null=True)  # Field renamed to remove unsuitable characters.
@@ -176,32 +186,43 @@ class PlanetOsmPoint(models.Model):
 class PlanetOsmPolygon(models.Model):
 
     @staticmethod
-    def get_city_point(city):
-        results = []
-        for p in PlanetOsmPolygon.objects.raw("SELECT name, ST_asGEOJSON(ST_transform(way,4326)) FROM planet_osm_point "
-                                              "WHERE place=ANY ('{city,town}')"
-                                              "AND name =%s", [city]):
-            results.append((p.name, p.way))
-        return results
-
-    @staticmethod
     def get_city_polygon(city_var):
         results = []
+
         plz = re.findall(r"[0-9]{4,5}", str(city_var))
         if len(plz) == 1:
-            for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, St_asGeoJSON(ST_Transform(city.way,4326)) AS way "
-                                                  "FROM planet_osm_polygon city JOIN planet_osm_polygon postcode "
-                                                  "ON ST_INTERSECTS(city.way, postcode.way) "
+            for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, postcode.postal_code, "
+                                                  "St_asGeoJSON(ST_Transform(city.way,4326)) AS coord_way FROM "
+                                                  "planet_osm_polygon city JOIN planet_osm_polygon postcode ON "
+                                                  "ST_INTERSECTS(city.way, postcode.way) "
+                                                  "AND NOT ST_Touches(city.way, postcode.way) "
                                                   "WHERE city.boundary = 'administrative' "
-                                                  "AND city.admin_level = ANY ('{6,7,8}') "
-                                                  "AND postcode.boundary = 'postal_code' AND postcode.postal_code ILIKE %s", [plz[0]]):
-                results.append((p.name, p.way))
+                                                  "AND city.admin_level::integer = ANY ('{6,7,8,9,10}') "
+                                                  "AND postcode.boundary = 'postal_code' "
+                                                  "AND postcode.postal_code ILIKE %s "
+                                                  "GROUP BY city.osm_id, city.name, city.admin_level, postcode.postal_code, coord_way "
+                                                  "ORDER BY city.admin_level::integer ASC", [plz[0]]):
+                results.append((p.name, p.admin_level, p.coord_way))
+
+            if '8' in ([x[1] for x in results]):
+                tmp_results = results[:]
+                results.clear()
+                results = [i for i in tmp_results if i[1] not in ['6','10']]
+            else:
+                tmp_results = results[:]
+                results.clear()
+                results = [i for i in tmp_results if i[1] in ['6','10']]
+
 
         else:
-            for p in PlanetOsmPolygon.objects.raw("SELECT p.osm_id, p.name, ST_asGEOJSON(ST_transform(p.way,4326)) AS way "
-                                                  "FROM planet_osm_polygon p WHERE p.boundary = 'administrative' "
-                                                  "AND p.admin_level = ANY ('{6,7,8}') AND p.name ILIKE %s", [city_var]):
-                results.append((p.name, p.way))
+            for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, "
+                                                  "St_asGeoJSON(ST_Transform(city.way,4326)) AS coord_way "
+                                                  "FROM planet_osm_polygon city WHERE city.boundary = 'administrative' "
+                                                  "AND ((city.admin_level = '10' OR city.admin_level = '9') "
+                                                  "OR city.admin_level = ANY ('{6,8}')) AND city.name ILIKE %s "
+                                                  "GROUP BY city.osm_id, city.name, city.admin_level, coord_way "
+                                                  "ORDER BY city.admin_level::integer ASC", [city_var]):
+                results.append((p.name, p.admin_level, p.coord_way))
         return results
 
     # gibt alle PLZ & Polygone einer Stadt zurück. Vielleicht nützlich für später.
@@ -216,6 +237,8 @@ class PlanetOsmPolygon(models.Model):
                                               "AND city.boundary = 'administrative'"
                                               "AND postcode.boundary = 'postal_code';", [city]):
             results.append((p.name, p.postal_code, p.way))
+
+
         return results
 
     # gibt Gebäude eines bestimmten Tags (Krankenhaus, Schule
