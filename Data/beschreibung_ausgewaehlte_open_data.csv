@@ -1,0 +1,13 @@
+Daten/Spaltenname;Dateiname;Sortierung;Link;Letzte Aktualisierung
+Lärmpegel;lärmpegel_tag.json;;https://www.offenedaten-koeln.de/dataset/umgebungslaerm-tag-koeln;14.09.2016
+LKW-Verbotszonen;LKW-Verbotszonen.json;;https://www.offenedaten-koeln.de/dataset/lkw-verbotszone-koeln;11.07.2016
+Arbeitslosenquote;2014_Beschaeftigte_Stadtteil.csv;Stadtteil;https://offenedaten-koeln.de/sites/default/files/2014_Beschaeftigte_Stadtteil.csv;07.06.2017
+Jugendarbeitslosenquote;2014_Beschaeftigte_Stadtteil.csv;Stadtteil;https://offenedaten-koeln.de/sites/default/files/2014_Beschaeftigte_Stadtteil.csv;07.06.2017
+Mietpreis €/m²;mietpreisdaten_wohnungsboerse.csv;Stadtteil;https://www.wohnungsboerse.net/mietspiegel-Koeln/5333;01.01.2016
+Einwohner insgesamt;2014_Durchschnittsalter_Stadtteil.csv;Stadtteil;https://offenedaten-koeln.de/sites/default/files/2014_Durchschnittsalter_Stadtteil.csv;01.01.2014
+Erholungsflächenanteil in %;Offenes Koeln - Stadtteildaten.csv;Stadtteil Name;https://github.com/sapkra/veedel-dating-koeln/blob/master/data/Offenes%20Koeln%20-%20Stadtteildaten.csv;21.02.2015
+Einwohner je Quadratkilometer;Offenes Koeln - Stadtteildaten.csv;Stadtteil Name;https://github.com/sapkra/veedel-dating-koeln/blob/master/data/Offenes%20Koeln%20-%20Stadtteildaten.csv;21.02.2015
+Religion: Evangelisch - je 100 Einwohner;Offenes Koeln - Stadtteildaten.csv;Stadtteil Name;https://github.com/sapkra/veedel-dating-koeln/blob/master/data/Offenes%20Koeln%20-%20Stadtteildaten.csv;21.02.2015
+Religion: Katholisch - je 100 Einwohner;Offenes Koeln - Stadtteildaten.csv;Stadtteil Name;https://github.com/sapkra/veedel-dating-koeln/blob/master/data/Offenes%20Koeln%20-%20Stadtteildaten.csv;21.02.2015
+Religion: Sonstige/ohne Angabe - je 100 Einwohner;Offenes Koeln - Stadtteildaten.csv;Stadtteil Name;https://github.com/sapkra/veedel-dating-koeln/blob/master/data/Offenes%20Koeln%20-%20Stadtteildaten.csv;21.02.2015
+Anteil Einwohner mit Migrationshintergrund an allen Einwohnern in %;Offenes Koeln - Stadtteildaten.csv;Stadtteil Name;https://github.com/sapkra/veedel-dating-koeln/blob/master/data/Offenes%20Koeln%20-%20Stadtteildaten.csv;21.02.2015
