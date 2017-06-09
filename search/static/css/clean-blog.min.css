@@ -5,6 +5,8 @@ body {
   font-size: 20px;
   color: #333333;
 }
+
+
 p {
   line-height: 1.5;
   margin: 30px 0;
@@ -429,4 +431,11 @@ img::-moz-selection {
 }
 body {
   -webkit-tap-highlight-color: #0085A1;
+}
+
+.mapcanvas {
+  background-color: blue;
+  width: 100%;
+  height: auto;
+  style="border:1px solid #000000
 }
