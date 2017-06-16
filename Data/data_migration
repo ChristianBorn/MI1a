@@ -5,14 +5,19 @@ import psycopg2
 from psycopg2 import extensions
 import numpy as np
 import migrate_beschaeftigte
-
+import migrate_mietpreise
+import migrate_durchschnittsalter
 
 def main():
     conn = connect_to_db()
     #erstelle die Tabelle "Beschaeftigte" und füge die Datensätze dort ein
     migrate_beschaeftigte.get_beschaeftigte(conn)
+    #erstelle die Tabelle "Mietpreise" und füge die Datensätze dort ein
+    migrate_mietpreise.get_mietpreise(conn)
+    # erstelle die Tabelle "Durchschnittsalter" und füge die Datensätze dort ein
+    migrate_durchschnittsalter.get_durchschnittsalter(conn)
     conn.close()
-
+    print('\n[+] Data Migration finished without error')
 def to_float(x):
   """psycopg2 interpolation to float"""
   return extensions.AsIs('%f' % float(x))
