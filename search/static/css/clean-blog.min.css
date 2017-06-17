@@ -303,10 +303,11 @@ footer .copyright {
 
 .form-control {
     min-width: 0;
-    width: 250px;
+    width: 70%;
     color:black;
     
 }
+
 
 
 /*
@@ -434,8 +435,21 @@ body {
 }
 
 .mapcanvas {
-  background-color: blue;
+  background-color: E0E0E0;
   width: 100%;
   height: auto;
   style="border:1px solid #000000
+}
+
+.list-group {
+    width: 70%;
+
+}
+
+#ex2Slider {
+    width: 50%;
+}
+
+#ex2Slider .slider-selection {
+	background: #BABABA;
 }
