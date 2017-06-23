@@ -31,4 +31,4 @@ def get_beschaeftigte(conn):
         helpers.insert_into('beschäftigte', cur, list(read_input.columns), input_values)
     conn.commit()
     print('[+] Committed all changes')
-    return 'Beschäftigte erfolgreich eingefügt'
+    return 'Beschäftigte mit '+str(read_input.shape[0])+' Datensätzen erfolgreich eingefügt'

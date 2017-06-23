@@ -9,8 +9,8 @@ def get_lkw(conn):
         read_input = json.load(file)
     read_input = pandas.DataFrame.from_dict(read_input, orient='index')
     cur = conn.cursor()
-    cur.execute('DROP TABLE IF EXISTS "lkw verbotszonen";')
-    cur.execute("""CREATE TABLE "lkw verbotszonen" 
+    cur.execute('DROP TABLE IF EXISTS "lkw-verbotszonen";')
+    cur.execute("""CREATE TABLE "lkw-verbotszonen" 
                 (id SERIAL PRIMARY KEY, 
                 bereich VARCHAR,
                 shape_leng VARCHAR,
@@ -24,13 +24,9 @@ def get_lkw(conn):
         values.append(elem['attributes']['Shape_Length'])
         values.append(elem['attributes']['Shape_Area'])
         geometry = elem['geometry']['rings'][0]
-        coords_list = []
-        for coords in geometry:
-            coords_list.append(str(coords).replace('[','').replace(']','').replace(',',''))
-        endstring = str(coords_list).replace('[','').replace(']','').replace('\'','')
-        endstring = 'LINESTRING('+endstring+')'
+        endstring = helpers.build_linestring(geometry)
         values.append(endstring)
-        helpers.insert_geo_into('"lkw verbotszonen"', cur, col_names, values)
+        helpers.insert_geo_into('"lkw-verbotszonen"', cur, col_names, values)
     conn.commit()
     print('[+] Committed all changes')
-    return 'LKW Verbotszonen erfolgreich eingefügt'
+    return 'LKW-Verbotszonen mit '+str(len(read_input[0]['features']))+' Datensätzen erfolgreich eingefügt'

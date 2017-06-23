@@ -33,3 +33,11 @@ def insert_geo_into(table_name, cur, col_names=[], values=[]):
     sql_statement = sql_statement + val_brackets
     cur.execute(sql_statement, values)
     print('-Inserting values with query:\n--' + str(cur.query))
+
+def build_linestring(coords):
+    coords_list = []
+    for coord in coords:
+        coords_list.append(str(coord).replace('[', '').replace(']', '').replace(',', ''))
+    linestring = str(coords_list).replace('[', '').replace(']', '').replace('\'', '')
+    linestring = 'LINESTRING(' + linestring + ')'
+    return linestring
