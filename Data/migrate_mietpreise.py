@@ -20,3 +20,4 @@ def get_mietpreise(conn):
         helpers.insert_into('"durchschnittliche mietpreise"', cur, list(read_input.columns), input_values)
     conn.commit()
     print('[+] Committed all changes')
+    return 'Mietpreise erfolgreich eingefügt'

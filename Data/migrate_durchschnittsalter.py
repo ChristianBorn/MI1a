@@ -23,3 +23,4 @@ def get_durchschnittsalter(conn):
         helpers.insert_into('durchschnittsalter', cur, list(read_input.columns[:3]), input_values)
     conn.commit()
     print('[+] Committed all changes')
+    return 'Durchschnittsalter erfolgreich eingefügt'

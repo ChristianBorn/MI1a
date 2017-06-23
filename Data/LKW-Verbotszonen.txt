@@ -74,7 +74,7 @@
     "Variante": 0,
     "Bereich": "Innenstadt",
     "STAND": 1388534400000,
-    "URHEBER": "Stadt KÃ¶ln",
+    "URHEBER": "Stadt Köln",
     "SHAPE_Leng": 14588.8697467,
     "Shape_Length": 14588.869746653978,
     "Shape_Area": 10494483.055299999
@@ -863,9 +863,9 @@
     "OBJECTID_1": 2,
     "OBJECTID": 2,
     "Variante": 0,
-    "Bereich": "MÃ¼lheimer Hafen",
+    "Bereich": "Mülheimer Hafen",
     "STAND": 1388534400000,
-    "URHEBER": "Stadt KÃ¶ln",
+    "URHEBER": "Stadt Köln",
     "SHAPE_Leng": 5558.7580966300002,
     "Shape_Length": 5558.7580966256264,
     "Shape_Area": 1468342.9427700001
@@ -1256,7 +1256,7 @@
     "Variante": 2,
     "Bereich": "Deutz Vari. 2",
     "STAND": 1388534400000,
-    "URHEBER": "Stadt KÃ¶ln",
+    "URHEBER": "Stadt Köln",
     "SHAPE_Leng": 7462.0739161499996,
     "Shape_Length": 7462.0739161527554,
     "Shape_Area": 2194846.1490099998
