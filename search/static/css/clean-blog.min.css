@@ -453,3 +453,45 @@ body {
 #ex2Slider .slider-selection {
 	background: #BABABA;
 }
+
+.dropdown-menu{
+    width: 200%;
+}
+
+.dropdown{
+    height: 50px;
+    width: 100px;
+    position: relative;
+    display: inline-block;
+}
+.dropdown input{
+    padding: 100px 100px;
+    margin: 2px 4px;
+    box-sizing: border-box;
+
+}
+
+.dropdownauswahl{
+font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 25px 25px;
+  background-color: white;
+  border-radius: 0;
+
+}
+
+.btn-primary {
+    width: 200%;
+
+
+
+
+
+
+
+
+
+
+

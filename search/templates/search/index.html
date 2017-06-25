@@ -25,9 +25,15 @@
     <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="{% static 'css/bootstrap-slider.min.css' %}">
     <script src="{% static 'css/bootstrap-slider.min.js' %}" type="text/javascript"></script>
+
+
 
 
 
@@ -73,55 +79,38 @@
 						<div class="site-heading">
 							<h1>EasyLiving</h1>
 							<hr class="small">
-<!--
-							<span class="subheading">Eine Suchmaschine zur Bestimmung der Wohnqualität </span>
--->
 						</div>
 
-							<div class="search-field">
+                        <!--<div class="search-field">
                             <form method="post" action="">
                             {% csrf_token %}
-
                                 <div class="row">
                                     <div class="col-xs-6">
                                         <div class="form-group">
                                           <label class="suchLabel" for="usr">Suche nach Stadt:</label>
-                                          <input type="text" class="form-control" name="suchanfrage" id = "usr" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                                          <input type="text" class="form-control" name="suchanfrage" id = "usr" value=""/> &lt;!&ndash; Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes &ndash;&gt;
                                         </div>
-                                        <!--<button type="submit" name="submitsuche" class="btn btn-default">Suchen</button> &lt;!&ndash; Später soll über diesen Button die Suchanfrage abgeschickt werden &ndash;&gt;-->
-                                    </div>
-                                    <div class="col-xs-6">
-                                        <div class="checkbox">
-                                          <label><input type="checkbox" name="checks[]" value="1"/>Kindergärten</label>
-                                        </div>
-                                        <div class="checkbox">
-                                          <label><input type="checkbox" name="checks[]" value="2"/>Schulen</label>
-                                        </div>
-                                        <div class="checkbox">
-                                          <label><input type="checkbox" name="checks[]" value="3"/>Ärzte</label>
-                                            <div>
-                                            Umkreis in Metern:<br> <b>€ 10</b> <input id="ex2" data-slider-id='ex2Slider' type="text" class="span2" value="" data-slider-min="10" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]"/> <b>€ 1000</b>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <div class="col-xs-6">
                                         <div class="list-group">
                                           <a href="#" class="list-group-item list-group-item-action active">Auswahl 1</a>
                                           <a href="#" class="list-group-item list-group-item-action">Auswahl 2</a>
                                           <a href="#" class="list-group-item list-group-item-action">Auswahl 3</a>
                                           <a href="#" class="list-group-item list-group-item-action">Auswahl 4</a>
                                         </div>
+                                        <button id="searchbutton" type="submit" href="#cancas" name="submitsuche" class="btn btn-default">Suchen</button>
                                     </div>
-
-
-
+                                    <div class="col-xs-6">
+                                        <div>
+                                        Umkreis in Metern:<br> <b>10m</b> <input id="ex2" data-slider-id='ex2Slider' type="text" class="span2" value="" data-slider-min="10" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]"/> <b>1000m</b>
+                                        </div>
+                                    </div>
                                 </div>
-                                <button type="submit" href="#map" name="submitsuche" class="btn btn-default">Suchen</button>
-							
+                            </form>
+                        </div>-->
 
-								
-						        </form>
+
+
+                    </div>
+
                             </div>
 							<br/>
 					</div>
@@ -129,20 +118,81 @@
 			</div>
 		</header>
 
-        <div class="container">
-          <div class="row">
-            <div class="col-md-4">
+        <div class="container-fluid">
+          <div class="col-xs-7">
+
                 <canvas name="map" id="canvas" class="mapcanvas" width="640" height="480" style="border:1px solid #000000;">
                  Mapcanvas
                 </canvas>
             </div>
-          </div>
-        </div>
 
-              
+
+        <br/>
+
+        <div class="col-xs-4">
+            <div class="search-field">
+                <form method="post" action="">
+                {% csrf_token %}
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                              <label class="suchLabel" for="usr">Suche nach Stadt:</label>
+                              <input type="text" class="form-control" name="suchanfrage" id = "usr" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                            </div>
+                            <div class="list-group">
+                              <a href="#" class="list-group-item list-group-item-action active">Auswahl 1</a>
+                              <a href="#" class="list-group-item list-group-item-action">Auswahl 2</a>
+                              <a href="#" class="list-group-item list-group-item-action">Auswahl 3</a>
+                              <a href="#" class="list-group-item list-group-item-action">Auswahl 4</a>
+                            </div>
+                            <button id="searchbutton" type="submit" href="#cancas" name="submitsuche" class="btn btn-default">Suchen</button>
+                        </div>
+                        <div class="col-xs-6">
+                            <div>
+                            Umkreis in Metern:<br> <b>10m</b> <input id="ex2" data-slider-id='ex2Slider' type="text" class="span2" value="" data-slider-min="10" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]"/> <b>1000m</b>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+        <div class="col-xs-4 col-xs-4">
+                <div class="dropdown">
+                  <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Kinder & Bildung<span class="caret"></span></button>
+                      <ul class="dropdown-menu">
+                          <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="checkbox"/>Schulen</a></li>
+                          <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="2"><input type="checkbox"/>Kindergärten</a></li>
+                          <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="3"><input type="checkbox"/>Kitags</a></li>
+                      </ul>
+                </div>
+          </div>
+
+          <div class="col-xs-4 col-xs-4">
+            <div class="dropdown">
+              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Gesundheit<span class="caret"></span></button>
+                  <ul class="dropdown-menu">
+                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="4"><input type="checkbox"/>Apotheken</a></li>
+                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="5"><input type="checkbox"/>Ärzte</a></li>
+                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="6"><input type="checkbox"/>Krankenhäuser</a></li>
+                  </ul>
+            </div>
+          </div>
+
+          <div class="col-xs-4 col-xs-4">
+            <div class="dropdown">
+              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Umwelt<span class="caret"></span></button>
+                  <ul class="dropdown-menu">
+                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="7"><input type="checkbox"/>Lärmpegel</a></li>
+                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="8"><input type="checkbox"/>Grünanlagen</a></li>
+                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="9"><input type="checkbox"/>LKW-Verbotszonen</a></li>
+                  </ul>
+            </div>
+          </div>
+
             </div>
         </div>
-    </div>
+
+
 
 
     <hr>
@@ -156,15 +206,6 @@
 
                 </div>
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                    <ul class="list-inline text-center">
-                        <li>
-                            <a href="#">
-                                <span class="fa-stack fa-lg">
-                                    <i class="fa fa-circle fa-stack-2x"></i>
-                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
-                                </span>
-                            </a>
-                        </li>
                     </ul>
                     <p class="copyright text-muted">Copyright &copy; EasyLiving 2017</p>
                 </div>
