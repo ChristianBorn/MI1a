@@ -26,12 +26,18 @@ def main():
     for elem in meldungen:
         print('[+] '+elem)
     print('\n[+] Data Migration finished without error')
+
+
 def to_float(x):
   """psycopg2 interpolation to float"""
   return extensions.AsIs('%f' % float(x))
+
+
 def to_int(x):
   """psycopg2 interpolation to int"""
   return extensions.AsIs('%d' % int(x))
+
+
 def connect_to_db(path='../mysite/settings.py'):
     #Holt die Datenbankeinstellungen aus der Settings.py
     spec = importlib.util.spec_from_file_location('settings.DATABASES', path)

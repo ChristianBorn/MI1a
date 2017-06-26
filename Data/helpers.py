@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
 def insert_into(table_name, cur, col_names=[], values=[]):
     col_brackets = []
     val_brackets = []
@@ -15,7 +16,8 @@ def insert_into(table_name, cur, col_names=[], values=[]):
     val_brackets = '('+','.join(val_brackets)+')'
     sql_statement = sql_statement+val_brackets
     cur.execute(sql_statement, values)
-    print('-Inserting values with query:\n--'+str(cur.query))
+    #print('-Inserting values with query:\n--'+str(cur.query))
+
 
 def insert_geo_into(table_name, cur, col_names=[], values=[]):
     col_brackets = []
@@ -32,7 +34,8 @@ def insert_geo_into(table_name, cur, col_names=[], values=[]):
     val_brackets = '(' + ','.join(val_brackets) + ')'
     sql_statement = sql_statement + val_brackets
     cur.execute(sql_statement, values)
-    print('-Inserting values with query:\n--' + str(cur.query))
+    #print('-Inserting values with query:\n--' + str(cur.query))
+
 
 def build_linestring(coords):
     coords_list = []

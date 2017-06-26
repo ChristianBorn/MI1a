@@ -4,6 +4,8 @@ import pandas
 import importlib.util
 import helpers
 import json
+
+
 def get_laerm(conn):
     with open ('Lärm_Pegel_LDEN.txt', 'r') as file:
         read_input_lden = json.load(file)
@@ -12,8 +14,8 @@ def get_laerm(conn):
         read_input_schwelle = json.load(file)
         read_input_schwelle = pandas.DataFrame.from_dict(read_input_schwelle, orient='index')
     cur = conn.cursor()
-    cur.execute('DROP TABLE IF EXISTS "lärmpegel";')
-    cur.execute("""CREATE TABLE "lärmpegel" 
+    cur.execute('DROP TABLE IF EXISTS "laermpegel";')
+    cur.execute("""CREATE TABLE "laermpegel" 
                 (id SERIAL PRIMARY KEY, 
                 objectid INTEGER,
                 pegel VARCHAR,
@@ -33,7 +35,7 @@ def get_laerm(conn):
         geometry = elem['geometry']['rings'][0]
         endstring = helpers.build_linestring(geometry)
         values.append(endstring)
-        helpers.insert_geo_into('lärmpegel', cur, col_names, values)
+        helpers.insert_geo_into('laermpegel', cur, col_names, values)
     conn.commit()
     print('[+] Committed all changes')
     return 'Lärmpegel mit '+str(len(read_input_lden[0]['features']))+' Datensätzen erfolgreich eingefügt'

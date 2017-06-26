@@ -3,6 +3,8 @@
 import pandas
 import importlib.util
 import helpers
+
+
 def get_durchschnittsalter(conn):
     with open('2014_Durchschnittsalter_Stadtteil.csv', 'r') as file:
         read_input = pandas.read_csv(file, sep=';', encoding='utf-8')
@@ -14,7 +16,7 @@ def get_durchschnittsalter(conn):
             stadtteil VARCHAR,
             durchschnittsalter DECIMAL)""")
     for row in read_input.itertuples():
-        print('-Inserting row: \n--'+str(row[1:4]))
+        #print('-Inserting row: \n--'+str(row[1:4]))
         #Liste mit den einzufügenden Werten bauen
         input_values = [row[1]]
         input_values.append(row[2])
