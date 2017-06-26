@@ -17,7 +17,7 @@ def search_town(request):
                 city_admin_level = element[1]
                 city_geo_json = element[2]
                 print(city_name)
-                print(city_admin_lmi1asose2017evel)
+                print(city_admin_level)
                 print(city_geo_json[0:50])
 
             '''

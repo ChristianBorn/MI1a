@@ -8,7 +8,7 @@ import migrate_beschaeftigte
 import migrate_mietpreise
 import migrate_durchschnittsalter
 import migrate_lkw
-import migrate_lärmpegel
+import migrate_laermpegel
 
 def main():
     conn = connect_to_db()
@@ -21,7 +21,7 @@ def main():
     #Erstelle die Tabelle "lkw-verbotszonen" und füge die Datensätze ein
     meldungen.append(migrate_lkw.get_lkw(conn))
     #Erstelle die Tabelle "lärmpegel" und füge Datensätze ein
-    meldungen.append(migrate_lärmpegel.get_laerm(conn))
+    meldungen.append(migrate_laermpegel.get_laerm(conn))
     conn.close()
     for elem in meldungen:
         print('[+] '+elem)
