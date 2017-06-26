@@ -33,7 +33,31 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap-slider.min.css' %}">
     <script src="{% static 'css/bootstrap-slider.min.js' %}" type="text/javascript"></script>
 
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %} "/>
+    <script src="{% static 'leaflet/leaflet-src.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/jquery.js' %}" type="text/javascript"></script>
+    <script>
+        var map;
+        $(document).ready(function init_map() {
+            map = L.map('mapid').setView([50.938, 6.95], 10);
 
+            <!-- Auswahl verschiedener Layer-->
+            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+            maxZoom: 18,
+            //id: 'mapbox.mapbox-streets-v7',
+            //id: 'mapbox.mapbox-terrain-v2',
+            //id: 'mapbox.mapbox-traffic-v1',
+            id: 'mapbox.satellite',
+            accessToken: 'pk.eyJ1IjoicnN0b2RkZW4iLCJhIjoiY2ozdmt0ZDN3MDAydDR1cG1ybXduYjFsZiJ9.1SgNsXjR5DBwU6uEWTZF1A'
+            }).addTo(map);
+
+        var marker = L.marker([50.938, 6.95]).addTo(map);
+        //var = L.Polygon([...]).addTo(map);
+        });
+
+    </script>
 
 
 
@@ -120,11 +144,8 @@
 
         <div class="container-fluid">
           <div class="col-xs-7">
-
-                <canvas name="map" id="canvas" class="mapcanvas" width="640" height="480" style="border:1px solid #000000;">
-                 Mapcanvas
-                </canvas>
-            </div>
+		<div id="mapid" class="mapcanvas" style="border:1px solid #000000; width:640px; height:480px;"></div>
+          </div>
 
 
         <br/>
