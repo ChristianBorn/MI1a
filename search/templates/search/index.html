@@ -104,35 +104,6 @@
 							<h1>EasyLiving</h1>
 							<hr class="small">
 						</div>
-
-                        <!--<div class="search-field">
-                            <form method="post" action="">
-                            {% csrf_token %}
-                                <div class="row">
-                                    <div class="col-xs-6">
-                                        <div class="form-group">
-                                          <label class="suchLabel" for="usr">Suche nach Stadt:</label>
-                                          <input type="text" class="form-control" name="suchanfrage" id = "usr" value=""/> &lt;!&ndash; Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes &ndash;&gt;
-                                        </div>
-                                        <div class="list-group">
-                                          <a href="#" class="list-group-item list-group-item-action active">Auswahl 1</a>
-                                          <a href="#" class="list-group-item list-group-item-action">Auswahl 2</a>
-                                          <a href="#" class="list-group-item list-group-item-action">Auswahl 3</a>
-                                          <a href="#" class="list-group-item list-group-item-action">Auswahl 4</a>
-                                        </div>
-                                        <button id="searchbutton" type="submit" href="#cancas" name="submitsuche" class="btn btn-default">Suchen</button>
-                                    </div>
-                                    <div class="col-xs-6">
-                                        <div>
-                                        Umkreis in Metern:<br> <b>10m</b> <input id="ex2" data-slider-id='ex2Slider' type="text" class="span2" value="" data-slider-min="10" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]"/> <b>1000m</b>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>-->
-
-
-
                     </div>
 
                             </div>
@@ -143,79 +114,61 @@
 		</header>
 
         <div class="container-fluid">
-          <div class="col-xs-7">
+          <div class="col-xs-5">
 		<div id="mapid" class="mapcanvas" style="border:1px solid #000000; width:640px; height:480px;"></div>
           </div>
 
 
-        <br/>
-
-        <div class="col-xs-4">
+        <div class="col-xs-3">
             <div class="search-field">
                 <form method="post" action="">
                 {% csrf_token %}
                     <div class="row">
-                        <div class="col-xs-6">
+                        <!--<div class="col-xs-4">-->
                             <div class="form-group">
-                              <label class="suchLabel" for="usr">Suche nach Stadt:</label>
-                              <input type="text" class="form-control" name="suchanfrage" id = "usr" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                              <label class="suchLabel" id ="inputLabelSuche" for="town">Suche nach Stadt:</label>
+                              <input type="text" class="form-control" name="suchanfrage" id = "town" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
                             </div>
                             <div class="list-group">
-                              <a href="#" class="list-group-item list-group-item-action active">Auswahl 1</a>
+                              <a href="#" class="list-group-item list-group-item-action active " id="auswahl1">Auswahl 1</a>
                               <a href="#" class="list-group-item list-group-item-action">Auswahl 2</a>
                               <a href="#" class="list-group-item list-group-item-action">Auswahl 3</a>
                               <a href="#" class="list-group-item list-group-item-action">Auswahl 4</a>
                             </div>
-                            <button id="searchbutton" type="submit" href="#cancas" name="submitsuche" class="btn btn-default">Suchen</button>
-                        </div>
-                        <div class="col-xs-6">
-                            <div>
-                            Umkreis in Metern:<br> <b>10m</b> <input id="ex2" data-slider-id='ex2Slider' type="text" class="span2" value="" data-slider-min="10" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]"/> <b>1000m</b>
-                            </div>
-                        </div>
+                            <button id="searchbutton" type="submit" href="#canvas" name="submitsuche" class="btn btn-default">Suchen</button>
                     </div>
                 </form>
             </div>
-            <div class="row">
-        <div class="col-xs-4 col-xs-4">
-                <div class="dropdown">
-                  <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Kinder & Bildung<span class="caret"></span></button>
-                      <ul class="dropdown-menu">
-                          <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="checkbox"/>Schulen</a></li>
-                          <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="2"><input type="checkbox"/>Kindergärten</a></li>
-                          <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="3"><input type="checkbox"/>Kitags</a></li>
-                      </ul>
-                </div>
-          </div>
 
-          <div class="col-xs-4 col-xs-4">
-            <div class="dropdown">
-              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Gesundheit<span class="caret"></span></button>
-                  <ul class="dropdown-menu">
-                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="4"><input type="checkbox"/>Apotheken</a></li>
-                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="5"><input type="checkbox"/>Ärzte</a></li>
-                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="6"><input type="checkbox"/>Krankenhäuser</a></li>
-                  </ul>
-            </div>
-          </div>
-
-          <div class="col-xs-4 col-xs-4">
-            <div class="dropdown">
-              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Umwelt<span class="caret"></span></button>
-                  <ul class="dropdown-menu">
-                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="7"><input type="checkbox"/>Lärmpegel</a></li>
-                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="8"><input type="checkbox"/>Grünanlagen</a></li>
-                      <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="9"><input type="checkbox"/>LKW-Verbotszonen</a></li>
-                  </ul>
-            </div>
-          </div>
-
-            </div>
         </div>
 
 
+            <div class="col-xs-2 ">
+                <button id="addfilter" type="submit"  name="submitfilter" class="btn btn-default" onclick='addFilter()'>Filter hinzufügen</button></br></br>
+                        <div class="dropdown">
+                          <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Kinder & Bildung<span class="caret"></span></button>
+                              <ul class="dropdown-menu">
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="checkbox" class="sliderfilter" id="1" value="Schulen"/>Schulen</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="2"><input type="checkbox" class="sliderfilter" id="2" value="Kindergarten"/>Kindergärten</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="3"><input type="checkbox" class="sliderfilter" id="3" value="Kitas"/>Kitags</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="4"><input type="checkbox" class="sliderfilter" id="4" value="Apotheken"/>Apotheken</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="5"><input type="checkbox" class="sliderfilter" id="5" value="Ärzte"/>Ärzte</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="6"><input type="checkbox" class="sliderfilter" id="6" value="Krankenhäuser"/>Krankenhäuser</a></li>
+                              </ul>
+                        </div>
 
 
+            </div>
+
+                <div class="col-md-2">
+                    <div>
+                    Umkreis in Metern:<br> <b>10m</b> <input id="ex2" data-slider-id='ex2Slider' type="text" class="span2" value="" data-slider-min="10" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]"/> <b>1000m</b>
+                    </div>
+                </br></br>
+                    <textarea id="filter" rows="10" cols="20"></textarea>
+
+                </div>
+            </div>
     <hr>
 
     <!-- Footer -->
@@ -240,6 +193,53 @@
 
 <script>
     var slider = new Slider('#ex2', {});
+
+    function getFilter(){
+
+
+
+        <!--var checkedValue = document.querySelector('.dropdownauswahl:checked').value;-->
+        <!--var townName = document.getElementById('schule').value;-->
+        var x = "";
+        if (document.getElementById("1").checked == true){
+            var x = document.getElementById("1").value;
+        } else if (document.getElementById("2").checked == true){
+            var x = document.getElementById("2").value;
+        } else if (document.getElementById("3").checked == true){
+            var x = document.getElementById("3").value;
+        } else if (document.getElementById("4").checked == true){
+            var x = document.getElementById("4").value;
+        } else if (document.getElementById("5").checked == true){
+            var x = document.getElementById("5").value;
+        } else if (document.getElementById("6").checked == true){
+            var x = document.getElementById("6").value;
+        } else {
+        alert("Bitte einen Filter auswählen!")
+        }
+        <!--document.getElementById("auswahl1").innerHTML=x;-->
+        return x;
+    }
+
+    function getUmkreis(){
+        var umrkeis = ""
+        var umkreis = document.getElementById("ex2").value;
+        return umkreis
+    }
+
+    function addFilter() {
+
+        <!--var para = document.createElement("P");-->
+        <!--var t = document.createTextNode("This is a paragraph.");-->
+        <!--para.appendChild(t);-->
+        <!--document.getElementById("filter").appendChild(para);-->
+        text = "Text";
+        document.getElementById("filter").value += getFilter() + ": " + getUmkreis();
+        document.getElementById("filter").value += '\n';
+    }
+
+
 </script>
+
+
 
 </html>
