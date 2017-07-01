@@ -1,12 +1,29 @@
 import re
 from django.db import models
-from Data.data_migration import connect_to_db
+#from Data.data_migration import connect_to_db
 from django.core import serializers
 
 
 def django_object_to_json(obj):
     return serializers.serialize('json', [obj, ])
 
+def connect_to_db(path='../mysite/settings.py'):
+    #Holt die Datenbankeinstellungen aus der Settings.py
+    spec = importlib.util.spec_from_file_location('settings.DATABASES', path)
+    database_settings = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(database_settings)
+    database_settings = database_settings.DATABASES['default']
+    db_name = database_settings['NAME']
+    db_user = database_settings['USER']
+    db_pw = database_settings['PASSWORD']
+    #Verbindung mit den geholten Daten
+    conn = psycopg2.connect(dbname=db_name,
+                            user=db_user,
+                            password=db_pw)
+    #Mapping von Numpy Datentypen auf Postgres Datentypen
+    extensions.register_adapter(np.int64, to_float)
+    extensions.register_adapter(np.integer, to_int)
+    return conn
 
 def transform_coords(result):
     conn = connect_to_db(path='mysite/settings.py')
