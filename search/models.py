@@ -1,5 +1,7 @@
 import re
 from django.db import models
+import psycopg2
+import importlib.util
 #from Data.data_migration import connect_to_db
 from django.core import serializers
 
@@ -20,9 +22,6 @@ def connect_to_db(path='../mysite/settings.py'):
     conn = psycopg2.connect(dbname=db_name,
                             user=db_user,
                             password=db_pw)
-    #Mapping von Numpy Datentypen auf Postgres Datentypen
-    extensions.register_adapter(np.int64, to_float)
-    extensions.register_adapter(np.integer, to_int)
     return conn
 
 def transform_coords(result):
