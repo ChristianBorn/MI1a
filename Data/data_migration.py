@@ -9,6 +9,7 @@ import migrate_mietpreise
 import migrate_durchschnittsalter
 import migrate_lkw
 import migrate_laermpegel
+import migrate_landtagswahl
 
 def main():
     conn = connect_to_db()
@@ -20,8 +21,10 @@ def main():
     meldungen.append(migrate_durchschnittsalter.get_durchschnittsalter(conn))
     #Erstelle die Tabelle "lkw-verbotszonen" und füge die Datensätze ein
     meldungen.append(migrate_lkw.get_lkw(conn))
-    #Erstelle die Tabelle "lärmpegel" und füge Datensätze ein
+    #Erstelle die Tabelle "laermpegel" und füge Datensätze ein
     meldungen.append(migrate_laermpegel.get_laerm(conn))
+    # Erstelle die Tabelle "landtagswahl" und füge Datensätze ein
+    meldungen.append(migrate_landtagswahl.get_landtagswahl(conn))
     conn.close()
     for elem in meldungen:
         print('[+] '+elem)
