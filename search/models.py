@@ -30,7 +30,7 @@ def connect_to_db(path='../mysite/settings.py'):
 def transform_coords(result):
     conn = connect_to_db(path='mysite/settings.py')
     cur = conn.cursor()
-    sql_string = '''SELECT ST_asText(ST_flipcoordinates(ST_Transform(ST_SetSRID(St_GeomFromText(%s),3857),4326)))'''
+    sql_string = '''SELECT ST_asGeoJSON(ST_flipcoordinates(ST_Transform(ST_SetSRID(St_GeomFromText(%s),3857),4326)))'''
 
     cur.execute(sql_string, [result])
     rows = cur.fetchone()
@@ -321,7 +321,7 @@ class PlanetOsmPoint(models.Model):
                                             " AND ST_Intersects(point.way, polygon.way);".format(
                 outer_radius, inner_radius, osm_id_polygon, filter_dict[type_filter], type_filter)):
             p.way = transform_coords(p.cway)
-            results.append(p)
+            results.append(p.way[32:-1])
         return results
 
     osm_id = models.BigIntegerField(primary_key='osm_id', blank=True)
@@ -418,7 +418,7 @@ class PlanetOsmPolygon(models.Model):
                                               "GROUP BY osm_id, name, admin_level, way "
                                               "ORDER BY admin_level::integer ASC ",[results[0].admin_level, results[0].way]):
             p.way = transform_coords(p.way)
-            results.append(p)
+            results.append(p.way[32:-1])
         return results
 
     @staticmethod
@@ -439,7 +439,7 @@ class PlanetOsmPolygon(models.Model):
                                                       "GROUP BY city.osm_id, city.name, city.admin_level, postcode.postal_code, cway "
                                                       "ORDER BY city.admin_level::integer ASC", [plz[0]]):
                     p.way = transform_coords(p.cway)
-                    results.append(p)
+                    results.append(p.way[32:-1])
             else:
                 print("++")
                 for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, "
@@ -451,9 +451,9 @@ class PlanetOsmPolygon(models.Model):
                                                       "GROUP BY city.osm_id, city.name, city.admin_level, way "
                                                       "ORDER BY city.admin_level::integer ASC", [city_var]):
                     p.way = transform_coords(p.way)
-                    results.append(p)
-                if len(results) > 0:
-                    PlanetOsmPolygon.insert_stadtteile_to_results(results)
+                    results.append(p.way[32:-1])
+                #if len(results) > 0:
+                #    PlanetOsmPolygon.insert_stadtteile_to_results(results)
 
         else:
             for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, "
@@ -465,14 +465,14 @@ class PlanetOsmPolygon(models.Model):
                                                   "GROUP BY city.osm_id, city.name, city.admin_level, way "
                                                   "ORDER BY city.admin_level::integer ASC", [city_var]):
                 p.way = transform_coords(p.way)
-                results.append(p)
-            if len(results)> 0:
-                PlanetOsmPolygon.insert_stadtteile_to_results(results)
+                results.append(p.way[32:-1])
+            #if len(results)> 0:
+            #    PlanetOsmPolygon.insert_stadtteile_to_results(results)
 
 
-        results = set(results)
-        results = list(results)
-        results = sorted(results, key=lambda x: int(p.admin_level))  # Sortiere Liste anhand des 2. Elements
+        #results = set(results)
+        #results = list(results)
+        #results = sorted(results, key=lambda x: int(p.admin_level))  # Sortiere Liste anhand des 2. Elements
         return results
 
     # gibt alle PLZ & Polygone einer Stadt zurück. Vielleicht nützlich für später.

@@ -9,54 +9,55 @@ def search_town(request):
     render_results = {}         # finales dict, in dem alle Key-Value Paare stehen.
     city = request.POST.get('suchanfrage')
     print("\n open data beispiele \n")
-    test_open_data()
+    #test_open_data()
 
     if request.POST.get('submitfilter'):
-        print(get_polygons_for_filter(request))
+        #print(get_polygons_for_filter(request))
+        return render(request, 'search/index.html', {'results': get_polygons_for_filter(request)})
 
     print ("\n\n ----- \n Ausgabe Stadtsuche JSON ")
     if city is not None and len(city) > 1:  # Einfache Überprüfung, ob übermittelter Inhalt des Suchfeldes Inhalt hat.
         city_polygons = PlanetOsmPolygon.get_city_polygon(city, False)
-        city_polygon_json_list = []
-        if len(city_polygons) >= 1:          # Überprüfung, ob Resulttate leer sind
-
-            for element in city_polygons:    # temporäre Ausgabe der Ergebnisse in der Konsole
-                city_name = element.name
-                city_admin_level = element.admin_level
-                city_geo_json = element.way
-                print(city_name)
-                print(city_admin_level)
-                print(city_geo_json[:50])
-                city_polygon_json_list.append(django_object_to_json(element, ('admin_level', 'boundary', 'name', 'way')))
-
-                # Test der Umkreissuche mit defalut-Weten für Restaurants in Köln zwischen 1000 und 3000m Enfernung
-                print('--- Polygone für Umkreissuche in ', city_name, '---')
-                circles = PlanetOsmPoint.get_osm_points_in_district(element.osm_id)
-                polygon_filter = list()
-                for polygon in circles:
-                    json_dump = json.dumps(
-                        json.loads(django_object_to_json(polygon, ('osm_id', 'way', 'amenity', 'leisure', 'highway',
-                                                                   'railway', 'aeroway', 'tourism', 'shop', 'name'))))
-                    polygon_filter.append(json_dump)
-
-            for filter_j in polygon_filter:
-                print(json.dumps(json.loads(filter_j), sort_keys=True, indent=4))
-
-            for city_j in city_polygon_json_list:
-                print (json.dumps(json.loads(city_j), sort_keys=True, indent=4))
-
-            with open('JSONData.json', 'w') as f:
-                for city_j in city_polygon_json_list:
-                    json.dump(json.loads(city_j), f)
-            '''
-            Gibt Liste aus JSON Objekten zurück. Einträge nach admin-level sortiert
-            '''
-            render_results['results'] = city_polygons
-            return render(request, 'search/index.html', {'results': render_results})
+        # city_polygon_json_list = []
+        # if len(city_polygons) >= 1:          # Überprüfung, ob Resulttate leer sind
+        #
+        #     for element in city_polygons:    # temporäre Ausgabe der Ergebnisse in der Konsole
+        #         city_name = element.name
+        #         city_admin_level = element.admin_level
+        #         city_geo_json = element.way
+        #         print(city_name)
+        #         print(city_admin_level)
+        #         print(city_geo_json[:50])
+        #         city_polygon_json_list.append(django_object_to_json(element, ('admin_level', 'boundary', 'name', 'way')))
+        #
+        #         # Test der Umkreissuche mit defalut-Weten für Restaurants in Köln zwischen 1000 und 3000m Enfernung
+        #     #     print('--- Polygone für Umkreissuche in ', city_name, '---')
+        #     #     circles = PlanetOsmPoint.get_osm_points_in_district(element.osm_id)
+        #     #     polygon_filter = list()
+        #     #     for polygon in circles:
+        #     #         json_dump = json.dumps(
+        #     #             json.loads(django_object_to_json(polygon, ('osm_id', 'way', 'amenity', 'leisure', 'highway',
+        #     #                                                        'railway', 'aeroway', 'tourism', 'shop', 'name'))))
+        #     #         polygon_filter.append(json_dump)
+        #     #
+        #     # for filter_j in polygon_filter:
+        #     #     print(json.dumps(json.loads(filter_j), sort_keys=True, indent=4))
+        #
+        #     for city_j in city_polygon_json_list:
+        #         print (json.dumps(json.loads(city_j), sort_keys=True, indent=4))
+        #
+        #     with open('JSONData.json', 'w') as f:
+        #         for city_j in city_polygon_json_list:
+        #             json.dump(json.loads(city_j), f)
+        #     '''
+        #     Gibt Liste aus JSON Objekten zurück. Einträge nach admin-level sortiert
+        #     '''
+        #     render_results['results'] = city_polygons
+        return render(request, 'search/index.html', {'results': city_polygons})
 
         # Gibt Fehler-String zurück: das Keine Ergebnisse gefunden
-        else:
-            return render(request, 'search/index.html', {'results': "Keine Ergebnisse gefunden"})
+        #else:
+        #    return render(request, 'search/index.html', {'results': "Keine Ergebnisse gefunden"})
 
     # Gibt Fehler-String zurück: Inhalt des Suchfeldes leer.
     else:
@@ -96,17 +97,19 @@ def get_polygons_for_filter(request):
             outer_radius = int(radius[1])
             circles = PlanetOsmPoint.get_osm_points_in_district(type_filter=type_filter, inner_radius=inner_radius,
                                                                 outer_radius=outer_radius) #default-Werte in models angegeben
-            for polygon in circles:
-                json_dump = json.dumps(json.loads(django_object_to_json(polygon, ('osm_id', 'name', 'way', 'amenity', 'leisure', 'highway',
-                                                                                  'railway', 'aeroway', 'tourism', 'shop'))))
-                print(json_dump)
-                polygon_filter.append(json_dump)
+            #for polygon in circles:
+            #    print(polygon)
+            #    json_dump = json.dumps(json.loads(django_object_to_json(polygon, ('osm_id', 'name', 'way', 'amenity', 'leisure', 'highway',
+            #                                                                      'railway', 'aeroway', 'tourism', 'shop'))))
+            #    print(json_dump)
+            #    polygon_filter.append(json_dump)
 
-        for filter_j in polygon_filter:
-            print(json.dumps(json.loads(filter_j), sort_keys=True, indent=4))
+        #for filter_j in polygon_filter:
+        #    print(json.dumps(json.loads(filter_j), sort_keys=True, indent=4))
 
-        render_results['filter'] = circles
-        return render(request, 'search/index.html', {'filter': render_results})
+        #render_results['filter'] = circles
+        #return render(request, 'search/index.html', {'filter': render_results})
+        return circles
 
     else:
         return render(request, 'search/index.html', {'filter': "Suche mit leeren Filtern ausgeführt."})
