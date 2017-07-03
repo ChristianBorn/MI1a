@@ -6,8 +6,11 @@ import importlib.util
 from django.core import serializers
 
 
-def django_object_to_json(obj):
-    return serializers.serialize('json', [obj, ])
+def django_object_to_json(obj, fields):
+    if len(fields) == 0:
+        return serializers.serialize('json', [obj, ])
+    else:
+        return serializers.serialize('json', [obj, ], fields=fields)
 
 def connect_to_db(path='../mysite/settings.py'):
     #Holt die Datenbankeinstellungen aus der Settings.py
@@ -294,6 +297,32 @@ class PlanetOsmPoint(models.Model):
             results.append(p)
         return results
 
+    @staticmethod
+    def get_osm_points_in_district(osm_id_polygon= -62578, type_filter='restaurant', inner_radius=1000, outer_radius=3000):
+        '''Gibt Ringe/Donuts um alle gesuchten Punkte zurück, mit mindest (inner_radius) und maximal Abstand (outer_radius).
+        type_filter = Name bzw. Art des Filters (amenity='restaurant', railway='station'), Spaltenname wird aus dict generiert 
+        '''
+        filter_dict = {'school': 'amenity', 'kindergarten': 'amenity', 'college': 'amenity', 'university': 'amenity',
+                       'pharmacy': 'amenity', 'doctors': 'amenity', 'hospital': 'amenity', 'clinic': 'amenity',
+                       'dentist': 'amenity', 'nursing_home': 'amenity', 'veterinary': 'amenity',
+                       'social_facility': 'amenity', 'bank': 'amenity', 'atm': 'amenity', 'place_of_worship': 'amenity',
+                       'theatre': 'amenity', 'nightclub': 'amenity', 'cinema': 'amenity', 'bus_station': 'amenity',
+                       'restaurant': 'amenity', 'bus_stop': 'highway', 'station': 'railway', 'subway_entrance': 'railway',
+                       'tram_stop': 'railway', 'terminal': 'aeroway', 'dog_park': 'leisure', 'fitness_centre': 'leisure',
+                       'park': 'leisure', 'playground': 'leisure', 'attraction': 'tourism', 'museum': 'tourism',
+                       'recreation_ground': 'landuse', 'mall': 'shop', 'supermarket': 'shop', 'chemist': 'shop'}
+
+        results = list()
+        for p in PlanetOsmPoint.objects.raw("SELECT point.osm_id, point.name, ST_asText(ST_MakePolygon("
+                                            "ST_ExteriorRing(ST_Buffer(point.way, {}*1.6)), "
+                                            "ARRAY[ST_ExteriorRing(ST_Buffer(point.way, {}*1.6, 6))])) AS cway "
+                                            "FROM planet_osm_polygon polygon, planet_osm_point point "
+                                            "WHERE polygon.osm_id = {} AND point.{} = '{}'"
+                                            " AND ST_Intersects(point.way, polygon.way);".format(
+                outer_radius, inner_radius, osm_id_polygon, filter_dict[type_filter], type_filter)):
+            p.way = transform_coords(p.cway)
+            results.append(p)
+        return results
 
     osm_id = models.BigIntegerField(primary_key='osm_id', blank=True)
     access = models.TextField(blank=True, null=True)
