@@ -54,7 +54,8 @@
             }).addTo(map);
 
         var marker = L.marker([50.938, 6.95]).addTo(map);
-        //var = L.Polygon([...]).addTo(map);
+        var poly = L.polygon([[[50.9690877834368,7.00925780777239],[50.9682048669575,7.00911972076204],[50.9673558646356,7.00871076633736],[50.9665734058739,7.00804666038754],[50.9658875641941,7.00715292413179],[50.9653247009086,7.00606390335322],[50.9649064513392,7.00482144850962],[50.9646488926526,7.00347330644385],[50.9645619254045,7.00207128549944],[50.9646488926526,7.00066926455503],[50.9649064513392,6.99932112248925],[50.9653247009086,6.99807866764565],[50.9658875641941,6.99698964686708],[50.9665734058739,6.99609591061134],[50.9673558646356,6.99543180466152],[50.9682048669575,6.99502285023683],[50.9690877834368,6.99488476322648],[50.9699706831334,6.99502285023683],[50.9708196376624,6.99543180466152],[50.9716020248969,6.99609591061134],[50.9722877822047,6.99698964686708],[50.9728505611183,6.99807866764565],[50.9732687391606,6.99932112248925],[50.9735262500543,7.00066926455503],[50.9736132005197,7.00207128549944],[50.9735262500543,7.00347330644385],[50.9732687391606,7.00482144850962],[50.9728505611183,7.00606390335322],[50.9722877822047,7.00715292413179],[50.9716020248969,7.00804666038754],[50.9708196376624,7.00871076633736],[50.9699706831334,7.00911972076204],[50.9690877834368,7.00925780777239]],[[50.9690877834368,7.02363085231831],[50.9655736869431,7.02289622789339],[50.9622988310278,7.02074241805917],[50.959486464264,7.0173162013965],[50.9573283439166,7.01285106890887],[50.9559716414413,7.00765131199632],[50.9555088864332,7.00207128549944],[50.9559716414413,6.99649125900256],[50.9573283439166,6.99129150209],[50.959486464264,6.98682636960237],[50.9622988310278,6.98340015293971],[50.9655736869431,6.98124634310549],[50.9690877834368,6.98051171868057],[50.9726016140884,6.98124634310549],[50.9758757437098,6.98340015293971],[50.9786871183376,6.98682636960237],[50.9808442465492,6.99129150209],[50.9822002227305,6.99649125900256],[50.9826627118967,7.00207128549944],[50.9822002227305,7.00765131199632],[50.9808442465492,7.01285106890887],[50.9786871183376,7.0173162013965],[50.9758757437098,7.02074241805917],[50.9726016140884,7.02289622789339],[50.9690877834368,7.02363085231831]]]).addTo(map);
+
         });
 
     </script>
@@ -144,25 +145,28 @@
 
 
             <div class="col-xs-2 ">
+                <form method="post" action="">
+                {% csrf_token %}
                 <button id="addfilter" type="submit"  name="submitfilter" class="btn btn-default" onclick='addFilter()'>Filter hinzufügen</button></br></br>
                         <div class="dropdown">
                           <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Kinder & Bildung<span class="caret"></span></button>
                               <ul class="dropdown-menu">
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="checkbox" class="sliderfilter" id="1" value="Schulen"/>Schulen</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="2"><input type="checkbox" class="sliderfilter" id="2" value="Kindergarten"/>Kindergärten</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="3"><input type="checkbox" class="sliderfilter" id="3" value="Kitas"/>Kitags</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="4"><input type="checkbox" class="sliderfilter" id="4" value="Apotheken"/>Apotheken</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="5"><input type="checkbox" class="sliderfilter" id="5" value="Ärzte"/>Ärzte</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="6"><input type="checkbox" class="sliderfilter" id="6" value="Krankenhäuser"/>Krankenhäuser</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="checkbox" class="sliderfilter" id="1" value="school"/>Schulen</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="2"><input type="checkbox" class="sliderfilter" id="2" value="kindergarten"/>Kindergärten</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="3"><input type="checkbox" class="sliderfilter" id="3" value="playground"/>Spielplatz</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="4"><input type="checkbox" class="sliderfilter" id="4" value="pharmacy"/>Apotheken</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="5"><input type="checkbox" class="sliderfilter" id="5" value="doctors"/>Ärzte</a></li>
+                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="6"><input type="checkbox" class="sliderfilter" id="6" value="hospital"/>Krankenhäuser</a></li>
                               </ul>
                         </div>
+                </form>
 
 
             </div>
 
                 <div class="col-md-2">
                     <div>
-                    Umkreis in Metern:<br> <b>10m</b> <input id="ex2" data-slider-id='ex2Slider' type="text" class="span2" value="" data-slider-min="10" data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]"/> <b>1000m</b>
+                    Umkreis in Metern:<br> <b>1m</b> <input id="ex2" data-slider-id='ex2Slider' type="text" class="span2" value="" data-slider-min="1" data-slider-max="2500" data-slider-step="5" data-slider-value="[750,1250]"/> <b>2500m</b>
                     </div>
                 </br></br>
                     <textarea id="filter" rows="10" cols="20"></textarea>
@@ -234,8 +238,8 @@
         <!--para.appendChild(t);-->
         <!--document.getElementById("filter").appendChild(para);-->
         text = "Text";
-        document.getElementById("filter").value += getFilter() + ": " + getUmkreis();
-        document.getElementById("filter").value += '\n';
+        document.getElementById("filter").value += getFilter() + ": " + getUmkreis() + '\n';
+        document.getElementById("addfilter").value += getFilter() + ": " + getUmkreis();
     }
 
 
