@@ -1,6 +1,21 @@
+from bs4 import element
 from django.shortcuts import render
+from django.http import JsonResponse
 from search.models import *
 import json
+
+
+
+def search_cityPolygon(request):
+    city = request.POST.get('city')
+    data = []
+    if city is not None:
+        city_polygons = PlanetOsmPolygon.get_city_polygon(city, False)
+        if len(city_polygons) >= 1:
+           for element in city_polygons:
+                data.append({'name': element.name, 'admin_level': element.admin_level, 'way': element.way})
+    return JsonResponse(data, safe=False)
+
 
 
 # erhält per POST.get den Inhalt des Suchfeldes.
@@ -9,7 +24,7 @@ def search_town(request):
     render_results = {}         # finales dict, in dem alle Key-Value Paare stehen.
     city = request.POST.get('suchanfrage')
     print("\n open data beispiele \n")
-    test_open_data()
+    #test_open_data()
 
     if request.POST.get('submitfilter'):
         print(get_polygons_for_filter(request))
