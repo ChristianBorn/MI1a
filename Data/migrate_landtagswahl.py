@@ -24,14 +24,14 @@ def get_landtagswahl(conn):
         #print('-Inserting row: \n--'+str(row[1:]))
         #Liste mit den einzufügenden Werten bauen
         input_values = [row[2]]
-        input_values.append(row[14].replace(',', '.'))
-        input_values.append(row[19].replace(',', '.'))
-        input_values.append(row[24].replace(',', '.'))
-        input_values.append(row[29].replace(',','.'))
-        input_values.append(row[34].replace(',', '.'))
-        input_values.append(row[39].replace(',', '.'))
-        input_values.append(row[44].replace(',', '.'))
-        input_values.append(row[81].replace(',', '.'))
+        input_values.append(row[18].replace(',', '.'))
+        input_values.append(row[23].replace(',', '.'))
+        input_values.append(row[28].replace(',', '.'))
+        input_values.append(row[33].replace(',','.'))
+        input_values.append(row[38].replace(',', '.'))
+        input_values.append(row[43].replace(',', '.'))
+        input_values.append(row[48].replace(',', '.'))
+        input_values.append(row[85].replace(',', '.'))
         #Liste mit Werten in die Tabelle einfügen
         helpers.insert_into('landtagswahl', cur, col_names, input_values)
     conn.commit()

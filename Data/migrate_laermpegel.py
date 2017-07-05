@@ -23,7 +23,8 @@ def get_laerm(conn):
                 shape_length VARCHAR,
                 shape_area VARCHAR,
                 dezibel INTEGER,
-                rings GEOMETRY)""")
+                rings GEOMETRY,
+                path GEOMETRY)""")
     col_names = ['objectid', 'pegel', 'text', 'Shape_Length', 'Shape_Area', 'dezibel', 'rings']
     for elem in read_input_lden[0]['features']:
         values = [elem['attributes']['OBJECTID']]
@@ -35,7 +36,15 @@ def get_laerm(conn):
         geometry = elem['geometry']['rings'][0]
         endstring = helpers.build_linestring(geometry)
         values.append(endstring)
-        helpers.insert_geo_into('laermpegel', cur, col_names, values)
+        helpers.insert_geo_into('laermpegel', cur, col_names, values, 'poly')
+    col_names = ['objectid', 'dezibel', 'path']
+    for elem in read_input_schwelle[0]['features']:
+        values = [elem['attributes']['OBJECTID']]
+        values.append(elem['attributes']['DBA'])
+        geometry = elem['geometry']['paths'][0]
+        endstring = helpers.build_linestring(geometry)
+        values.append(endstring)
+        helpers.insert_geo_into('laermpegel', cur, col_names, values, 'path')
     conn.commit()
     print('[+] Committed all changes')
-    return 'Lärmpegel mit '+str(len(read_input_lden[0]['features']))+' Datensätzen erfolgreich eingefügt'
+    return 'Lärmpegel mit '+str(len(read_input_lden[0]['features'])+len(read_input_schwelle[0]['features']))+' Datensätzen erfolgreich eingefügt'

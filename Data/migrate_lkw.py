@@ -26,7 +26,7 @@ def get_lkw(conn):
         geometry = elem['geometry']['rings'][0]
         endstring = helpers.build_linestring(geometry)
         values.append(endstring)
-        helpers.insert_geo_into('"lkw-verbotszonen"', cur, col_names, values)
+        helpers.insert_geo_into('"lkw-verbotszonen"', cur, col_names, values, 'poly')
     conn.commit()
     print('[+] Committed all changes')
     return 'LKW-Verbotszonen mit '+str(len(read_input[0]['features']))+' Datensätzen erfolgreich eingefügt'

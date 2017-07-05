@@ -134,6 +134,7 @@ class Laermpegel(models.Model):
     shape_area = models.TextField(blank=True, null=True)
     dezibel = models.IntegerField(blank=True, null=True)
     rings = models.TextField(blank=True, null=True)  # This field type is a guess.
+    path = models.TextField(blank=True, null=True)  # This field type is a guess.
 
 
     @staticmethod
@@ -141,10 +142,13 @@ class Laermpegel(models.Model):
     #            distanz in metern
     def get_learmpegel(point, distance):
         results = []
-        for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel, ST_asText(ST_setSRID(rings,4326)) as rings from laermpegel l "
+        for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel, ST_asText(ST_setSRID(rings,4326)) as rings, ST_asText(ST_setSRID(path,4326)) as path from laermpegel l "
                                         "WHERE ST_DWithin(ST_SetSRID(rings,4326)::geography, "
                                         "st_setsrid(ST_geomFromGeoJson(%s),4326)::geography, %s)", [point, distance]):
-            lpegel.rings = transform_coords(lpegel.rings)
+            if lpegel.rings:
+                lpegel.rings = transform_coords(lpegel.rings)
+            elif lpegel.path:
+                lpegel.path = transform_coords(lpegel.path)
             results.append(lpegel)
         return results
 
