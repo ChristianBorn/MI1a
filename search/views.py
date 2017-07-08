@@ -30,12 +30,12 @@ def search_cityPolygon(request):
 
     ''' Beispiel für Verwendung & Ausgabe der OpenData'''
     punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
-    print(Landtagswahl.get_parteiverteilung_in_stadtteil('Altstadt-Nord'))
-    print(Beschaeftigte.get_arbeitslosenquote('Altstadt-Nord'))
-    print(Durchschnittsalter.get_durchschnittsalter('Altstadt-Nord'))
-    print(DurchschnittlicheMietpreise.get_mietpreise('Altstadt-Nord'))
-    print(LkwVerbotszonen.get_verbotszone(punkt_in_koeln, 5000)[0])
-    print(Laermpegel.get_learmpegel(punkt_in_koeln, 3900))
+    print("Landtagswahl: \t ",Landtagswahl.get_parteiverteilung_in_stadtteil('Altstadt-Nord'))
+    print("Beschäftigte : \t ",Beschaeftigte.get_arbeitslosenquote('Altstadt-Nord'))
+    print("Durchschnittsalter: \t ",Durchschnittsalter.get_durchschnittsalter('Altstadt-Nord'))
+    print("Mietpreise : \t ",DurchschnittlicheMietpreise.get_mietpreise('Altstadt-Nord'))
+    print("LKW Verbotszonen: \t ",LkwVerbotszonen.get_verbotszone(punkt_in_koeln, 5000)[0])
+    print("Lärmpegels: \t ",Laermpegel.get_learmpegel(punkt_in_koeln, 3900))
 
     # Suche nach Polygon mit der osm_id
     #print(PlanetOsmPolygon.get_city_polygon('-62578', True)[0])

@@ -108,11 +108,8 @@ class Durchschnittsalter(models.Model):
     def get_durchschnittsalter(stdteil):
         results = []
         for ele in Durchschnittsalter.objects.raw \
-                    ("SELECT a.id, a.stadtteil, a.durchschnittsalter::float from durchschnittsalter a, planet_osm_polygon p "
-                     "WHERE p.boundary = 'administrative' "
-                     "AND p.admin_level::integer >= 9 "
-                     "AND a.stadtteil = p.name "
-                     "AND a.stadtteil = %s", [stdteil]):
+                    ("SELECT a.id, a.stadtteil, a.durchschnittsalter::float from durchschnittsalter a "
+                     "WHERE a.stadtteil = %s", [stdteil]):
             results.append(ele)
         data = []
         for element in results:
