@@ -263,9 +263,9 @@ hr.small {
 }
 
 .search-field{
-	background-color:rgba(255, 255, 255, 0.7);;
-	padding: 15px;
-	}
+	background-color:rgba(255, 255, 255, 0.7);
+	padding: 10px;
+}
 .section-heading {
   font-size: 36px;
   margin-top: 60px;
@@ -458,10 +458,9 @@ body {
     display: inline-block;
 }
 .dropdown input{
-    padding: 100px 100px;
+    padding: 50px 50px;
     margin: 2px 4px;
     box-sizing: border-box;
-
 }
 
 .dropdownauswahl{
@@ -492,10 +491,7 @@ textarea {
     width:2000px;
     height: 1000px;
     border:1px solid #000000;
-
 }
-
-
 
 
 
