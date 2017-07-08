@@ -2,15 +2,18 @@ import re
 from django.db import models
 import psycopg2
 import importlib.util
-#from Data.data_migration import connect_to_db
 from django.core import serializers
+import json
 
 
-def django_object_to_json(obj, fields):
-    if len(fields) == 0:
-        return serializers.serialize('json', [obj, ])
-    else:
-        return serializers.serialize('json', [obj, ], fields=fields)
+def django_object_to_json(obj_list, fields):
+    data = []
+    for element in obj_list:
+        for attr in fields:
+            data.append({'name': element.name, 'admin_level': element.admin_level, 'way': element.way})
+
+    #serializers.serialize('json', [obj, ], fields=fields)
+
 
 def connect_to_db(path='../mysite/settings.py'):
     #Holt die Datenbankeinstellungen aus der Settings.py
@@ -26,6 +29,7 @@ def connect_to_db(path='../mysite/settings.py'):
                             user=db_user,
                             password=db_pw)
     return conn
+
 
 def transform_coords(result):
     conn = connect_to_db(path='mysite/settings.py')
@@ -53,27 +57,16 @@ class Beschaeftigte(models.Model):
     # gibt
     def get_arbeitslosenquote(stdteil):
         results = []
-        for ele in Beschaeftigte.objects.raw("SELECT b.id, b.stadtteil, b.arbeitslosenquote "
-                                            "FROM beschaeftigte b, planet_osm_polygon p "
-                                            "WHERE p.boundary = 'administrative' AND p.admin_level::integer >= 9"
-                                            "AND b.stadtteil = p.name "
-                                             "AND b.stadtteil = %s", [stdteil]):
+        for ele in Beschaeftigte.objects.raw("SELECT b.id, b.stadtteil, b.arbeitslosenquote::float, "
+                                             "b.jugendarbeitslosenquote::float "
+                                            "FROM beschaeftigte b "
+                                            "WHERE b.stadtteil = %s", [stdteil]):
             results.append(ele)
-            return results
-
-    @staticmethod
-    # parameter: Stadtteil als String. zB. 'Altstadt-Nord'
-    def get_jugendarbeitslosenquote(stdteil):
-        results = []
-        for ele in Beschaeftigte.objects.raw("SELECT b.id, b.stadtteil, b.jugendarbeitslosenquote "
-                                           "FROM beschaeftigte b, planet_osm_polygon p "
-                                           "WHERE p.boundary = 'administrative' AND p.admin_level::integer >= 9"
-                                           "AND b.stadtteil = p.name "
-                                           "AND b.stadtteil = p.name "
-                                             "AND b.stadtteil = %s", [stdteil]):
-
-            results.append(ele)
-            return results
+        data = []
+        for element in results:
+            data.append({'stadtteil': element.stadtteil, 'arbeitslosenquote': element.arbeitslosenquote,
+                         'jugendarbeitslosenquote': element.jugendarbeitslosenquote})
+        return data
 
     class Meta:
         managed = False
@@ -89,12 +82,15 @@ class DurchschnittlicheMietpreise(models.Model):
     def get_mietpreise(stdteil):
         results = []
         for ele in DurchschnittlicheMietpreise.objects.raw\
-                    ("SELECT m.id, m.stadtteil, m.mietpreis from durchschnittliche_mietpreise m, planet_osm_polygon p "
+                    ("SELECT m.id, m.stadtteil, m.mietpreis::float from durchschnittliche_mietpreise m, planet_osm_polygon p "
                      "WHERE p.boundary = 'administrative' AND p.admin_level::integer >= 9 "
                      "AND m.stadtteil = p.name "
                     "AND m.stadtteil = %s", [stdteil]):
             results.append(ele)
-            return results
+        data = []
+        for element in results:
+            data.append({'stadtteil': element.stadtteil, 'mietpreis': element.mietpreis})
+        return data
 
     class Meta:
         managed = False
@@ -112,13 +108,16 @@ class Durchschnittsalter(models.Model):
     def get_durchschnittsalter(stdteil):
         results = []
         for ele in Durchschnittsalter.objects.raw \
-                    ("SELECT a.id, a.stadtteil, a.durchschnittsalter from durchschnittsalter a, planet_osm_polygon p "
+                    ("SELECT a.id, a.stadtteil, a.durchschnittsalter::float from durchschnittsalter a, planet_osm_polygon p "
                      "WHERE p.boundary = 'administrative' "
                      "AND p.admin_level::integer >= 9 "
                      "AND a.stadtteil = p.name "
                      "AND a.stadtteil = %s", [stdteil]):
             results.append(ele)
-        return results
+        data = []
+        for element in results:
+            data.append({'stadtteil': element.stadtteil, 'durchschnittsalter': element.durchschnittsalter})
+        return data
 
     class Meta:
         managed = False
@@ -142,15 +141,17 @@ class Laermpegel(models.Model):
     #            distanz in metern
     def get_learmpegel(point, distance):
         results = []
-        for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel, ST_asText(ST_setSRID(rings,4326)) as rings, ST_asText(ST_setSRID(path,4326)) as path from laermpegel l "
+        for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel::float, ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) as rings,"
+                                             "ST_asText(st_flipcoordinates(ST_setSRID(path,4326))) as path "
+                                             "FROM laermpegel l "
                                         "WHERE ST_DWithin(ST_SetSRID(rings,4326)::geography, "
-                                        "st_setsrid(ST_geomFromGeoJson(%s),4326)::geography, %s)", [point, distance]):
-            if lpegel.rings:
-                lpegel.rings = transform_coords(lpegel.rings)
-            elif lpegel.path:
-                lpegel.path = transform_coords(lpegel.path)
+                                        "ST_SetSRID(ST_GeomfromText(%s),4326)::geography, %s)", [point, distance]):
+
             results.append(lpegel)
-        return results
+        data = []
+        for element in results:
+            data.append({'dezibel': element.dezibel, 'rings': element.rings, 'path': element.path}, )
+        return data
 
     class Meta:
         managed = False
@@ -170,17 +171,52 @@ class LkwVerbotszonen(models.Model):
     #            distanz in metern
     def get_verbotszone(point, distance):
         results = []
-        for lkw_verbot in LkwVerbotszonen.objects.raw("SELECT l.id, l.bereich, ST_AsText(rings) as rings "
-                                             "FROm lkw_verbotszonen l "
+        for lkw_verbot in LkwVerbotszonen.objects.raw("SELECT l.id, l.bereich, ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) as rings "
+                                             "FROm \"lkw-verbotszonen\" l "
                                              "WHERE ST_DWithin(ST_SetSRID(rings,4326)::geography, "
-                                            "st_setsrid(ST_geomFromGeoJson(%s),4326)::geography, %s)", [point, distance]):
-            lkw_verbot.rings = transform_coords(lkw_verbot.rings)
+                                            "st_setsrid(ST_GeomFromText(%s),4326)::geography, %s::Integer)", [point, distance]):
             results.append(lkw_verbot)
-        return results
+        data = []
+        for element in results:
+            data.append({'bereich': element.bereich, 'rings': element.rings})
+        return data
 
     class Meta:
         managed = False
-        db_table = 'lkw_verbotszonen'
+        db_table = 'lkw-verbotszonen'
+
+
+class Landtagswahl(models.Model):
+    stadtteil = models.CharField(max_length=65535, blank=True, null=True)
+    gesamt_spd = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    gesamt_cdu = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    gesamt_gruene = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    gesamt_fdp = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    gesamt_piraten = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    gesamt_die_linke = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    gesamt_npd = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    gesamt_afd = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'landtagswahl'
+
+    @staticmethod
+    def get_parteiverteilung_in_stadtteil(stadtteil):
+        results = []
+        for verteilung in Landtagswahl.objects.raw("SELECT id, stadtteil, gesamt_spd::float, gesamt_cdu::float, gesamt_gruene::float,"
+                                                   " gesamt_fdp::float, "
+                                                   "gesamt_die_linke::float, gesamt_afd::float, gesamt_npd::float, gesamt_piraten::float FROM "
+                                                   "landtagswahl WHERE stadtteil = %s ",
+                                                      [stadtteil]):
+            results.append(verteilung)
+        data = []
+        for element in results:
+            data.append({'stadtteil': element.stadtteil, 'gesamt_spd': element.gesamt_spd, 'gesamt_cdu': element.gesamt_cdu,
+                         'gesamt_gruene': element.gesamt_gruene, 'gesamt_fdp': element.gesamt_fdp,
+                         'gesamt_die_linke': element.gesamt_die_linke, 'gesamt_afd': element.gesamt_afd,
+                         'gesamt_afd': element.gesamt_afd, 'gesamt_piraten': element.gesamt_piraten})
+        return data
 
 
 class PlanetOsmLine(models.Model):
@@ -285,21 +321,6 @@ class PlanetOsmPoint(models.Model):
             results.append((p.name, p.way))
         return results
 
-
-    # gibt Gebäude eines bestimmten Tags (Krankenhaus, Schule.)s
-    @staticmethod
-    def get_buildings_in_city(amenity, point, start_rad, end_rad):
-        results = []
-        for p in PlanetOsmPoint.objects.raw("SELECT pt.osm_id, pt.name, pt.amenity, St_asText(pt.way) as way FROM planet_osm_point pt "
-                                              "WHERE  pt.amenity = %s "
-                                              "AND NOT ST_DWithin(ST_setSRID(ST_GeomFromGeoJSON(%s),4326)::geography, "
-                                                    "ST_TRANSFORM(pt.way,4326)::geography, %s)"
-                                              "AND ST_DWithin(ST_setSRID(ST_GeomFromGeoJSON(%s),4326)::geography,"
-                                                    "ST_TRANSFORM(pt.way,4326)::geography, %s)"
-                                              "GROUP BY pt.osm_id, pt.name, pt.amenity, pt.way ", [amenity, point, start_rad, point, end_rad]):
-            p.way = transform_coords(p.way)
-            results.append(p)
-        return results
 
     @staticmethod
     def get_osm_points_in_district(osm_id_polygon= -62578, type_filter='restaurant', inner_radius=1000, outer_radius=3000):
@@ -445,7 +466,6 @@ class PlanetOsmPolygon(models.Model):
                     p.way = transform_coords(p.cway)
                     results.append(p)
             else:
-                print("++")
                 for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, "
                                                       "ST_asText(city.way) AS way "
                                                       "FROM planet_osm_polygon city "
@@ -464,8 +484,7 @@ class PlanetOsmPolygon(models.Model):
                                                   "ST_asText(city.way) AS way "
                                                   "FROM planet_osm_polygon city "
                                                   "WHERE city.boundary = 'administrative' "
-                                                  "AND city.admin_level = ANY ('{6,8,9,10}') "
-                                                  "AND city.osm_id = %s "
+                                                  "AND city.osm_id = %s::bigint "
                                                   "GROUP BY city.osm_id, city.name, city.admin_level, way "
                                                   "ORDER BY city.admin_level::integer ASC", [city_var]):
                 p.way = transform_coords(p.way)
@@ -477,7 +496,10 @@ class PlanetOsmPolygon(models.Model):
         results = set(results)
         results = list(results)
         results = sorted(results, key=lambda x: int(p.admin_level))  # Sortiere Liste anhand des 2. Elements
-        return results
+        data = []
+        for element in results:
+            data.append({'name': element.name, 'osm_id':element.osm_id, 'admin_level': element.admin_level, 'way': element.way})
+        return data
 
     # gibt alle PLZ & Polygone einer Stadt zurück. Vielleicht nützlich für später.
     @staticmethod
