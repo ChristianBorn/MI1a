@@ -1,21 +1,48 @@
-from bs4 import element
 from django.shortcuts import render
 from django.http import JsonResponse
 from search.models import *
 import json
 
 
+# !Beispiel! für eine Controller Methode, die für open_data gedacht ist.
+# übergeben / Ausgelesen wird, vom Template, eine Liste mit 2+ Elementen:
+#   1. Element = angefordertes Open-Data, als Keyword. Wird über eine If-Abfrage gecheckt (s.u.)
+#   Ab dem 2. Element = Anfragespezifische Werte, die benötigt werden, z.B. Punkt+Distanz o. ein Stadtteil Name
+def opendata_von_stadtteil(request):
+    werte = request.POST.getList('blabla')
+
+    # Landtag benötigt nur ein Stadtteil. werte[1] würde Stadtteil Namen enthalten
+    if werte[0] == 'landtag':
+        stadtteil = werte[1]
+        laermpegel = Landtagswahl.get_parteiverteilung_in_stadtteil(stadtteil)
+        return JsonResponse(laermpegel, safe=False)
+
+    # Laempegel benötigt (aktuell noch) einen Punkt & einen Umkreis. Änderung möglich.
+    elif werte[0] == 'pegel':
+        punkt = werte[1]
+        umkreis = werte[2]
+        laermpegel = Landtagswahl.get_parteiverteilung_in_stadtteil(punkt, umkreis)
+        return JsonResponse(laermpegel, safe=False)
+
 
 def search_cityPolygon(request):
     city = request.POST.get('city')
-    data = []
+
+    ''' Beispiel für Verwendung & Ausgabe der OpenData'''
+    punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
+    print(Landtagswahl.get_parteiverteilung_in_stadtteil('Altstadt-Nord'))
+    print(Beschaeftigte.get_arbeitslosenquote('Altstadt-Nord'))
+    print(Durchschnittsalter.get_durchschnittsalter('Altstadt-Nord'))
+    print(DurchschnittlicheMietpreise.get_mietpreise('Altstadt-Nord'))
+    print(LkwVerbotszonen.get_verbotszone(punkt_in_koeln, 5000)[0])
+    print(Laermpegel.get_learmpegel(punkt_in_koeln, 3900))
+
+    # Suche nach Polygon mit der osm_id
+    #print(PlanetOsmPolygon.get_city_polygon('-62578', True)[0])
+
     if city is not None:
         city_polygons = PlanetOsmPolygon.get_city_polygon(city, False)
-        if len(city_polygons) >= 1:
-           for element in city_polygons:
-                data.append({'name': element.name, 'admin_level': element.admin_level, 'way': element.way})
-    return JsonResponse(data, safe=False)
-
+        return JsonResponse(city_polygons, safe=False)
 
 
 # erhält per POST.get den Inhalt des Suchfeldes.
