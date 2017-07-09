@@ -206,21 +206,35 @@
             </div>
 
             <!--Umkreis Minimum-->
-            <div class="col-md-2" style="margin-top:5px; text-align:right;">
+            <div class="col-md-1" style="margin-top:5px; text-align:right;">
                 <div class="form-group">
-                  <label class="umkreis" id ="inputmin" for="min">min (in m)</label>
+                  <label class="umkreis" id ="inputmin" for="min">min</label>
                 </div>
             </div>
 
             <!--Umkreif Minimum Textfeld-->
-            <div class="col-md-2" style="margin-top:5px">
+            <div class="col-md-1" style="margin-top:5px">
                 <div class="forn-group">
-                    <input type="text" class="form-control" name="min_radius" id = "min" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                    <input type="text" class="form-control" style="width:170px" name="min_radius" id = "min" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                </div>
+            </div>
+
+            <!--Umkreis Maximum-->
+            <div class="col-md-1" style="margin-top: 5px; text-align:right;">
+                <div class="form-group">
+                  <label class="umkreis" id ="inputmax" for="min">max</label>
+                </div>
+            </div>
+
+            <!--Umkreis Maximum Textfeld-->
+            <div class="col-md-1" style="margin-top: 5px">
+                <div class="form-group">
+                    <input type="text" class="form-control" style="width:170px" name="max_radius" id = "max" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
                 </div>
             </div>
 
             <!--Button um Filter zur Auswahl hinzuzufügen-->
-            <div class="col-md-2">
+            <div class="col-md-2" align="right">
                 <button id="add-filter" type="button" style="width: 150px" name="add_filter" class="btn btn-default">Hinzufügen</button>
             </div>
         </div>
@@ -268,23 +282,9 @@
                 </div>
             </div>
 
-            <!--Umkreis Maximum-->
-            <div class="col-md-2" style="margin-top: 5px; text-align:right;">
-                <div class="form-group">
-                  <label class="umkreis" id ="inputmax" for="min">max (in m)</label>
-                </div>
-            </div>
-
-            <!--Umkreis Maximum Textfeld-->
-            <div class="col-md-2" style="margin-top: 5px">
-                <div class="form-group">
-                    <input type="text" class="form-control" name="max_radius" id = "max" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
-                </div>
-            </div>
-
             <!--Buttom um Filter anzuwenden-->
-            <div class="col-md-2">
-                <button id="use_filter" style="width: 150px" type="button"  name="use_filter" class="btn btn-default">Anwenden</button>
+            <div class="col-md-6" align="right">
+                <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default">Alle Filter anwenden</button>
             </div>
         </div>
 
