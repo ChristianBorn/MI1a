@@ -77,8 +77,8 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'geo_database',
-        'USER': 'postgres',
+        'NAME': 'example',
+        'USER': 'valerie',
         'PASSWORD': 'keins',
         'HOST': 'localhost',
         'PORT': '',
