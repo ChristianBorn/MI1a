@@ -35,7 +35,7 @@ def search_cityPolygon(request):
     print("Durchschnittsalter: \t ",Durchschnittsalter.get_durchschnittsalter('Altstadt-Nord'))
     print("Mietpreise : \t ",DurchschnittlicheMietpreise.get_mietpreise('Altstadt-Nord'))
     print("LKW Verbotszonen: \t ",LkwVerbotszonen.get_verbotszone(punkt_in_koeln, 5000)[0])
-    print("Lärmpegels: \t ",Laermpegel.get_learmpegel(punkt_in_koeln, 3900))
+    #print("Lärmpegels: \t ",Laermpegel.get_learmpegel(punkt_in_koeln, 3900))
 
     # Suche nach Polygon mit der osm_id
     #print(PlanetOsmPolygon.get_city_polygon('-62578', True)[0])
@@ -53,8 +53,6 @@ def search_town(request):
     print("\n open data beispiele \n")
     #test_open_data()
 
-    if request.POST.get('submitfilter'):
-        print(get_polygons_for_filter(request))
 
     print ("\n\n ----- \n Ausgabe Stadtsuche JSON ")
     if city is not None and len(city) > 1:  # Einfache Überprüfung, ob übermittelter Inhalt des Suchfeldes Inhalt hat.
@@ -124,31 +122,16 @@ def test_open_data():
             print(json.dumps(json.loads(django_object_to_json(element, ())), sort_keys=True, indent=4))
 
 
-def get_polygons_for_filter(request):
-    print('--- Polygone für Umkreissuche in Köln (default Stadt) ---')
-    render_results = dict()
-    if request.POST.get('submitfilter'):
-        polygon_filter = list()
-        filter_lines = request.POST.get('submitfilter').split('\n')
-        for filter_row in filter_lines:
-            filter_data = filter_row.split(':')
-            type_filter = filter_data[0]
-            radius = filter_data[1].split(',')
-            inner_radius = int(radius[0])
-            outer_radius = int(radius[1])
-            circles = PlanetOsmPoint.get_osm_points_in_district(type_filter=type_filter, inner_radius=inner_radius,
-                                                                outer_radius=outer_radius) #default-Werte in models angegeben
-            for polygon in circles:
-                json_dump = json.dumps(json.loads(django_object_to_json(polygon, ('osm_id', 'name', 'way', 'amenity', 'leisure', 'highway',
-                                                                                  'railway', 'aeroway', 'tourism', 'shop'))))
-                print(json_dump)
-                polygon_filter.append(json_dump)
-
-        for filter_j in polygon_filter:
-            print(json.dumps(json.loads(filter_j), sort_keys=True, indent=4))
-
-        render_results['filter'] = circles
-        return render(request, 'search/index.html', {'filter': render_results})
-
-    else:
-        return render(request, 'search/index.html', {'filter': "Suche mit leeren Filtern ausgeführt."})
+def search_filter(request):
+    filter_value = request.POST.get('filter_value')
+    #print(filter_value, 'filter')
+    if filter_value is not None:
+        filter_lines = filter_value.strip(';').split(';') # mit strip(;) wird verhindert, dass der Liste ein leeres Element hinzugefügt wird
+        # neues Feld in html erstellt in der osm-id mit default-wert von Köln zwischengespeichert wird.
+        # später in session speichern
+        osm_id = request.POST.get('city_osm_id').strip()
+        circles = PlanetOsmPoint.get_filter_intersection(osm_id, filter_lines)
+        if circles is not None:
+            return JsonResponse(circles, safe=False)
+    print('none')
+    return JsonResponse([], safe=False)
