@@ -9,33 +9,72 @@ function getFilter(){
 
         var filter_id = i.toString();
         if (document.getElementById(filter_id).checked == true){
-        console.log(document.getElementById(filter_id).value);
+        //console.log(document.getElementById(filter_id).value);
         x = document.getElementById(filter_id).value;
         break;
         } else {
             var i = i +1;
         }
     }
-
-    return x;
+    if (x !== "") {
+        return x;
+    }
+    else {
+        alert("Bitte einen Filter auswählen!");
+    }
 }
 
 function getMin(){
     var umrkeis = "";
     var umkreis = document.getElementById("min").value;
-    return umkreis;
+    if (!isNaN(umkreis)) {
+        return umkreis;
+    }
+    else {
+        alert("Bitte die Entfernung in Ziffern angeben!");
+    }
 }
 
 function getMax(){
     var umkreis = "";
     var umkreis = document.getElementById("max").value;
-    return umkreis;
+    if (!isNaN(umkreis)) {
+        return umkreis;
+    }
+    else {
+        alert("Bitte die Entfernung in Ziffern angeben!");
+    }
+
 }
 
 function addFilter() {
     console.log(getMin());
     console.log(getMax());
     console.log(getFilter());
-    document.getElementById("markedFilter").value += getFilter() + ": " + getMin() + ", " + getMax() + "; ";
+    document.getElementById("markedFilter").value += getFilter() + ":" + getMin() + ", " + getMax() + ";";
 
+}
+
+function getCityName() {
+    return document.getElementById('town').value;
+}
+
+function getFilterText() {
+    var text = document.getElementById('markedFilter').value;
+    if (text !== '') {
+        return text
+    }
+    else {
+        alert("Bitte mindestens einen und maximal 3 Filter auswählen!");
+    }
+}
+
+function getCityOsmId() {
+    var osm_id = document.getElementById('city_osm_id').value;
+    if (osm_id !==  '') {
+        return osm_id;
+    }
+    else {
+        return -62578;
+    }
 }
