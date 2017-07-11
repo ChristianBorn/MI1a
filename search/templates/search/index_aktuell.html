@@ -75,9 +75,15 @@
                     },
                     method: 'POST',
                     success: function (data, textStatus, jqXHR) {
-                         var latlngs = makePoints(data[0].way);
-                         var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
-                         map.fitBounds(polygon.getBounds());
+                        for (i = 0; i < data.length; i++) {
+                            var latlngs = makePoints(data[i].way);
+                            var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
+                            if (i == 0) {
+                                map.fitBounds(polygon.getBounds());
+                            }
+
+                        }
+
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         alert("Error: " + errorThrown
@@ -89,12 +95,54 @@
                 }
             );
         }
+
+        function getCityFilter (filter, osm_id) {
+            $.ajax(
+                './search/cityFilter',
+                {
+                    cache: false,
+                    dataType: "json",
+                    data: {
+                        csrfmiddlewaretoken: csrftoken,
+                        filter_value: filter,
+                        city_osm_id: osm_id
+                    },
+                    method: 'POST',
+                    success: function (data, textStatus, jqXHR) {
+                        console.log(data.length);
+                        if (data.length == 0) {
+                            alert("Bitte mindestens einen und maximal 3 Filter auswählen! Es wurden keine Treffer gefunden.");
+                        }
+                        else {
+                            for (i = 0; i < data.length; i++) {
+                                var latlngs = makePoints(data[i].way);
+                                var polygon = L.polygon(latlngs, {color: 'blue'}).addTo(map);
+                            }
+                        }
+                    },
+                    /*success: function (data, textStatus, jqXHR) {
+                        console.log(data);
+                        var latlongs = makePoints(data[0].way); // todo: funktioniert nicht für Ringe, da doppeltes Polygon, muss anders gesplittet werden
+                        var polygon = L.polygon(latlongs, {color: 'red'}).addTo(map);
+                        map.fitBounds(polygon.getBounds())
+                    },*/
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert("Error: " + errorThrown
+                            + "\nStatus: " + textStatus
+                            + "\njqXHR: " + JSON.stringify(jqXHR)
+                        );
+                    },
+                    complete: function (jqXHR, textStatus) {}
+                }
+            );
+        }
+
         /**
          * 51.0616154051779 6.77253026067161
          */
         function retPoint (pointStr, index, refToArray) {
             var temp = pointStr.split(" ", 2);
-            refToArray[index_aktuell] = [parseFloat(temp[0]), parseFloat(temp[1])];
+            refToArray[index] = [parseFloat(temp[0]), parseFloat(temp[1])];
         }
 
         /**
@@ -132,7 +180,7 @@
 
             <!--Suchbutton-->
             <div class="col-md-2 button-left" style="margin-top:15px">
-                <button id="searchbutton" type="submit" href="#canvas" name="submitsuche" class="btn btn-default">Suchen</button>
+                <button id="searchbutton" type="submit" href="#canvas" name="submitsuche" class="btn btn-default" onclick="getCityPoly(getCityName())">Suchen</button>
             </div>
 
             <!--Stadbezirk/-teil Auswahl-->
@@ -286,7 +334,7 @@
 
             <!--Buttom um Filter anzuwenden-->
             <div class="col-md-6" align="right">
-                <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default">Alle Filter anwenden</button>
+                <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default" onclick="getCityFilter(getFilterText(),getCityOsmId())">Alle Filter anwenden</button>
             </div>
         </div>
 
@@ -329,12 +377,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- Feld zur Zwischenspeicherung eingefügt -->
+        <div>
+            <input name="city_osm_id" id="city_osm_id" value="-62578"/>
+        </div>
     </footer>
 
 
 
 
 <script>
+    //console.log(document.getElementById("city_osm_id"));
+
 
 
 
