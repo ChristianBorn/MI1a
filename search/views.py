@@ -28,22 +28,37 @@ def opendata_von_stadtteil(request):
 def search_cityPolygon(request):
     city = request.POST.get('city')
 
-    ''' Beispiel für Verwendung & Ausgabe der OpenData'''
+    ''' Beispiel für Verwendung & Ausgabe der OpenData
     punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
     print("Landtagswahl: \t ",Landtagswahl.get_parteiverteilung_in_stadtteil('Altstadt/Nord'))
     print("Beschäftigte : \t ",Beschaeftigte.get_arbeitslosenquote('Altstadt-Nord'))
     print("Durchschnittsalter: \t ",Durchschnittsalter.get_durchschnittsalter('Altstadt-Nord'))
     print("Mietpreise : \t ",DurchschnittlicheMietpreise.get_mietpreise('Altstadt-Nord'))
     print("LKW Verbotszonen: \t ",LkwVerbotszonen.get_verbotszone(punkt_in_koeln, 5000)[0])
-    #print("Lärmpegels: \t ",Laermpegel.get_learmpegel(punkt_in_koeln, 3900))
+    #print("Lärmpegels: \t ",Laermpegel.get_learmpegel(punkt_in_koeln, 3900))'''
 
     # Suche nach Polygon mit der osm_id
     #print(PlanetOsmPolygon.get_city_polygon('-62578', True)[0])
 
     if city is not None:
         city_polygons = PlanetOsmPolygon.get_city_polygon(city, False)
+        # Setzt die Liste der Polygone in der Session zurück, sodass immer nur die letzte Anfrage in der Session ist
+        request.session['polygons'] = []
+        for elem in city_polygons:
+            request.session['polygons'].append({'osm_id': elem['osm_id'],
+                                                'name': elem['name'],
+                                                'admin_level': elem['admin_level'],
+                                                'way': elem['way']})
+        request.session.modified = True
+        #print(request.session['polygons'][0]['admin_level'])
+        #print(len(request.session['polygons']))
         return JsonResponse(city_polygons, safe=False)
 
+def index(request):
+    # Beim initialen Laden der Seite wird die Session komplett gelöscht
+    request.session.flush()
+    print("flushed session")
+    return render(request, 'search/index.html')
 
 # erhält per POST.get den Inhalt des Suchfeldes.
 # Falls Inhalt nicht leer, wird passende Stadt zum Inhalt gesucht & returned.
@@ -124,11 +139,10 @@ def test_open_data():
 
 def search_filter(request):
     filter_value = request.POST.get('filter_value')
-    #print(filter_value, 'filter')
+    print(filter_value, 'filter')
     if filter_value is not None:
-        # neues Feld in html erstellt in der osm-id mit default-wert von Köln zwischengespeichert wird.
-        # später in session speichern
-        osm_id = request.POST.get('city_osm_id').strip()
+        # osm_id wird aus der Session ausgelesen
+        osm_id = request.session['polygons'][0]['osm_id']
         circles = PlanetOsmPoint.get_filter_intersection(osm_id, filter_value)
         if circles is not None:
             return JsonResponse(circles, safe=False)

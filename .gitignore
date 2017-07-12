@@ -91,3 +91,4 @@ Icon?
 Thumbs.db
 *.swp
 *.bak
+mysite/settings.py

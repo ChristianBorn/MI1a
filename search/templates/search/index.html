@@ -14,6 +14,8 @@
 
     <title>Easy Living</title>
 
+    <script src="{% static 'js/filter.js' %}" type="text/javascript"></script>
+
     <!-- Bootstrap Core CSS -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 
@@ -73,9 +75,16 @@
                     },
                     method: 'POST',
                     success: function (data, textStatus, jqXHR) {
-                         var latlngs = makePoints(data[0].way);
-                         var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
-                         map.fitBounds(polygon.getBounds());
+                        for (i = 0; i < data.length; i++) {
+                            var latlngs = data[i].way;
+                            //console.log(latlngs);
+                            var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
+                            if (i == 0) {
+                                map.fitBounds(polygon.getBounds());
+                            }
+
+                        }
+
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         alert("Error: " + errorThrown
@@ -87,22 +96,64 @@
                 }
             );
         }
+
+        function getCityFilter  (filter) {
+            $.ajax(
+                './search/cityFilter',
+                {
+                    cache: false,
+                    dataType: "json",
+                    data: {
+                        csrfmiddlewaretoken: csrftoken,
+                        filter_value: filter,
+                    },
+                    method: 'POST',
+                    success: function (data, textStatus, jqXHR) {
+                        console.log(data.length);
+                        if (data.length == 0) {
+                            alert("Bitte mindestens einen und maximal 3 Filter auswählen! Es wurden keine Treffer gefunden.");
+                        }
+                        else {
+                            for (i = 0; i < data.length; i++) {
+                                var latlngs = data[i].way;
+                                var polygon = L.polygon(latlngs, {color: 'blue'}).addTo(map);
+                            }
+                        }
+                    },
+                    /*success: function (data, textStatus, jqXHR) {
+                        console.log(data);
+                        var latlongs = makePoints(data[0].way); // todo: funktioniert nicht für Ringe, da doppeltes Polygon, muss anders gesplittet werden
+                        var polygon = L.polygon(latlongs, {color: 'red'}).addTo(map);
+                        map.fitBounds(polygon.getBounds())
+                    },*/
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert("Error: " + errorThrown
+                            + "\nStatus: " + textStatus
+                            + "\njqXHR: " + JSON.stringify(jqXHR)
+                        );
+                    },
+                    complete: function (jqXHR, textStatus) {}
+                }
+            );
+        }
+
         /**
          * 51.0616154051779 6.77253026067161
          */
-        function retPoint (pointStr, index, refToArray) {
+        /*function retPoint (pointStr, index, refToArray) {
             var temp = pointStr.split(" ", 2);
             refToArray[index] = [parseFloat(temp[0]), parseFloat(temp[1])];
-        }
+        }*/
 
         /**
          * POLYGON((51.0616154051779 6.77253026067161,51.0616932038293 6.77256430682088,51.0622437751639 6.77280460615938,51.0633110812758 6.77339956037205))
          */
-        function makePoints (polygonPointsStr) {
+        /*function makePoints (polygonPointsStr) {
             var retVal = polygonPointsStr.substring(9, polygonPointsStr.length - 2).split(',');
             retVal.forEach(retPoint);
+            console.log(retVal);
             return retVal;
-        }
+        }*/
     </script>
 
 
@@ -111,115 +162,207 @@
 
 <body>
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
-        <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header page-scroll">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    Menu <i class="fa fa-bars"></i>
-                </button>
-            </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href="index.html">Home</a>
-                    </li>
-                    <li>
-                        <a href="about.html">About</a>
-                    </li>
-                    <li>
-                        <a href="contact.html">Contact</a>
-                    </li>
-
-                </ul>
-            </div>
-
-        </div>
-
-    </nav>
-
-    <!-- Page Header -->
-    <header class="intro-header" style="background-image: url({% static 'css/Köln1.jpg' %})">
-			<div class="container">
-				<div class="row">
-					<div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-						<div class="site-heading">
-							<h1>EasyLiving</h1>
-							<hr class="small">
-						</div>
-                    </div>
-
-                            </div>
-							<br/>
-					</div>
-				</div>
-			</div>
-		</header>
-
-        <div class="container-fluid">
-          <div class="col-xs-5">
-		<div id="mapid" class="mapcanvas" style="border:1px solid #000000; width:640px; height:480px;"></div>
-          </div>
 
 
-        <div class="col-xs-3">
-            <div class="search-field">
-                <form method="post" action="">
-                {% csrf_token %}
-                    <div class="row">
-                        <!--<div class="col-xs-4">-->
+    <div class="container-fluid">
+        <div class="row">
+            <!--Suchfeld-->
+            <div class="col-md-2" style="margin-top:15px">
+                <div class="search-field">
+                    <form method="post" action="">{% csrf_token %}
+                        <div class="row">
                             <div class="form-group">
-                              <label class="suchLabel" id ="inputLabelSuche" for="town">Suche nach Stadt:</label>
-                              <input type="text" class="form-control" name="suchanfrage" id = "town" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                                <input type="text" style="width:240px" placeholder="Stadt, Stadteil oder PLZ" class="form-control" name="suchanfrage" id = "town" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
                             </div>
-                            <div class="list-group">
-                              <a href="#" class="list-group-item list-group-item-action active " id="auswahl1">Auswahl 1</a>
-                              <a href="#" class="list-group-item list-group-item-action">Auswahl 2</a>
-                              <a href="#" class="list-group-item list-group-item-action">Auswahl 3</a>
-                              <a href="#" class="list-group-item list-group-item-action">Auswahl 4</a>
-                            </div>
-                            <button id="searchbutton" type="submit" href="#canvas" name="submitsuche" class="btn btn-default">Suchen</button>
-                    </div>
-                </form>
-            </div>
-
-        </div>
-
-
-            <div class="col-xs-2 ">
-                <form method="post" action="">
-                {% csrf_token %}
-                <button id="addfilter" type="submit"  name="submitfilter" class="btn btn-default" onclick='addFilter()'>Filter hinzufügen</button></br></br>
-                        <div class="dropdown">
-                          <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Kinder & Bildung<span class="caret"></span></button>
-                              <ul class="dropdown-menu">
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="checkbox" class="sliderfilter" id="1" value="school"/>Schulen</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="2"><input type="checkbox" class="sliderfilter" id="2" value="kindergarten"/>Kindergärten</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="3"><input type="checkbox" class="sliderfilter" id="3" value="playground"/>Spielplatz</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="4"><input type="checkbox" class="sliderfilter" id="4" value="pharmacy"/>Apotheken</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="5"><input type="checkbox" class="sliderfilter" id="5" value="doctors"/>Ärzte</a></li>
-                                  <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="6"><input type="checkbox" class="sliderfilter" id="6" value="hospital"/>Krankenhäuser</a></li>
-                              </ul>
                         </div>
-                </form>
-
-
-            </div>
-
-                <div class="col-md-2">
-                    <div>
-                    Umkreis in Metern:<br> <b>1m</b> <input id="ex2" data-slider-id='ex2Slider' type="text" class="span2" value="" data-slider-min="1" data-slider-max="2500" data-slider-step="5" data-slider-value="[750,1250]"/> <b>2500m</b>
-                    </div>
-                </br></br>
-                    <textarea id="filter" rows="10" cols="20"></textarea>
-
+                    </form>
                 </div>
             </div>
-    <hr>
+
+            <!--Suchbutton-->
+            <div class="col-md-2 button-left" style="margin-top:15px">
+                <button id="searchbutton" type="submit" href="#canvas" name="submitsuche" class="btn btn-default" onclick="getCityPoly(getCityName())">Suchen</button>
+            </div>
+
+            <!--Stadbezirk/-teil Auswahl-->
+            <!--<div class="col-md-2">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action active " id="auswahl1">Auswahl 1</a>
+                    <a href="#" class="list-group-item list-group-item-action">Auswahl 2</a>
+                </div>
+            </div>-->
+            <div class="col-md-2" style="margin-top:15px">
+                <div class="dropdown">
+                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Auswahl<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 1</a>
+                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 2</a>
+                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 3</a>
+                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 4</a>
+                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 5</a>
+                    </ul>
+                </div>
+            </div>
+
+            <!--Logo-->
+            <div class="col-md-6" style="margin-top: 2px">
+                <img src="/static/css/Logo.png" class="img-responsive" align="right">
+            </div>
+        </div>
+
+        <div class="row" style="padding:3px">
+            <!--Filter: Transport-->
+            <div class="col-md-2">
+                <div class="dropdown">
+                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Transport<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="1" value="bus_stop"/>Bushaltestelle</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="2"><input type="radio" name="filter" class="sliderfilter" id="2" value="bus_station"/>Busbahnhof</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="3"><input type="radio" name="filter" class="sliderfilter" id="3" value="station"/>Bahnhof</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="4"><input type="radio" name="filter" class="sliderfilter" id="4" value="subway_entrance"/>U-Bahn</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="5"><input type="radio" name="filter" class="sliderfilter" id="5" value="railway"/>Straßenbahn</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="6"><input type="radio" name="filter" class="sliderfilter" id="6" value="aeroway"/>Flughafen</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!--Filter: Freizeit-->
+            <div class="col-md-2">
+                <div class="dropdown">
+                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Freizeit<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="7" value="park"/>Park</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="8" value="recreation_ground"/>Erholungsgebiet</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="9" value="dog_park"/>Hundepark</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="10" value="playground"/>Spielplatz</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="11" value="fitness_centre"/>Fitnessstudio</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="12" value="cinema"/>Kino</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="13" value="theatre"/>Theater</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="14" value="nightclub"/>Nachtclub</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!--Filter: Bildung-->
+            <div class="col-md-2">
+                <div class="dropdown">
+                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Bildung<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="15" value="kindergarten"/>Kindergarten</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="16" value="school"/>Schule</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="17" value="college"/>Hochschule</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="18" value="university"/>Universität</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!--Umkreis Minimum-->
+            <div class="col-md-1" style="margin-top:5px; text-align:right;">
+                <div class="form-group">
+                  <label class="umkreis" id ="inputmin" for="min">min</label>
+                </div>
+            </div>
+
+            <!--Umkreif Minimum Textfeld-->
+            <div class="col-md-1" style="margin-top:5px">
+                <div class="forn-group">
+                    <input type="text" class="form-control" style="width:170px" name="min_radius" id = "min" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                </div>
+            </div>
+
+            <!--Umkreis Maximum-->
+            <div class="col-md-1" style="margin-top: 5px; text-align:right;">
+                <div class="form-group">
+                  <label class="umkreis" id ="inputmax" for="min">max</label>
+                </div>
+            </div>
+
+            <!--Umkreis Maximum Textfeld-->
+            <div class="col-md-1" style="margin-top: 5px">
+                <div class="form-group">
+                    <input type="text" class="form-control" style="width:170px" name="max_radius" id = "max" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                </div>
+            </div>
+
+            <!--Button um Filter zur Auswahl hinzuzufügen-->
+            <div class="col-md-2" align="right">
+                <button id="add-filter" type="button" style="width: 150px" name="add_filter" class="btn btn-default" onclick='addFilter()'>Hinzufügen</button>
+            </div>
+        </div>
+
+        <div class="row" style="padding: 2px">
+            <!--Filter: Gesundheit-->
+            <div class="col-md-2">
+                <div class="dropdown">
+                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Gesundheit<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="19" value="doctors"/>Artzpraxi</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="20" value="clinic"/>Klinik</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="21" value="dentist"/>Zahnarzt</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="22" value="hospital"/>Krankenhaus</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="23" value="social_facility"/>Soziale Einrichtung</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="24" value="nursing_home"/>Pflegeheim</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="25" value="veterinary"/>Tierarzt</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!--Filter: Religiton-->
+            <div class="col-md-2">
+                <div class="dropdown">
+                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Religion<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="26" value="place_of_worship"/>Andachtsort</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!--Filter: Geschäfte und Co.-->
+            <div class="col-md-2">
+                <div class="dropdown">
+                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Geschäfte & Co.<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="27" value="supermarket"/>Supermarkt</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="28" value="chemist"/>Drogerie</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="29" value="pharmacy"/>Apotheke</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="30" value="mall"/>Einkaufszentrum</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="31" value="bank"/>Bank</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="32" value="atm"/>Geldautomat</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="33" value="restaurant"/>Restaurant</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!--Buttom um Filter anzuwenden-->
+            <div class="col-md-6" align="right">
+                <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default" onclick="getCityFilter(getFilterText())">Alle Filter anwenden</button>
+            </div>
+        </div>
+
+        <div class="row" style="padding:3px">
+            <!--Ausgewählte Filter-->
+            <div class="col-md-2" style="margin-top: 5px; text-align:right;">
+                <div class="form-group">
+                    <label class="marked_filter" id="input_marked_filter">Ausgewählte Filter</label>
+                </div>
+            </div>
+
+            <!--Ausgewählte Filter Textfeld-->
+            <div class="col-md-10" style="margin-top: 5px";>
+                <div class="form-group">
+                    <input type="text" class="form-control" style="width: 1150px" name="marked_filter" id = "markedFilter" value=""/> <!--Textfeld für ausgewählte Filter-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid" style="margin-top: 10px">
+          <div class="col-xs-12">
+		    <div id="mapid" class="mapcanvas"style="border:1px solid #000000; width:100%; height:80%;"></div> <!--style="border:1px solid #000000; width:640px; height:480px;"-->
+          </div>
+    </div>
+
+
 
     <!-- Footer -->
     <footer>
@@ -236,62 +379,17 @@
             </div>
         </div>
     </footer>
- 
- 
+
+
 
 
 <script>
-    var slider = new Slider('#ex2', {});
-
-    function getFilter(){
+    //console.log(document.getElementById("city_osm_id"));
 
 
-
-        <!--var checkedValue = document.querySelector('.dropdownauswahl:checked').value;-->
-        <!--var townName = document.getElementById('schule').value;-->
-        var x = "";
-        if (document.getElementById("1").checked == true){
-            var x = document.getElementById("1").value;
-        } else if (document.getElementById("2").checked == true){
-            var x = document.getElementById("2").value;
-        } else if (document.getElementById("3").checked == true){
-            var x = document.getElementById("3").value;
-        } else if (document.getElementById("4").checked == true){
-            var x = document.getElementById("4").value;
-        } else if (document.getElementById("5").checked == true){
-            var x = document.getElementById("5").value;
-        } else if (document.getElementById("6").checked == true){
-            var x = document.getElementById("6").value;
-        } else {
-        alert("Bitte einen Filter auswählen!")
-        return Null;
-        }
-        <!--document.getElementById("auswahl1").innerHTML=x;-->
-        return x;
-    }
-
-    function getUmkreis(){
-        var umrkeis = ""
-        var umkreis = document.getElementById("ex2").value;
-        return umkreis
-    }
-
-    function addFilter() {
-
-        <!--var para = document.createElement("P");-->
-        <!--var t = document.createTextNode("This is a paragraph.");-->
-        <!--para.appendChild(t);-->
-        <!--document.getElementById("filter").appendChild(para);-->
-        text = "Text";
-        document.getElementById("filter").value += getFilter() + ": " + getUmkreis() + '\n';
-        document.getElementById("addfilter").value += getFilter() + ": " + getUmkreis();
-    }
 
 
 </script>
-<button onclick="getCityPoly('Köln')">Get Köln Polygon</button>
-<button onclick="getCityPoly('Düsseldorf')">Get Düsseldorf Polygon</button>
-<button onclick="getCityPoly('Bielefeld')">Get Bielefeld Polygon</button>
 
 </body>
 </html>
