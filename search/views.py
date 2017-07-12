@@ -30,7 +30,7 @@ def search_cityPolygon(request):
 
     ''' Beispiel für Verwendung & Ausgabe der OpenData'''
     punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
-    print("Landtagswahl: \t ",Landtagswahl.get_parteiverteilung_in_stadtteil('Altstadt-Nord'))
+    print("Landtagswahl: \t ",Landtagswahl.get_parteiverteilung_in_stadtteil('Altstadt/Nord'))
     print("Beschäftigte : \t ",Beschaeftigte.get_arbeitslosenquote('Altstadt-Nord'))
     print("Durchschnittsalter: \t ",Durchschnittsalter.get_durchschnittsalter('Altstadt-Nord'))
     print("Mietpreise : \t ",DurchschnittlicheMietpreise.get_mietpreise('Altstadt-Nord'))
@@ -126,11 +126,10 @@ def search_filter(request):
     filter_value = request.POST.get('filter_value')
     #print(filter_value, 'filter')
     if filter_value is not None:
-        filter_lines = filter_value.strip(';').split(';') # mit strip(;) wird verhindert, dass der Liste ein leeres Element hinzugefügt wird
         # neues Feld in html erstellt in der osm-id mit default-wert von Köln zwischengespeichert wird.
         # später in session speichern
         osm_id = request.POST.get('city_osm_id').strip()
-        circles = PlanetOsmPoint.get_filter_intersection(osm_id, filter_lines)
+        circles = PlanetOsmPoint.get_filter_intersection(osm_id, filter_value)
         if circles is not None:
             return JsonResponse(circles, safe=False)
     print('none')

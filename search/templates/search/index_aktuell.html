@@ -76,7 +76,8 @@
                     method: 'POST',
                     success: function (data, textStatus, jqXHR) {
                         for (i = 0; i < data.length; i++) {
-                            var latlngs = makePoints(data[i].way);
+                            var latlngs = data[i].way;
+                            //console.log(latlngs);
                             var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
                             if (i == 0) {
                                 map.fitBounds(polygon.getBounds());
@@ -115,7 +116,7 @@
                         }
                         else {
                             for (i = 0; i < data.length; i++) {
-                                var latlngs = makePoints(data[i].way);
+                                var latlngs = data[i].way;
                                 var polygon = L.polygon(latlngs, {color: 'blue'}).addTo(map);
                             }
                         }
@@ -140,19 +141,20 @@
         /**
          * 51.0616154051779 6.77253026067161
          */
-        function retPoint (pointStr, index, refToArray) {
+        /*function retPoint (pointStr, index, refToArray) {
             var temp = pointStr.split(" ", 2);
             refToArray[index] = [parseFloat(temp[0]), parseFloat(temp[1])];
-        }
+        }*/
 
         /**
          * POLYGON((51.0616154051779 6.77253026067161,51.0616932038293 6.77256430682088,51.0622437751639 6.77280460615938,51.0633110812758 6.77339956037205))
          */
-        function makePoints (polygonPointsStr) {
+        /*function makePoints (polygonPointsStr) {
             var retVal = polygonPointsStr.substring(9, polygonPointsStr.length - 2).split(',');
             retVal.forEach(retPoint);
+            console.log(retVal);
             return retVal;
-        }
+        }*/
     </script>
 
 

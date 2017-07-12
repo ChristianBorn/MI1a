@@ -40,6 +40,30 @@ def transform_coords(result):
     tmp_val = rows[0]
     return tmp_val
 
+def str_coords_to_array_coords(result):
+    '''koordinaten von POLYGON((51.0616154051779 6.77253026067161,51.0616932038293 6.77256430682088... zu 
+    [[[51.0616154051779,6.77253026067161],[51.0616932038293 6.77256430682088],... 
+    berücksichtigt einfache koordinatenstrings, doppelte polygone für Ringe und geometrycollections'''
+    coord_str = result[result.index('((')+2:-2]
+    output_array = list()
+    if coord_str.startswith('('):
+        #todo geometrycollection und ähnliches berücksichtigen
+        return None
+    if '),(' in coord_str:
+        for poly_values in coord_str.split('),('):
+            array_poly = list()
+            for coord_pair in poly_values.split(','):
+                coords = coord_pair.split(' ')
+                array_poly.append([float(coords[0]), float(coords[1])])
+            output_array.append(array_poly)
+    else:
+        array_poly = list()
+        for coord_pair in coord_str.split(','):
+            coords = coord_pair.split(' ')
+            array_poly.append([float(coords[0]), float(coords[1])])
+        output_array.append(array_poly)
+
+    return output_array
 
 class Beschaeftigte(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -324,8 +348,9 @@ class PlanetOsmPoint(models.Model):
                "ARRAY[ST_ExteriorRing(ST_Buffer(point{}.way, {}*1.6, 6))])".format(number, outer_radius, number, inner_radius)
 
     @staticmethod
-    def get_filter_intersection(osm_id_polygon, filter_lines):
-        print(osm_id_polygon, filter_lines)
+    def get_filter_intersection(osm_id_polygon, filter_value):
+        print(osm_id_polygon, filter_value)
+        filter_lines = filter_value.strip(';').split(';') # mit strip(;) wird verhindert, dass der Liste ein leeres Element hinzugefügt wird
         filter_dict = {'school': 'amenity', 'kindergarten': 'amenity', 'college': 'amenity', 'university': 'amenity',
                        'pharmacy': 'amenity', 'doctors': 'amenity', 'hospital': 'amenity', 'clinic': 'amenity',
                        'dentist': 'amenity', 'nursing_home': 'amenity', 'veterinary': 'amenity',
@@ -411,8 +436,8 @@ class PlanetOsmPoint(models.Model):
         data = list()
         for p in PlanetOsmPoint.objects.raw(query):
             p.way = transform_coords(p.intersection)
-            print(p.name, p.way)
-            data.append({'name': p.name, 'osm_id': p.osm_id, 'way': p.way})
+            #print(p.name, p.way)
+            data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way)})
         #print(len(data))
         return data
 
@@ -567,7 +592,7 @@ class PlanetOsmPolygon(models.Model):
         data = []
         for element in results:
             #print(element.way)
-            data.append({'name': element.name, 'osm_id':element.osm_id, 'admin_level': element.admin_level, 'way': element.way})
+            data.append({'name': element.name, 'osm_id':element.osm_id, 'admin_level': element.admin_level, 'way': str_coords_to_array_coords(element.way)})
         return data
 
     # gibt alle PLZ & Polygone einer Stadt zurück. Vielleicht nützlich für später.
