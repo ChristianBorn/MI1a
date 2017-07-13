@@ -1,6 +1,27 @@
 
+var used_filters = [];
 
-function getFilter(){
+
+function getFilter() {
+    var x = "";
+
+    var i = 1;
+
+    while (i <= 33) {
+
+        var filter_id = i.toString();
+        if (document.getElementById(filter_id).checked == true){
+        //console.log(document.getElementById(filter_id).value);
+        x = document.getElementById(filter_id).value;
+        break;
+        } else {
+            var i = i +1;
+        }
+    }
+    return x;
+}
+
+function getFilterProof(){
     var x = "";
 
     var i = 1;
@@ -17,12 +38,27 @@ function getFilter(){
         }
     }
     if (x !== "") {
-        return x;
+        try {
+            for (var j = 0; j <= used_filters.length; j++) {
+                if (x == used_filters[j]) {
+                    x = "";
+                    throw "filter already exists";
+                }
+            }
+        }
+        catch (err) {
+                alert("Input is " + err);
+                }
     }
     else {
         alert("Bitte einen Filter auswählen!");
     }
+    used_filters.push(x);
+    console.log(used_filters);
+    return x;
 }
+
+
 
 function getMin(){
     var umrkeis = "";
@@ -48,10 +84,21 @@ function getMax(){
 }
 
 function addFilter() {
-    console.log(getMin());
-    console.log(getMax());
-    console.log(getFilter());
-    document.getElementById("markedFilter").value += getFilter() + ":" + getMin() + ", " + getMax() + ";";
+
+
+    if (getFilterProof() == ""){
+        document.getElementById("markedFilter").value += "";
+    }
+    else {
+        if (getMin() >= getMax()){
+            alert("Die Minimale Entfernung muss größer als die Maximale entfernung sein!")
+            document.getElementById("markedFilter").value += "";
+        }
+        else {
+            document.getElementById("markedFilter").value += getFilter() + ":" + getMin() + ", " + getMax() + ";";
+        }
+    }
+
 
 }
 
