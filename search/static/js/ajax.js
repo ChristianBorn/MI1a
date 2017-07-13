@@ -5,15 +5,25 @@ $(document).ready(
         csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
         map = L.map('mapid').setView([50.938, 6.95], 10);
         L.tileLayer(
+            //local
+            /*
+            '/static/leaflet/tiles/{z}/{x}/{y}.png',
+            {
+            minZoom: 9,
+            maxZoom: 16
+            }
+            */
+
+            //old via mapbox
             'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
             {
-                attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-                maxZoom: 18,
-                //id: 'mapbox.mapbox-streets-v7',
-                //id: 'mapbox.mapbox-terrain-v2',
-                //id: 'mapbox.mapbox-traffic-v1',
-                id: 'mapbox.satellite',
-                accessToken: 'pk.eyJ1IjoicnN0b2RkZW4iLCJhIjoiY2ozdmt0ZDN3MDAydDR1cG1ybXduYjFsZiJ9.1SgNsXjR5DBwU6uEWTZF1A'
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+            maxZoom: 18,
+            //id: 'mapbox.mapbox-streets-v7',
+            //id: 'mapbox.mapbox-terrain-v2',
+            //id: 'mapbox.mapbox-traffic-v1',
+            id: 'mapbox.satellite',
+            accessToken: 'pk.eyJ1IjoicnN0b2RkZW4iLCJhIjoiY2ozdmt0ZDN3MDAydDR1cG1ybXduYjFsZiJ9.1SgNsXjR5DBwU6uEWTZF1A'
             }
         ).addTo(map);
         //var marker = L.marker([50.938, 6.95]).addTo(map);
