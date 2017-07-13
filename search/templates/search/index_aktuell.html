@@ -205,8 +205,27 @@
                 </div>
             </div>
 
+            <div class="col-md-1" style="margin-top:15px">
+                <div class="checkbox">
+                  <label><input type="checkbox" value="">Beschäftigte</label>
+                </div>
+            </div>
+
+            <div class="col-md-1" style="margin-top:15px">
+                <div class="checkbox">
+                  <label><input type="checkbox" value="">Lärmpegel</label>
+                </div>
+            </div>
+
+            <div class="col-md-1" style="margin-top:15px">
+                <div class="checkbox">
+                  <label><input type="checkbox" value="">Landtagswahl</label>
+                </div>
+            </div>
+
+
             <!--Logo-->
-            <div class="col-md-6" style="margin-top: 2px">
+            <div class="col-md-3" style="margin-top: 2px">
                 <img src="/static/css/Logo.png" class="img-responsive" align="right">
             </div>
         </div>
@@ -349,10 +368,14 @@
             </div>
 
             <!--Ausgewählte Filter Textfeld-->
-            <div class="col-md-10" style="margin-top: 5px";>
+            <div class="col-md-8" style="margin-top: 5px";>
                 <div class="form-group">
                     <input type="text" class="form-control" style="width: 1150px" name="marked_filter" id = "markedFilter" value=""/> <!--Textfeld für ausgewählte Filter-->
                 </div>
+            </div>
+
+            <div class="col-md-2" align="right">
+                <button id="filter_output" type="button" style="width: 200px" name="filter_output" class="btn btn-default" >Filter Anzeigen</button>
             </div>
         </div>
     </div>
@@ -369,8 +392,6 @@
     <footer>
         <div class="container">
             <div class="col">
-                <!--<div class="Logo" style="image: url({% static 'css/Logo_transparent.jpg' %})">-->
-                    <!--<img src="Logo_transparent.png" class="img-responsive" alt="Logo">-->
 
                 </div>
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
