@@ -9,27 +9,47 @@ import json
 #   1. Element = angefordertes Open-Data, als Keyword. Wird über eine If-Abfrage gecheckt (s.u.)
 #   Ab dem 2. Element = Anfragespezifische Werte, die benötigt werden, z.B. Punkt+Distanz o. ein Stadtteil Name
 def opendata_von_stadtteil(request):
-    werte = request.POST.getList('blabla')
+    table_name = request.POST.get('table_name')
+    stadtteil = request.session['polygons'][0]['name']
+    # punkt = request.session['polygons'][0]['way']
+    punkt = 'POINT(6.97364225377671 50.9457393529467)'
 
     # Landtag benötigt nur ein Stadtteil. werte[1] würde Stadtteil Namen enthalten
-    if werte[0] == 'landtag':
-        stadtteil = werte[1]
+    if table_name == 'landtag':
         laermpegel = Landtagswahl.get_parteiverteilung_in_stadtteil(stadtteil)
         return JsonResponse(laermpegel, safe=False)
 
     # Laempegel benötigt (aktuell noch) einen Punkt & einen Umkreis. Änderung möglich.
-    elif werte[0] == 'pegel':
-        punkt = werte[1]
-        umkreis = werte[2]
-        laermpegel = Landtagswahl.get_parteiverteilung_in_stadtteil(punkt, umkreis)
+    elif table_name == 'pegel':
+        umkreis = 100
+        laermpegel = Laermpegel.get_learmpegel(punkt, umkreis)
         return JsonResponse(laermpegel, safe=False)
+
+    elif table_name == 'beschaeftigte':
+        beschaeftigte = Beschaeftigte.get_arbeitslosenquote(stadtteil)
+        return JsonResponse(beschaeftigte, safe=False)
+
+    elif table_name == 'durchschnittsalter':
+        durchschnittsalter = Durchschnittsalter.get_durchschnittsalter(stadtteil)
+        return JsonResponse(durchschnittsalter, safe=False)
+
+    elif table_name == 'mietpreise':
+        mietpreise = DurchschnittlicheMietpreise.get_mietpreise(stadtteil)
+        return JsonResponse(mietpreise, safe=False)
+
+    elif table_name == 'lkw_verbot':
+        umkreis = 1000
+        lkw_verbot = LkwVerbotszonen.get_verbotszone(punkt, umkreis)
+        return JsonResponse(lkw_verbot, safe=False)
+
+
 
 
 def search_cityPolygon(request):
     city = request.POST.get('city')
 
-    ''' Beispiel für Verwendung & Ausgabe der OpenData
-    punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
+    #Beispiel für Verwendung & Ausgabe der OpenData
+    '''punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
     print("Landtagswahl: \t ",Landtagswahl.get_parteiverteilung_in_stadtteil('Altstadt/Nord'))
     print("Beschäftigte : \t ",Beschaeftigte.get_arbeitslosenquote('Altstadt-Nord'))
     print("Durchschnittsalter: \t ",Durchschnittsalter.get_durchschnittsalter('Altstadt-Nord'))
@@ -147,4 +167,15 @@ def search_filter(request):
         if circles is not None:
             return JsonResponse(circles, safe=False)
     print('none')
-    return JsonResponse([], safe=False)
+    return render(request, 'search/index.html', {'results': "Suche mit leerem Filterfeld ausgeführt."})
+
+
+def search_marker(request):
+    filter_value = request.POST.get('filter_value')
+    if filter_value is not None:
+        # osm_id wird aus der Session ausgelesen
+        osm_id = request.session['polygons'][0]['osm_id']
+        marker = PlanetOsmPoint.get_marker(osm_id, filter_value)
+        if marker is not None:
+            return JsonResponse(marker, safe=False)
+    return render(request, 'search/index.html', {'results': "Suche mit leerem Filterfeld ausgeführt."})
