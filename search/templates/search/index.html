@@ -89,19 +89,25 @@
 
             <div class="col-md-1" style="margin-top:15px">
                 <div class="checkbox">
-                  <label><input type="checkbox" value="">Beschäftigte</label>
+                  <label><input type="checkbox" value="" onclick="getOpenData('beschaeftigte', checked)">Beschäftigte</label>
                 </div>
             </div>
 
             <div class="col-md-1" style="margin-top:15px">
                 <div class="checkbox">
-                  <label><input type="checkbox" value="">Lärmpegel</label>
+                  <label><input name="pegel" type="checkbox" value="" onclick="getOpenData('pegel', checked)">Lärmpegel</label>
                 </div>
             </div>
 
             <div class="col-md-1" style="margin-top:15px">
                 <div class="checkbox">
-                  <label><input type="checkbox" value="">Landtagswahl</label>
+                  <label><input type="checkbox" value="" onclick="getOpenData('landtag',checked)">Landtagswahl</label>
+                </div>
+            </div>
+
+            <div class="col-md-1" style="margin-top:15px">
+                <div class="checkbox">
+                  <label><input type="checkbox" value="" onclick="getOpenData('lkw_verbot', checked)">LKW-Verbotszonen</label>
                 </div>
             </div>
 
@@ -256,7 +262,7 @@
             </div>
 
             <div class="col-md-2" align="right">
-                <button id="filter_output" type="button" style="width: 200px" name="filter_output" class="btn btn-default" >Filter Anzeigen</button>
+                <button id="filter_output" type="button" style="width: 200px" name="filter_output" class="btn btn-default" onclick="getCityFilterMarker(getFilterText())">Filter Anzeigen</button>
             </div>
         </div>
     </div>

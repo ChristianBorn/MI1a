@@ -66,7 +66,7 @@ function getCityPoly (cityName) {
 }
 function getCityFilter  (filter) {
     $.ajax(
-        './search/cityFilter',
+        './search/cityFilterIntersects',
         {
             cache: false,
             dataType: "json",
@@ -93,6 +93,76 @@ function getCityFilter  (filter) {
                 var polygon = L.polygon(latlongs, {color: 'red'}).addTo(map);
                 map.fitBounds(polygon.getBounds())
             },*/
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Error: " + errorThrown
+                    + "\nStatus: " + textStatus
+                    + "\njqXHR: " + JSON.stringify(jqXHR)
+                );
+            },
+            complete: function (jqXHR, textStatus) {}
+        }
+    );
+}
+
+function getCityFilterMarker  (filter) {
+    $.ajax(
+        './search/cityFilterMarker',
+        {
+            cache: false,
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: csrftoken,
+                filter_value: filter,
+            },
+            method: 'POST',
+            success: function (data, textStatus, jqXHR) {
+                console.log(data.length);
+                if (data.length == 0) {
+                    alert("Bitte mindestens einen und maximal 3 Filter auswählen! Es wurden keine Treffer gefunden.");
+                }
+                else {
+                    for (i = 0; i < data.length; i++) {
+                        var latlngs = data[i].way;
+                        var marker = L.marker(latlngs).addTo(map);
+                    }
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Error: " + errorThrown
+                    + "\nStatus: " + textStatus
+                    + "\njqXHR: " + JSON.stringify(jqXHR)
+                );
+            },
+            complete: function (jqXHR, textStatus) {}
+        }
+    );
+}
+
+
+function getOpenData  (type_data, checked) {
+    $.ajax(
+        './search/OpenData',
+        {
+            cache: false,
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: csrftoken,
+                table_name: type_data,
+            },
+            method: 'POST',
+            success: function (data, textStatus, jqXHR) {
+                if (checked == true) {
+                    console.log(data.length)
+                    for (i = 0; i < data.length; i++) {
+                        console.log(data[i]);
+                        //todo: anzeige auf Karte einfügen
+                    }
+                }
+                else {
+                    console.log('clear');
+                    //todo: anzeige auf Karte entfernen
+                }
+            },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert("Error: " + errorThrown
                     + "\nStatus: " + textStatus

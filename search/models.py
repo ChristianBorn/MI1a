@@ -44,11 +44,24 @@ def str_coords_to_array_coords(result):
     '''koordinaten von POLYGON((51.0616154051779 6.77253026067161,51.0616932038293 6.77256430682088... zu 
     [[[51.0616154051779,6.77253026067161],[51.0616932038293 6.77256430682088],... 
     berücksichtigt einfache koordinatenstrings, doppelte polygone für Ringe und geometrycollections'''
-    coord_str = result[result.index('((')+2:-2]
-    output_array = list()
-    if coord_str.startswith('('):
-        #todo geometrycollection und ähnliches berücksichtigen
+    #todo: abfrage verbessern mit regex
+    if '(((' in result:
+        # todo geometrycollection und ähnliches berücksichtigen
         return None
+    elif '((' in result:
+        coord_str = result[result.index('((') + 2:-2]
+    elif '(' in result:
+        output_array = list()
+        coord_str = result[result.index('(')+1:-1]
+        for coord_pair in coord_str.split(','):
+            coords = coord_pair.split(' ')
+            output_array.append(coords[0])
+            output_array.append(coords[1])
+        return output_array
+
+    else:
+        return None
+    output_array = list()
     if '),(' in coord_str:
         for poly_values in coord_str.split('),('):
             array_poly = list()
@@ -162,7 +175,7 @@ class Laermpegel(models.Model):
     def get_learmpegel(point, distance):
         results = []
         for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel::float, ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) as rings,"
-                                             "ST_asText(st_flipcoordinates(ST_setSRID(path,4326))) as path "
+                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) as path "
                                              "FROM laermpegel l "
                                         "WHERE ST_DWithin(ST_SetSRID(rings,4326)::geography, "
                                         "ST_SetSRID(ST_GeomfromText(%s),4326)::geography, %s)", [point, distance]):
@@ -331,7 +344,6 @@ class PlanetOsmNodes(models.Model):
 
 
 class PlanetOsmPoint(models.Model):
-
     @staticmethod
     def get_city_point(city):
         results = []
@@ -341,9 +353,34 @@ class PlanetOsmPoint(models.Model):
             results.append((p.name, p.way))
         return results
 
+    @staticmethod
+    def get_marker(osm_id, filter_value):
+        filter_dict = {'school': 'amenity', 'kindergarten': 'amenity', 'college': 'amenity', 'university': 'amenity',
+                       'pharmacy': 'amenity', 'doctors': 'amenity', 'hospital': 'amenity', 'clinic': 'amenity',
+                       'dentist': 'amenity', 'nursing_home': 'amenity', 'veterinary': 'amenity',
+                       'social_facility': 'amenity', 'bank': 'amenity', 'atm': 'amenity', 'place_of_worship': 'amenity',
+                       'theatre': 'amenity', 'nightclub': 'amenity', 'cinema': 'amenity', 'bus_station': 'amenity',
+                       'restaurant': 'amenity', 'bus_stop': 'highway', 'station': 'railway',
+                       'subway_entrance': 'railway',
+                       'tram_stop': 'railway', 'terminal': 'aeroway', 'dog_park': 'leisure',
+                       'fitness_centre': 'leisure',
+                       'park': 'leisure', 'playground': 'leisure', 'attraction': 'tourism', 'museum': 'tourism',
+                       'recreation_ground': 'landuse', 'mall': 'shop', 'supermarket': 'shop', 'chemist': 'shop'}
+        data = []
+        for filter_lines  in filter_value.strip(';').split(';'):
+            filter_data = filter_lines.strip().split(':')
+            type_filter = filter_data[0].strip()
+            query = "SELECT point.osm_id, point.{} as amenity, ST_AsText(point.way) AS way FROM planet_osm_point point, planet_osm_polygon polygon " \
+                    "WHERE polygon.osm_id = {} AND point.{} = '{}' AND ST_Intersects(point.way, polygon.way);".format(
+                filter_dict[type_filter], osm_id, filter_dict[type_filter], type_filter)
+            for p in PlanetOsmPoint.objects.raw(query):
+                p.way = transform_coords(p.way)
+                data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way),
+                             'amenity': p.amenity})
+        return data
 
     @staticmethod
-    def get_query_string_polyfilter(number,outer_radius, inner_radius):
+    def get_query_string_polyfilter(number, outer_radius, inner_radius):
         return "ST_MakePolygon(ST_ExteriorRing(ST_Buffer(point{}.way, {}*1.6)), " \
                "ARRAY[ST_ExteriorRing(ST_Buffer(point{}.way, {}*1.6, 6))])".format(number, outer_radius, number, inner_radius)
 
