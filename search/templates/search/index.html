@@ -63,50 +63,66 @@
         /**
          * @global map
          */
-        function getCityPoly (cityName) {
-            $.ajax(
-                './search/cityPolygon',
-                {
-                    cache: false,
-                    dataType: "json",
-                    data: {
-                        csrfmiddlewaretoken: csrftoken,
-                        city: cityName
-                    },
-                    method: 'POST',
-                    success: function (data, textStatus, jqXHR) {
-                        for (i = 0; i < data.length; i++) {
-                            var latlngs = data[i].way;
-                            //console.log(latlngs);
-                            var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
-                            if (i == 0) {
-                                map.fitBounds(polygon.getBounds());
-                            }
-
-                        }
-
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        alert("Error: " + errorThrown
-                            + "\nStatus: " + textStatus
-                            + "\njqXHR: " + JSON.stringify(jqXHR)
-                        );
-                    },
-                    complete: function (jqXHR, textStatus) {}
+function jsUcfirst(string)
+{
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+function getColor(value) {
+    return value == 'kindergarten' ? '#B2B2FF' :
+           value == 'supermarket'  ? '##FFFF7F' :
+                      'green';
+}
+function getCityPoly (cityName) {
+    $.ajax(
+        './search/cityPolygon',
+        {
+            cache: false,
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: csrftoken,
+                city: cityName
+            },
+            method: 'POST',
+            success: function (data, textStatus, jqXHR) {
+                for (i = 0; i < data.length; i++) {
+                    var latlngs = data[i].way;
+                    //console.log(latlngs);
+                    var polygon = L.polygon(latlngs, {color: 'red'});
+                    var tooltip = L.tooltip({sticky: true,
+                                            direction: 'top'})
+                        .setContent(jsUcfirst(cityName))
+                    polygon.bindTooltip(tooltip);
+                    var popup = L.popup({closeOnClick: true,
+                                        className: 'map-popup'})
+                        .setContent('Lorem Ipsum dolor sit amet');
+                    polygon.bindPopup(popup);
+                    polygon.addTo(map);
+                    if (i == 0) {
+                        map.fitBounds(polygon.getBounds());
+                    }
                 }
-            );
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Error: " + errorThrown
+                    + "\nStatus: " + textStatus
+                    + "\njqXHR: " + JSON.stringify(jqXHR)
+                );
+            },
+            complete: function (jqXHR, textStatus) {}
         }
+    );
+}
 
-        function getCityFilter (filter, osm_id) {
+        function getCityFilter (filter) {
             $.ajax(
-                './search/cityFilter',
+                './search/cityFilterIntersects',
                 {
                     cache: false,
                     dataType: "json",
                     data: {
                         csrfmiddlewaretoken: csrftoken,
                         filter_value: filter,
-                        city_osm_id: osm_id
+                        filter_name: name
                     },
                     method: 'POST',
                     success: function (data, textStatus, jqXHR) {
@@ -117,7 +133,7 @@
                         else {
                             for (i = 0; i < data.length; i++) {
                                 var latlngs = data[i].way;
-                                var polygon = L.polygon(latlngs, {color: 'blue'}).addTo(map);
+                                var polygon = L.polygon(latlngs, {color: getColor(name)}).addTo(map);
                             }
                         }
                     },
@@ -410,16 +426,8 @@
 
 
 
-<script>
-    //console.log(document.getElementById("city_osm_id"));
 
 
-
-
-</script>
-<button onclick="getCityPoly('Köln')">Get Köln Polygon</button>
-<button onclick="getCityPoly('Düsseldorf')">Get Düsseldorf Polygon</button>
-<button onclick="getCityPoly('Bielefeld')">Get Bielefeld Polygon</button>
 
 </body>
 </html>

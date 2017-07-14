@@ -9,7 +9,7 @@ import json
 #   1. Element = angefordertes Open-Data, als Keyword. Wird über eine If-Abfrage gecheckt (s.u.)
 #   Ab dem 2. Element = Anfragespezifische Werte, die benötigt werden, z.B. Punkt+Distanz o. ein Stadtteil Name
 def opendata_von_stadtteil(request):
-    table_name = request.POST.get('table_name')
+    table_name = request.POST.get('table_name').lower()
     stadtteil = request.session['polygons'][0]['name']
     # punkt = request.session['polygons'][0]['way']
     punkt = 'POINT(6.97364225377671 50.9457393529467)'
@@ -71,7 +71,7 @@ def search_cityPolygon(request):
                                                 'way': elem['way']})
         request.session.modified = True
         #print(request.session['polygons'][0]['admin_level'])
-        #print(len(request.session['polygons']))
+        print("Polygone in Session ",len(request.session['polygons']))
         return JsonResponse(city_polygons, safe=False)
 
 def index(request):
@@ -159,6 +159,7 @@ def test_open_data():
 
 def search_filter(request):
     filter_value = request.POST.get('filter_value')
+    filter_name = filter_value.split(':')[0] #Wie kriegt man den Filternamen in die Javascript Funktion?
     print(filter_value, 'filter')
     if filter_value is not None:
         # osm_id wird aus der Session ausgelesen

@@ -33,6 +33,11 @@ $(document).ready(
 /**
  * @global map
  */
+function getColor(value) {
+    return value == 'kindergarten' ? '#B2B2FF' :
+           value == 'supermarket'  ? '##FFFF7F' :
+                      '#FFEDA0';
+}
 function getCityPoly (cityName) {
     $.ajax(
         './search/cityPolygon',
