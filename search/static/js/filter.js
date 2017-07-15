@@ -155,9 +155,9 @@ function getCityOsmId() {
 /**
  * Bennent den Button der Stadtbezirksauswahl um und gibt ihm den Namen der aktuellen Suchanfrage.
  */
-function changeAuswahlName(){
+function changeAuswahlName(cityName=getCityName()){
     console.log(getCityName());
-    document.getElementById("stadtbezirk_auswahl").innerHTML= getCityName();
+    document.getElementById("stadtbezirk_auswahl").innerHTML= cityName;
     console.log("Auswahlname geändert!");
 }
 

@@ -44,6 +44,11 @@ def opendata_von_stadtteil(request):
 
 def search_cityPolygon(request):
     city = request.POST.get('city')
+    osmId = request.POST.get('osmId')
+    if osmId == 'true':
+        osmId = True
+    else:
+        osmId = False
 
     #Beispiel für Verwendung & Ausgabe der OpenData
     '''
@@ -59,7 +64,7 @@ def search_cityPolygon(request):
     #print(PlanetOsmPolygon.get_city_polygon('-62578', True)[0])
     '''
     if city is not None:
-        city_polygons = PlanetOsmPolygon.get_city_polygon(city, False)
+        city_polygons = PlanetOsmPolygon.get_city_polygon(city, osmId)
         # Setzt die Liste der Polygone in der Session zurück, sodass immer nur die letzte Anfrage in der Session ist
         request.session['polygons'] = []
         for elem in city_polygons:

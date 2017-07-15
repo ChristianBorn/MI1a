@@ -53,7 +53,7 @@ function getColor(value) {
            value == 'recreation_ground'  ? '#EBD6ED' :
                       '#FFEDA0';
 }
-function getCityPoly (cityName) {
+function getCityPoly (cityName, osmId=false ) {
     $.ajax(
         './search/cityPolygon',
         {
@@ -61,13 +61,23 @@ function getCityPoly (cityName) {
             dataType: "json",
             data: {
                 csrfmiddlewaretoken: csrftoken,
-                city: cityName
+                city: cityName,
+                osmId: osmId
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
+                var list = "";
+                $('#stadtauswahl').text('');
+                if (data.length == 1) {
+                $('#stadtauswahl').html('<a href="#" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
+                }
+                changeAuswahlName(data[0].name)
                 for (i = 0; i < data.length; i++) {
+                    if (i != 0) {
+                        list+= '<a href="#" class="list-group-item list-group-item-action" onclick="getCityPoly('+data[i].osm_id+',true)">'+data[i].name+'</a>';
+                    }
+                    console.log(data.length);
                     var latlngs = data[i].way;
-                    //console.log(latlngs);
                     var polygon = L.polygon(latlngs, {color: 'red'});
                     var tooltip = L.tooltip({sticky: true,
                                             direction: 'top'})
@@ -81,7 +91,7 @@ function getCityPoly (cityName) {
                     if (i == 0) {
                         map.fitBounds(polygon.getBounds());
                     }
-                }
+                }$('#stadtauswahl').append(list);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert("Error: " + errorThrown
