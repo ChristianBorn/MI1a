@@ -431,7 +431,8 @@ body {
   background-color: E0E0E0;
   width: 100%;
   height: auto;
-  style="border:1px solid #000000
+  style="border:1px solid #000000";
+  z-index: 1;
 }
 
 .list-group {

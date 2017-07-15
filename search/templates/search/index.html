@@ -121,8 +121,7 @@ function getCityPoly (cityName) {
                     dataType: "json",
                     data: {
                         csrfmiddlewaretoken: csrftoken,
-                        filter_value: filter,
-                        filter_name: name
+                        filter_value: filter
                     },
                     method: 'POST',
                     success: function (data, textStatus, jqXHR) {
@@ -133,7 +132,7 @@ function getCityPoly (cityName) {
                         else {
                             for (i = 0; i < data.length; i++) {
                                 var latlngs = data[i].way;
-                                var polygon = L.polygon(latlngs, {color: getColor(name)}).addTo(map);
+                                var polygon = L.polygon(latlngs, {color: getColor(getFilter())}).addTo(map);
                             }
                         }
                     },
