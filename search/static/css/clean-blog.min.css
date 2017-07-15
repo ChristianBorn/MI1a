@@ -364,7 +364,7 @@ form .row:first-child .floating-label-form-group {
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 1px;
-  border-radius: 0;
+  border-radius: 4px;
   padding: 15px 25px;
 }
 .btn-lg {
@@ -431,7 +431,8 @@ body {
   background-color: E0E0E0;
   width: 100%;
   height: auto;
-  style="border:1px solid #000000
+  style="border:1px solid #000000";
+  z-index: 1;
 }
 
 .list-group {

@@ -1,7 +1,12 @@
 
+
+
 var used_filters = [];
 
-
+/**
+ * fügt Filter und Umkreis in die Filter-Zeile ohne die Überprüfung auf doppelt ausgewählte Filter
+ * @returns {string}
+ */
 function getFilter() {
     var x = "";
 
@@ -20,7 +25,10 @@ function getFilter() {
     }
     return x;
 }
-
+/**
+ * liest die Filter und die passenden Umkreise aus und überprüft ob ein Filter noch nicht in der Filterzeile steht
+ * @returns {string}
+ */
 function getFilterProof(){
     var x = "";
 
@@ -42,16 +50,16 @@ function getFilterProof(){
             for (var j = 0; j <= used_filters.length; j++) {
                 if (x == used_filters[j]) {
                     x = "";
-                    throw "filter already exists";
+                    throw "Der Filter existiert bereits!";
                 }
             }
         }
         catch (err) {
-                alert("Input is " + err);
+                alert("Achtung: " + err);
                 }
     }
     else {
-        alert("Bitte einen Filter auswählen!");
+        alert("Achtung: Bitte einen Filter auswählen!");
     }
     used_filters.push(x);
     console.log(used_filters);
@@ -86,15 +94,18 @@ function getMax(){
 function addFilter() {
 
 
-    if (getFilterProof() == ""){
+    if (getFilterProof() == ""){    //verhindert dass etwas in die Filterzeile geschrieben wird, wenn kein Filter angeklickt wurde
         document.getElementById("markedFilter").value += "";
     }
     else {
-        if (getMin() >= getMax()){
+        if (getMin() >= getMax() && getMin() != "" && getMax() != ""){  // kontrolliert ob der minimale Wert des Rasius wirklick klein er als der größere Umkreis-Wert ist
             alert("Die Minimale Entfernung muss größer als die Maximale entfernung sein!")
             document.getElementById("markedFilter").value += "";
         }
-        else {
+        else if(getMin() == "" && getMax() == ""){ // gibt den Wert "marker" in die Filter-Zeile (an Stelle der Radius-Werte) wenn beide Radisu-Felder leer gelassen wurden
+            document.getElementById("markedFilter").value += getFilter() + ":" + " marker;";
+        }
+        else {  //fügt die neuen Einträge in die Filter-Zeile hinzu. --> das ist der Basisfall
             document.getElementById("markedFilter").value += getFilter() + ":" + getMin() + ", " + getMax() + ";";
         }
     }
@@ -124,4 +135,22 @@ function getCityOsmId() {
     else {
         return -62578;
     }
+}
+
+/**
+ * Bennent den Button der Stadtbezirksauswahl um und gibt ihm den Namen der aktuellen Suchanfrage.
+ */
+function changeAuswahlName(){
+    console.log(getCityName());
+    document.getElementById("stadtbezirk_auswahl").innerHTML= getCityName();
+    console.log("Auswahlname geändert!");
+}
+
+/**
+ * Fasst alle Methoden zusammen die beim Betätigen des Such-Buttons ausgelöst werden sollen.
+ */
+function searchOnClicks(){
+    getCityPoly(getCityName());
+    changeAuswahlName();
+
 }
