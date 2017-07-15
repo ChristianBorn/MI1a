@@ -33,10 +33,14 @@ $(document).ready(
 /**
  * @global map
  */
+function jsUcfirst(string)
+{
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 function getColor(value) {
     return value == 'kindergarten' ? '#B2B2FF' :
            value == 'supermarket'  ? '##FFFF7F' :
-                      '#FFEDA0';
+                      'green';
 }
 function getCityPoly (cityName) {
     $.ajax(
@@ -53,7 +57,16 @@ function getCityPoly (cityName) {
                 for (i = 0; i < data.length; i++) {
                     var latlngs = data[i].way;
                     //console.log(latlngs);
-                    var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
+                    var polygon = L.polygon(latlngs, {color: 'red'});
+                    var tooltip = L.tooltip({sticky: true,
+                                            direction: 'top'})
+                        .setContent(jsUcfirst(cityName))
+                    polygon.bindTooltip(tooltip);
+                    var popup = L.popup({closeOnClick: true,
+                                        className: 'map-popup'})
+                        .setContent('Lorem Ipsum dolor sit amet');
+                    polygon.bindPopup(popup);
+                    polygon.addTo(map);
                     if (i == 0) {
                         map.fitBounds(polygon.getBounds());
                     }
@@ -88,7 +101,7 @@ function getCityFilter  (filter) {
                 else {
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
-                        var polygon = L.polygon(latlngs, {color: 'blue'}).addTo(map);
+                        var polygon = L.polygon(latlngs, {color: getColor(getFilter())}).addTo(map);
                     }
                 }
             },
