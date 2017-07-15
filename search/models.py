@@ -569,7 +569,7 @@ class PlanetOsmPolygon(models.Model):
         elif results[0].admin_level == '9':
             new_admin_level = 10
         print ("new "+str(new_admin_level))
-        if 5 < int(new_admin_level) < 10:
+        if 5 < int(new_admin_level) <= 10:
             for p in PlanetOsmPolygon.objects.raw("SELECT osm_id, name, admin_level, "
                                                       "ST_asText(way) AS way  "
                                                   "FROM planet_osm_polygon "
@@ -586,7 +586,6 @@ class PlanetOsmPolygon(models.Model):
     def get_city_polygon(city_var, osm_id):
         results = []
         plz = re.findall(r"[0-9]{4,5}", str(city_var))
-        osm_id = True
         if not osm_id:
             if len(plz) == 1:
                 for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, postcode.postal_code, "
