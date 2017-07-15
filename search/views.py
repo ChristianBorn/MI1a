@@ -38,7 +38,7 @@ def opendata_von_stadtteil(request):
         return JsonResponse(mietpreise, safe=False)
 
     elif column_name == 'lkw_verbot':
-        lkw_verbot = LkwVerbotszonen.get_verbotszone(stadtteil)
+        lkw_verbot = LkwVerbotszonen.get_verbotszone()
         return JsonResponse(lkw_verbot, safe=False)
 
 

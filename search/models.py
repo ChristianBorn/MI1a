@@ -214,7 +214,7 @@ class LkwVerbotszonen(models.Model):
             results.append(lkw_verbot)
         data = []
         for element in results:
-            data.append({'bereich': element.bereich, 'rings': element.rings})
+            data.append({'bereich': element.bereich, 'rings': str_coords_to_array_coords(element.rings)})
         return data
 
     class Meta:
@@ -390,6 +390,8 @@ class PlanetOsmPoint(models.Model):
     @staticmethod
     def get_filter_intersection(osm_id_polygon, filter_value):
         print(osm_id_polygon, filter_value)
+        if filter_value == 'landuse':
+            return PlanetOsmPoint.get_landuse_polygons(osm_id_polygon)
         filter_lines = filter_value.strip(';').split(';') # mit strip(;) wird verhindert, dass der Liste ein leeres Element hinzugefügt wird
         filter_dict = {'school': 'amenity', 'kindergarten': 'amenity', 'college': 'amenity', 'university': 'amenity',
                        'pharmacy': 'amenity', 'doctors': 'amenity', 'hospital': 'amenity', 'clinic': 'amenity',
@@ -481,7 +483,8 @@ class PlanetOsmPoint(models.Model):
         #print(len(data))
         return data
 
-    def get_landuse_polygons(filter_value, osm_id_polygon):
+    @staticmethod
+    def get_landuse_polygons(osm_id_polygon):
         data = list()
         for p in PlanetOsmPolygon.objects.raw("SELECT poly.osm_id, ST_asText(poly.way) AS intersection "
                                               "FROM planet_osm_polygon polygon, planet_osm_polygon poly "

@@ -228,7 +228,7 @@
 
             <!--Buttom um Schnittmengen anzuzeigen-->
             <div class="col-md-2" style="margin-top:10px">
-                <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default" onclick="getCityFilter(getFilterText(),getCityOsmId())">Schnittmengen anzeigen</button>
+                <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default" onclick="getCityFilter(getFilterText())">Schnittmengen anzeigen</button>
             </div>
         </div>
     </div>
@@ -249,6 +249,11 @@
         <div class="col-md-2" style="margin-top:10px">
             <button id="landtagswahl" type="button" style="width: 200px" name="Landtagswahl" class="btn btn-default" onclick="getOpenData('landtag')">Landtagswahl</button>
         </div>
+
+        <div class="col-md-2" style="margin-top:10px">
+            <button id="lkw_verbot" type="button" style="width: 200px" name="LKW-Verbot" class="btn btn-default" onclick="getOpenData('lkw_verbot')">LKW-Verbotszonen</button>
+        </div>
+
         <div class="col-md-2" style="margin-top:10px">
             <button id="landuse" type="button" style="width: 200px" name="landuse" value="" class="btn btn-default" onclick="getCityFilter('landuse')">Anzeige Landuse</button>
         </div>

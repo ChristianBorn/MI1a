@@ -164,6 +164,14 @@ function getCityFilterMarker  (filter) {
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var marker = L.marker(latlngs).addTo(map);
+                        var marker_text = "Name: "+data[i].name+"; Art: "+data[i].amenity;
+                        marker.bindPopup(marker_text);
+                        marker.on('mouseover', function (e) {
+                            this.openPopup();
+                        });
+                        marker.on('mouseout', function (e) {
+                            this.closePopup();
+                        });
                     }
                 }
             },
@@ -179,7 +187,7 @@ function getCityFilterMarker  (filter) {
 }
 
 
-function getOpenData  (type_data, checked) {
+function getOpenData  (type_data) {
     $.ajax(
         './search/OpenData',
         {
@@ -191,16 +199,39 @@ function getOpenData  (type_data, checked) {
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
-                if (checked == true) {
-                    console.log(data.length)
+                if (type_data === 'lkw_verbot') {
+                    console.log('Zeichne Polygone für LKW-Verbot', data.length);
                     for (i = 0; i < data.length; i++) {
-                        console.log(data[i]);
-                        //todo: anzeige auf Karte einfügen
+                        var latlngs = data[i].rings;
+                        var polygon = L.polygon(latlngs, {color: 'black'});
+                        var tooltip = L.tooltip({sticky: true, direction: 'top'}).setContent(jsUcfirst("LKW-Verbotszone"))
+                        polygon.bindTooltip(tooltip);
+                        var popup = L.popup({closeOnClick: true, className: 'map-popup'});
+                        polygon.bindPopup(popup);
+                        polygon.addTo(map);
                     }
                 }
+                else if (type_data === 'pegel'){
+                    console.log('Zeichne Polygone für Lärmpegel:', data.length);
+                    for (i = 0; i < data.length; i++) {
+                        var latlngs = data[i].rings;
+                        if (data.dezibel === '55') {var color = '#99c4d8';}
+                        else if (data.dezibel === '70') {var color = '#0047ab';}
+                        else {var color = '#093253';}
+
+                        var polygon = L.polygon(latlngs, {color: color});
+                        var tooltip = L.tooltip({sticky: true, direction: 'top'}).setContent(jsUcfirst("Lärmpegel: "+data[i].dezibel))
+                        polygon.bindTooltip(tooltip);
+                        var popup = L.popup({closeOnClick: true, className: 'map-popup'});
+                        polygon.bindPopup(popup);
+                        polygon.addTo(map);
+                    }
+                }
+
                 else {
-                    console.log('clear');
-                    //todo: anzeige auf Karte entfernen
+                    for (i = 0; i < data.length; i++) {
+                        console.log(data[i])
+                    }
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
