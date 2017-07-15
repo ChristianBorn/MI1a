@@ -679,23 +679,17 @@ class PlanetOsmPolygon(models.Model):
     def get_landuse_polygons(filter_value, osm_id_polygon):
         data = list()
         for p in PlanetOsmPolygon.objects.raw("SELECT poly.osm_id, ST_asText(poly.way) AS intersection "
-                                              "FROM planet_osm_polygon polygon, planet_osm_polygon poly"
-                                              " WHERE polygon.osm_id = {} "
-                                              "AND poly.landuse IN ('residential', 'brownfield', 'construction', 'greenfield') "
-                                               "AND ST_Intersects(poly.way, polygon.way);".format(osm_id_polygon)):
-        #for p in PlanetOsmPoint.objects.raw("SELECT point.osm_id, ST_asText(ST_MakePolygon(ST_ExteriorRing(ST_Buffer(point.way, 100 * 1.6)),"
-        #                                      "ARRAY[ST_ExteriorRing(ST_Buffer(point.way, 500 * 1.6, 6))])) AS intersection "
-        #                                      "FROM planet_osm_polygon poly, planet_osm_polygon polygon, planet_osm_point point "
-        #                                      "WHERE poly.landuse IN('residential', 'brownfield', 'construction', 'greenfield')"
-        #                                      " AND polygon.osm_id = -62578 AND point.amenity = 'university' "
-        #                                      "AND st_intersects(polygon.way, poly.way) AND ST_Intersects(point.way, polygon.way);"):
+                                              "FROM planet_osm_polygon polygon, planet_osm_polygon poly "
+                                              "WHERE polygon.osm_id = {} AND ST_Intersects(poly.way, polygon.way)"
+                                              "AND(poly.landuse IN('grass', 'meadow', 'recreation_ground', 'village_green', 'allotments', 'brownfield', 'landfill', 'commercial', 'construction', 'greenfield', 'residential') "
+                                              "OR poly.natural IN('grassland', 'sand', 'beach', 'bare_rock', 'scree', 'shingle', 'coastline'));".format(osm_id_polygon)):
             p.way = transform_coords(p.intersection)
+            #print(p, 'p')
             try:
                 # print(p.name, p.way[:25], '+')
                 data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way)})
             except:
-                print(
-                    "search.models.MultipleObjectsReturned: get() returned more than one PlanetOsmPolygon -- it returned 2!")
+                print("search.models.MultipleObjectsReturned: get() returned more than one PlanetOsmPolygon -- it returned 2!")
         return data
 
     # Felder der Klasse PlanetOsmPolygon

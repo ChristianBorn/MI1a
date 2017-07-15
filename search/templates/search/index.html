@@ -225,28 +225,6 @@ function getCityPoly (cityName) {
                 <button id="searchbutton" type="submit" href="#canvas" name="submitsuche" class="btn btn-default" onclick="searchOnClicks()">Suchen</button>
             </div>
 
-            <div class="col-md-1" style="margin-top:15px">
-                <div class="checkbox">
-                  <label><input name="pegel" type="checkbox" value="" onclick="getOpenData('pegel', checked)">Lärmpegel</label>
-                </div>
-            </div>
-
-            <div class="col-md-1" style="margin-top:15px">
-                <div class="checkbox">
-                  <label><input type="checkbox" value="" onclick="getOpenData('landtag',checked)">Landtagswahl</label>
-                </div>
-            </div>
-
-            <div class="col-md-1" style="margin-top:15px">
-                <div class="checkbox">
-                  <label><input type="checkbox" value="" onclick="getOpenData('lkw_verbot', checked)">LKW-Verbotszonen</label>
-                </div>
-            </div>
-            <div class="col-md-1" style="margin-top:15px">
-                <div class="checkbox">
-                  <label><input type="checkbox" value="" onclick="getCityFilter('landuse')">Anzeige Landuse</label>
-                </div>
-            </div>
 
             <!--Logo-->
             <div class="col-md-2" style="margin-top: 2px">
@@ -423,6 +401,10 @@ function getCityPoly (cityName) {
         <div class="col-md-2" style="margin-top:10px">
             <button id="landtagswahl" type="button" style="width: 200px" name="Landtagswahl" class="btn btn-default" onclick="getOpenData('landtag')">Landtagswahl</button>
         </div>
+        <div class="col-md-2" style="margin-top:10px">
+            <button id="landuse" type="button" style="width: 200px" name="landuse" value="" class="btn btn-default" onclick="getCityFilter('landuse')">Anzeige Landuse</button>
+        </div>
+
     </div>
 
     <!-- Footer -->
@@ -436,11 +418,6 @@ function getCityPoly (cityName) {
                     <p class="copyright text-muted">Copyright &copy; EasyLiving 2017</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Feld zur Zwischenspeicherung eingefügt -->
-        <div>
-            <input name="city_osm_id" id="city_osm_id" value="-62578"/>
         </div>
     </footer>
 

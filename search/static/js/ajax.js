@@ -11,8 +11,8 @@ $(document).ready(
             {
             minZoom: 9,
             maxZoom: 16
-            }
-            */
+            }*/
+
 
             //old via mapbox
             'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
@@ -150,6 +150,7 @@ function getCityFilterMarker  (filter) {
                     alert("Bitte mindestens einen und maximal 3 Filter auswählen! Es wurden keine Treffer gefunden.");
                 }
                 else {
+                    //var markerClusters = L.markerClusterGroup();
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var marker = L.marker(latlngs).addTo(map);
