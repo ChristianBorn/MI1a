@@ -1,4 +1,5 @@
 import re
+import copy
 from django.db import models
 import psycopg2
 import importlib.util
@@ -571,18 +572,23 @@ class PlanetOsmPolygon(models.Model):
 
     @staticmethod
     def insert_stadtteile_to_results(results):
-        for p in PlanetOsmPolygon.objects.raw("SELECT osm_id, name, admin_level, "
-                                                  "ST_asText(way) AS way  "
-                                              "FROM planet_osm_polygon "
-                                              "WHERE boundary = 'administrative' "
-                                              "AND admin_level::integer >= %s "
-                                              "AND admin_level::integer <=10 "
-                                              "AND ST_CONTAINS "
-                                              "(ST_SetSRID(ST_GeomFromText(%s),3857), way)"
-                                              "GROUP BY osm_id, name, admin_level, way "
-                                              "ORDER BY admin_level::integer ASC ",[results[0].admin_level, results[0].way]):
-            p.way = transform_coords(p.way)
-            results.append(p)
+        new_admin_level = 0
+        if results[0].admin_level == '6' or results[0].admin_level == '8':
+            new_admin_level = 9
+        elif results[0].admin_level == '9':
+            new_admin_level = 10
+        print ("new "+str(new_admin_level))
+        if 5 < int(new_admin_level) <= 10:
+            for p in PlanetOsmPolygon.objects.raw("SELECT osm_id, name, admin_level, "
+                                                      "ST_asText(way) AS way  "
+                                                  "FROM planet_osm_polygon "
+                                                  "WHERE boundary = 'administrative' "
+                                                  "AND admin_level::integer = %s"
+                                                  "AND ST_CONTAINS "
+                                                  "(ST_SetSRID(ST_GeomFromText(%s),3857), way)"
+                                                  "GROUP BY osm_id, name, admin_level, way "
+                                                  "ORDER BY admin_level::integer ASC ",[new_admin_level, results[0].way]):
+                results.append(p)
         return results
 
     @staticmethod
@@ -592,7 +598,7 @@ class PlanetOsmPolygon(models.Model):
         if not osm_id:
             if len(plz) == 1:
                 for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, postcode.postal_code, "
-                                                      "ST_asText(city.way) AS cway FROM "
+                                                      "ST_asText(ST_INTERSECTION(city.way, postcode.way)) AS cway FROM "
                                                       "planet_osm_polygon city JOIN planet_osm_polygon postcode ON "
                                                       "ST_INTERSECTS(city.way, postcode.way) "
                                                         "AND NOT ST_Touches(city.way, postcode.way)"
@@ -602,8 +608,16 @@ class PlanetOsmPolygon(models.Model):
                                                       "AND postcode.postal_code ILIKE %s "
                                                       "GROUP BY city.osm_id, city.name, city.admin_level, postcode.postal_code, cway "
                                                       "ORDER BY city.admin_level::integer ASC", [plz[0]]):
-                    p.way = transform_coords(p.cway)
+
                     results.append(p)
+                    p.way = p.cway
+                    tmp_results = []
+                    for element in results:
+                        if p.admin_level in ['6','8']:
+                            tmp_results.append(element)
+                    for o in tmp_results:
+                        results.remove(o)
+
             else:
                 for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, "
                                                       "ST_asText(city.way) AS way "
@@ -613,12 +627,13 @@ class PlanetOsmPolygon(models.Model):
                                                       "AND city.name ILIKE %s "
                                                       "GROUP BY city.osm_id, city.name, city.admin_level, way "
                                                       "ORDER BY city.admin_level::integer ASC", [city_var]):
-                    p.way = transform_coords(p.way)
                     results.append(p)
-                if len(results) > 0:
+                if len(results) > 0 and results[0].admin_level in ['6','8','9']:
+                    results = copy.deepcopy([results[0]])
                     PlanetOsmPolygon.insert_stadtteile_to_results(results)
 
         else:
+    # gibt alle PLZ & Polygone einer Stadt zurück. Vielleicht nützlich für später.
             for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, "
                                                   "ST_asText(city.way) AS way "
                                                   "FROM planet_osm_polygon city "
@@ -626,22 +641,26 @@ class PlanetOsmPolygon(models.Model):
                                                   "AND city.osm_id = %s::bigint "
                                                   "GROUP BY city.osm_id, city.name, city.admin_level, way "
                                                   "ORDER BY city.admin_level::integer ASC", [city_var]):
-                p.way = transform_coords(p.way)
                 results.append(p)
-            if len(results)> 0:
+                print (p.name)
+            if len(results) > 0:
+                results = copy.deepcopy([results[0]])
                 PlanetOsmPolygon.insert_stadtteile_to_results(results)
-
 
         results = set(results)
         results = list(results)
-        results = sorted(results, key=lambda x: int(p.admin_level))  # Sortiere Liste anhand des 2. Elements
+
+        for element in results:
+            element.admin_level = int(element.admin_level)
+        results = sorted(results, key=lambda x: int(x.admin_level))  # Sortiere Liste anhand des 2. Elements
         data = []
         for element in results:
-            #print(element.way)
-            data.append({'name': element.name, 'osm_id':element.osm_id, 'admin_level': element.admin_level, 'way': str_coords_to_array_coords(element.way)})
+            print(element.name+"  |   "+str(element.admin_level))
+            data.append({'name': element.name, 'osm_id':element.osm_id, 'admin_level': element.admin_level,
+                         'way': str_coords_to_array_coords(transform_coords(element.way))})
         return data
 
-    # gibt alle PLZ & Polygone einer Stadt zurück. Vielleicht nützlich für später.
+
     @staticmethod
     def get_all_postal_codes_in_a_city(city):
         results = []

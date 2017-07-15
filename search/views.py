@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from search.models import *
-import json
 
 
 # !Beispiel! für eine Controller Methode, die für open_data gedacht ist.
@@ -9,57 +8,58 @@ import json
 #   1. Element = angefordertes Open-Data, als Keyword. Wird über eine If-Abfrage gecheckt (s.u.)
 #   Ab dem 2. Element = Anfragespezifische Werte, die benötigt werden, z.B. Punkt+Distanz o. ein Stadtteil Name
 def opendata_von_stadtteil(request):
-    table_name = request.POST.get('table_name').lower()
+    column_name = request.POST.get('table_name').lower()
     stadtteil = request.session['polygons'][0]['name']
     # punkt = request.session['polygons'][0]['way']
-    punkt = 'POINT(6.97364225377671 50.9457393529467)'
-
+    #punkt = 'POINT(6.97364225377671 50.9457393529467)'
+    print (column_name)
+    print (stadtteil)
+    '''
     # Landtag benötigt nur ein Stadtteil. werte[1] würde Stadtteil Namen enthalten
-    if table_name == 'landtag':
+    if column_name == 'landtag':
         laermpegel = Landtagswahl.get_parteiverteilung_in_stadtteil(stadtteil)
         return JsonResponse(laermpegel, safe=False)
 
     # Laempegel benötigt (aktuell noch) einen Punkt & einen Umkreis. Änderung möglich.
-    elif table_name == 'pegel':
+    elif column_name == 'pegel':
         umkreis = 100
         laermpegel = Laermpegel.get_learmpegel(punkt, umkreis)
         return JsonResponse(laermpegel, safe=False)
 
-    elif table_name == 'beschaeftigte':
+    elif column_name == 'beschaeftigte':
         beschaeftigte = Beschaeftigte.get_arbeitslosenquote(stadtteil)
         return JsonResponse(beschaeftigte, safe=False)
 
-    elif table_name == 'durchschnittsalter':
+    elif column_name == 'durchschnittsalter':
         durchschnittsalter = Durchschnittsalter.get_durchschnittsalter(stadtteil)
         return JsonResponse(durchschnittsalter, safe=False)
 
-    elif table_name == 'mietpreise':
+    elif column_name == 'mietpreise':
         mietpreise = DurchschnittlicheMietpreise.get_mietpreise(stadtteil)
         return JsonResponse(mietpreise, safe=False)
 
-    elif table_name == 'lkw_verbot':
+    elif column_name == 'lkw_verbot':
         umkreis = 1000
         lkw_verbot = LkwVerbotszonen.get_verbotszone(punkt, umkreis)
         return JsonResponse(lkw_verbot, safe=False)
-
-
+    '''
 
 
 def search_cityPolygon(request):
     city = request.POST.get('city')
-
     #Beispiel für Verwendung & Ausgabe der OpenData
-    '''punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
+    '''
+    punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
     print("Landtagswahl: \t ",Landtagswahl.get_parteiverteilung_in_stadtteil('Altstadt/Nord'))
     print("Beschäftigte : \t ",Beschaeftigte.get_arbeitslosenquote('Altstadt-Nord'))
     print("Durchschnittsalter: \t ",Durchschnittsalter.get_durchschnittsalter('Altstadt-Nord'))
     print("Mietpreise : \t ",DurchschnittlicheMietpreise.get_mietpreise('Altstadt-Nord'))
     print("LKW Verbotszonen: \t ",LkwVerbotszonen.get_verbotszone(punkt_in_koeln, 5000)[0])
-    #print("Lärmpegels: \t ",Laermpegel.get_learmpegel(punkt_in_koeln, 3900))'''
+    print("Lärmpegels: \t ",Laermpegel.get_learmpegel(punkt_in_koeln, 3900))
 
     # Suche nach Polygon mit der osm_id
     #print(PlanetOsmPolygon.get_city_polygon('-62578', True)[0])
-
+    '''
     if city is not None:
         city_polygons = PlanetOsmPolygon.get_city_polygon(city, False)
         # Setzt die Liste der Polygone in der Session zurück, sodass immer nur die letzte Anfrage in der Session ist
@@ -74,87 +74,12 @@ def search_cityPolygon(request):
         print("Polygone in Session ",len(request.session['polygons']))
         return JsonResponse(city_polygons, safe=False)
 
+
 def index(request):
     # Beim initialen Laden der Seite wird die Session komplett gelöscht
     request.session.flush()
     print("flushed session")
     return render(request, 'search/index.html')
-
-# erhält per POST.get den Inhalt des Suchfeldes.
-# Falls Inhalt nicht leer, wird passende Stadt zum Inhalt gesucht & returned.
-def search_town(request):
-    render_results = {}         # finales dict, in dem alle Key-Value Paare stehen.
-    city = request.POST.get('suchanfrage')
-    print("\n open data beispiele \n")
-    #test_open_data()
-
-
-    print ("\n\n ----- \n Ausgabe Stadtsuche JSON ")
-    if city is not None and len(city) > 1:  # Einfache Überprüfung, ob übermittelter Inhalt des Suchfeldes Inhalt hat.
-        city_polygons = PlanetOsmPolygon.get_city_polygon(city, False)
-        city_polygon_json_list = []
-        if len(city_polygons) >= 1:          # Überprüfung, ob Resulttate leer sind
-
-            for element in city_polygons:    # temporäre Ausgabe der Ergebnisse in der Konsole
-                city_name = element.name
-                city_admin_level = element.admin_level
-                city_geo_json = element.way
-                print(city_name)
-                print(city_admin_level)
-                print(city_geo_json[:50])
-                city_polygon_json_list.append(django_object_to_json(element, ('admin_level', 'boundary', 'name', 'way')))
-
-                # Test der Umkreissuche mit defalut-Weten für Restaurants in Köln zwischen 1000 und 3000m Enfernung
-                print('--- Polygone für Umkreissuche in ', city_name, '---')
-                circles = PlanetOsmPoint.get_osm_points_in_district(element.osm_id)
-                polygon_filter = list()
-                for polygon in circles:
-                    json_dump = json.dumps(
-                        json.loads(django_object_to_json(polygon, ('osm_id', 'way', 'amenity', 'leisure', 'highway',
-                                                                   'railway', 'aeroway', 'tourism', 'shop', 'name'))))
-                    polygon_filter.append(json_dump)
-
-            for filter_j in polygon_filter:
-                print(json.dumps(json.loads(filter_j), sort_keys=True, indent=4))
-
-            for city_j in city_polygon_json_list:
-                print (json.dumps(json.loads(city_j), sort_keys=True, indent=4))
-
-            with open('JSONData.json', 'w') as f:
-                for city_j in city_polygon_json_list:
-                    json.dump(json.loads(city_j), f)
-            '''
-            Gibt Liste aus JSON Objekten zurück. Einträge nach admin-level sortiert
-            '''
-            render_results['results'] = city_polygons
-            return render(request, 'search/index.html', {'results': render_results})
-
-        # Gibt Fehler-String zurück: das Keine Ergebnisse gefunden
-        else:
-            return render(request, 'search/index.html', {'results': "Keine Ergebnisse gefunden"})
-
-    # Gibt Fehler-String zurück: Inhalt des Suchfeldes leer.
-    else:
-        return render(request, 'search/index.html', {'results': "Suche mit leerem Suchfeld ausgeführt."})
-
-
-#Beispiel-Methode für OpenData Anfragen
-def test_open_data():
-    pkt_in_altstadt = '{"type":"Point","coordinates":[6.95478224980598,50.9420811600325]}'
-    stadtteil = "Altstadt-Nord"
-    arbeitslosen = Beschaeftigte.get_arbeitslosenquote(stadtteil)
-    jugendarbeitslose = Beschaeftigte.get_jugendarbeitslosenquote(stadtteil)
-    buildings = PlanetOsmPoint.get_buildings_in_city('hospital', pkt_in_altstadt, 500, 5000)
-    miete = DurchschnittlicheMietpreise.get_mietpreise(stadtteil)
-    alter = Durchschnittsalter.get_durchschnittsalter(stadtteil)
-    #pegel = Laermpegel.get_learmpegel(pkt_in_altstadt, 3500)
-    #verbotszone = LkwVerbotszonen.get_verbotszone(pkt_in_altstadt, 3500)
-
-    ls = [miete, alter, buildings, arbeitslosen, jugendarbeitslose]
-    for sublist in ls:
-        print ("------",str(sublist),"--------")
-        for element in sublist[:1]:
-            print(json.dumps(json.loads(django_object_to_json(element, ())), sort_keys=True, indent=4))
 
 
 def search_filter(request):
