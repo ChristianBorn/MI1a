@@ -173,18 +173,22 @@ class Laermpegel(models.Model):
     @staticmethod
     # parameter: punkt als geoJSON,
     #            distanz in metern
-    def get_learmpegel(point, distance):
+    def get_learmpegel(stadtteil):
         results = []
-        for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel::float, ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) as rings,"
-                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) as path "
-                                             "FROM laermpegel l "
-                                        "WHERE ST_DWithin(ST_SetSRID(rings,4326)::geography, "
-                                        "ST_SetSRID(ST_GeomfromText(%s),4326)::geography, %s)", [point, distance]):
+        for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel::float, "
+                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS rings,"
+                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS path "
+                                             "FROM laermpegel l, planet_osm_polygon p "
+                                             "WHERE p.boundary = 'administrative' and p.admin_level::integer =10 AND  "
+                                             "p.name = %s "
+                                             "AND ST_INTERSECTS(ST_SetSRID(l.rings,4326)::geography, "
+                                             "ST_Transform(p.way,4326)::geography)", [stadtteil]):
 
             results.append(lpegel)
         data = []
         for element in results:
-            data.append({'dezibel': element.dezibel, 'rings': element.rings, 'path': element.path}, )
+            data.append({'dezibel': element.dezibel, 'rings': str_coords_to_array_coords(element.rings),
+                         'path': str_coords_to_array_coords(element.path)})
         return data
 
     class Meta:
@@ -203,12 +207,10 @@ class LkwVerbotszonen(models.Model):
     @staticmethod
     # parameter: punkt als geoJSON,
     #            distanz in metern
-    def get_verbotszone(point, distance):
+    def get_verbotszone():
         results = []
         for lkw_verbot in LkwVerbotszonen.objects.raw("SELECT l.id, l.bereich, ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) as rings "
-                                             "FROm \"lkw-verbotszonen\" l "
-                                             "WHERE ST_DWithin(ST_SetSRID(rings,4326)::geography, "
-                                            "st_setsrid(ST_GeomFromText(%s),4326)::geography, %s::Integer)", [point, distance]):
+                                             "FROm \"lkw-verbotszonen\" l"):
             results.append(lkw_verbot)
         data = []
         for element in results:
@@ -388,14 +390,6 @@ class PlanetOsmPoint(models.Model):
     @staticmethod
     def get_filter_intersection(osm_id_polygon, filter_value):
         print(osm_id_polygon, filter_value)
-        data = list()
-
-        ## hier aufruf der landuse Funktion aus Polygon, damit kein neuer Controller geschrieben werden muss
-        # eventuell weiterarbeiten mit den Polygonen für Umkreissuche
-        if filter_value == 'landuse':
-            return PlanetOsmPolygon.get_landuse_polygons(filter_value,osm_id_polygon)
-
-
         filter_lines = filter_value.strip(';').split(';') # mit strip(;) wird verhindert, dass der Liste ein leeres Element hinzugefügt wird
         filter_dict = {'school': 'amenity', 'kindergarten': 'amenity', 'college': 'amenity', 'university': 'amenity',
                        'pharmacy': 'amenity', 'doctors': 'amenity', 'hospital': 'amenity', 'clinic': 'amenity',
@@ -479,13 +473,12 @@ class PlanetOsmPoint(models.Model):
         else:
             print('zu viele Filter')
             return None
-
         data = list()
-        for p in PlanetOsmPolygon.objects.raw(query):
+        for p in PlanetOsmPoint.objects.raw(query):
             p.way = transform_coords(p.intersection)
-            #print(p.name, p.way[:25], '+')
+            #print(p.name, p.way)
             data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way)})
-        print(len(data))
+        #print(len(data))
         return data
 
 
@@ -674,23 +667,6 @@ class PlanetOsmPolygon(models.Model):
             p.way = transform_coords(p.way)
             results.append(p)
         return results
-
-    @staticmethod
-    def get_landuse_polygons(filter_value, osm_id_polygon):
-        data = list()
-        for p in PlanetOsmPolygon.objects.raw("SELECT poly.osm_id, ST_asText(poly.way) AS intersection "
-                                              "FROM planet_osm_polygon polygon, planet_osm_polygon poly "
-                                              "WHERE polygon.osm_id = {} AND ST_Intersects(poly.way, polygon.way)"
-                                              "AND(poly.landuse IN('grass', 'meadow', 'recreation_ground', 'village_green', 'allotments', 'brownfield', 'landfill', 'commercial', 'construction', 'greenfield', 'residential') "
-                                              "OR poly.natural IN('grassland', 'sand', 'beach', 'bare_rock', 'scree', 'shingle', 'coastline'));".format(osm_id_polygon)):
-            p.way = transform_coords(p.intersection)
-            #print(p, 'p')
-            try:
-                # print(p.name, p.way[:25], '+')
-                data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way)})
-            except:
-                print("search.models.MultipleObjectsReturned: get() returned more than one PlanetOsmPolygon -- it returned 2!")
-        return data
 
     # Felder der Klasse PlanetOsmPolygon
     osm_id = models.BigIntegerField(primary_key='osm_id', blank=True)

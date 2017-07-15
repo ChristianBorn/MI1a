@@ -10,20 +10,19 @@ from search.models import *
 def opendata_von_stadtteil(request):
     column_name = request.POST.get('table_name').lower()
     stadtteil = request.session['polygons'][0]['name']
-    # punkt = request.session['polygons'][0]['way']
+    #punkt = request.session['polygons'][0]['way']
     #punkt = 'POINT(6.97364225377671 50.9457393529467)'
-    print (column_name)
-    print (stadtteil)
-    '''
+    print(column_name)
+    print(stadtteil)
+
     # Landtag benötigt nur ein Stadtteil. werte[1] würde Stadtteil Namen enthalten
     if column_name == 'landtag':
-        laermpegel = Landtagswahl.get_parteiverteilung_in_stadtteil(stadtteil)
-        return JsonResponse(laermpegel, safe=False)
+        landtag = Landtagswahl.get_parteiverteilung_in_stadtteil(stadtteil)
+        return JsonResponse(landtag, safe=False)
 
     # Laempegel benötigt (aktuell noch) einen Punkt & einen Umkreis. Änderung möglich.
     elif column_name == 'pegel':
-        umkreis = 100
-        laermpegel = Laermpegel.get_learmpegel(punkt, umkreis)
+        laermpegel = Laermpegel.get_learmpegel(stadtteil)
         return JsonResponse(laermpegel, safe=False)
 
     elif column_name == 'beschaeftigte':
@@ -39,14 +38,13 @@ def opendata_von_stadtteil(request):
         return JsonResponse(mietpreise, safe=False)
 
     elif column_name == 'lkw_verbot':
-        umkreis = 1000
-        lkw_verbot = LkwVerbotszonen.get_verbotszone(punkt, umkreis)
+        lkw_verbot = LkwVerbotszonen.get_verbotszone(stadtteil)
         return JsonResponse(lkw_verbot, safe=False)
-    '''
 
 
 def search_cityPolygon(request):
     city = request.POST.get('city')
+
     #Beispiel für Verwendung & Ausgabe der OpenData
     '''
     punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
