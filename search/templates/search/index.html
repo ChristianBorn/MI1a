@@ -37,7 +37,7 @@
     <!-- Leaflet -->
     <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %} "/>
     <script src="{% static 'leaflet/leaflet-src.js' %}" type="text/javascript"></script>
-    <script>
+    <!--<script>
         var map;
         var csrftoken;
         $(document).ready(
@@ -170,9 +170,11 @@ function getCityPoly (cityName) {
             console.log(retVal);
             return retVal;
         }*/
-    </script>
+    </script>-->
 
 
+    <!-- AJAX -->
+    <script src="{% static 'js/ajax.js' %}" type="text/javascript"></script>
 
 </head>
 
@@ -183,71 +185,44 @@ function getCityPoly (cityName) {
     <div class="container-fluid">
         <div class="row">
             <!--Suchfeld-->
-            <div class="col-md-2" style="margin-top:15px">
+            <div class="col-md-8" style="margin-top:6px">
                 <div class="search-field">
                     <form method="post" action="">{% csrf_token %}
-                        <div class="row">
                             <div class="form-group">
-                                <input type="text" style="width:240px" placeholder="Stadt, Stadteil oder PLZ" class="form-control" name="suchanfrage" id = "town" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                                <input type="text" style="width:1000px; height:50px" placeholder="Stadt, Stadteil oder PLZ" class="form-control" name="suchanfrage" id = "town" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
                             </div>
-                        </div>
                     </form>
+                </div>
+
+                <!--Stadbezirk/-teil Auswahl-->
+                <div class="col-md-2" style="margin-top:0px">
+                    <div class="dropdown">
+                        <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown" id="stadtbezirk_auswahl">Auswahl<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 1</a>
+                            <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 2</a>
+                            <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 3</a>
+                            <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 4</a>
+                            <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 5</a>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
             <!--Suchbutton-->
             <div class="col-md-2 button-left" style="margin-top:15px">
-                <button id="searchbutton" type="submit" href="#canvas" name="submitsuche" class="btn btn-default" onclick="getCityPoly(getCityName())">Suchen</button>
+                <button id="searchbutton" type="submit" href="#canvas" name="submitsuche" class="btn btn-default" onclick="searchOnClicks()">Suchen</button>
             </div>
-
-            <!--Stadbezirk/-teil Auswahl-->
-            <!--<div class="col-md-2">
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action active " id="auswahl1">Auswahl 1</a>
-                    <a href="#" class="list-group-item list-group-item-action">Auswahl 2</a>
-                </div>
-            </div>-->
-            <div class="col-md-2" style="margin-top:15px">
-                <div class="dropdown">
-                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Auswahl<span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 1</a>
-                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 2</a>
-                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 3</a>
-                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 4</a>
-                        <a href="#" class="list-group-item list-group-item-action">Stadbezirk/-teil 5</a>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="col-md-1" style="margin-top:15px">
-                <div class="checkbox">
-                  <label><input type="checkbox" value="">Beschäftigte</label>
-                </div>
-            </div>
-
-            <div class="col-md-1" style="margin-top:15px">
-                <div class="checkbox">
-                  <label><input type="checkbox" value="">Lärmpegel</label>
-                </div>
-            </div>
-
-            <div class="col-md-1" style="margin-top:15px">
-                <div class="checkbox">
-                  <label><input type="checkbox" value="">Landtagswahl</label>
-                </div>
-            </div>
-
 
             <!--Logo-->
-            <div class="col-md-3" style="margin-top: 2px">
+            <div class="col-md-2" style="margin-top: 2px">
                 <img src="/static/css/Logo.png" class="img-responsive" align="right">
             </div>
         </div>
 
-        <div class="row" style="padding:3px">
+        <div class="row" style="margin-left:0px">
             <!--Filter: Transport-->
-            <div class="col-md-2">
+            <div class="col-md-2" style="margin-top: 10px">
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Transport<span class="caret"></span></button>
                     <ul class="dropdown-menu">
@@ -262,7 +237,7 @@ function getCityPoly (cityName) {
             </div>
 
             <!--Filter: Freizeit-->
-            <div class="col-md-2">
+            <div class="col-md-2" style="margin-top: 10px">
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Freizeit<span class="caret"></span></button>
                     <ul class="dropdown-menu">
@@ -279,7 +254,7 @@ function getCityPoly (cityName) {
             </div>
 
             <!--Filter: Bildung-->
-            <div class="col-md-2">
+            <div class="col-md-2" style="margin-top: 10px">
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Bildung<span class="caret"></span></button>
                     <ul class="dropdown-menu">
@@ -291,43 +266,8 @@ function getCityPoly (cityName) {
                 </div>
             </div>
 
-            <!--Umkreis Minimum-->
-            <div class="col-md-1" style="margin-top:5px; text-align:right;">
-                <div class="form-group">
-                  <label class="umkreis" id ="inputmin" for="min">min</label>
-                </div>
-            </div>
-
-            <!--Umkreif Minimum Textfeld-->
-            <div class="col-md-1" style="margin-top:5px">
-                <div class="forn-group">
-                    <input type="text" class="form-control" style="width:170px" name="min_radius" id = "min" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
-                </div>
-            </div>
-
-            <!--Umkreis Maximum-->
-            <div class="col-md-1" style="margin-top: 5px; text-align:right;">
-                <div class="form-group">
-                  <label class="umkreis" id ="inputmax" for="min">max</label>
-                </div>
-            </div>
-
-            <!--Umkreis Maximum Textfeld-->
-            <div class="col-md-1" style="margin-top: 5px">
-                <div class="form-group">
-                    <input type="text" class="form-control" style="width:170px" name="max_radius" id = "max" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
-                </div>
-            </div>
-
-            <!--Button um Filter zur Auswahl hinzuzufügen-->
-            <div class="col-md-2" align="right">
-                <button id="add-filter" type="button" style="width: 150px" name="add_filter" class="btn btn-default" onclick='addFilter()'>Hinzufügen</button>
-            </div>
-        </div>
-
-        <div class="row" style="padding: 2px">
             <!--Filter: Gesundheit-->
-            <div class="col-md-2">
+            <div class="col-md-2" style="margin-top: 10px">
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Gesundheit<span class="caret"></span></button>
                     <ul class="dropdown-menu">
@@ -343,7 +283,7 @@ function getCityPoly (cityName) {
             </div>
 
             <!--Filter: Religiton-->
-            <div class="col-md-2">
+            <div class="col-md-2" style="margin-top: 10px">
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Religion<span class="caret"></span></button>
                     <ul class="dropdown-menu">
@@ -353,7 +293,7 @@ function getCityPoly (cityName) {
             </div>
 
             <!--Filter: Geschäfte und Co.-->
-            <div class="col-md-2">
+            <div class="col-md-2" style="margin-top: 10px">
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Geschäfte & Co.<span class="caret"></span></button>
                     <ul class="dropdown-menu">
@@ -367,30 +307,89 @@ function getCityPoly (cityName) {
                     </ul>
                 </div>
             </div>
-
-            <!--Buttom um Filter anzuwenden-->
-            <div class="col-md-6" align="right">
-                <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default" onclick="getCityFilter(getFilterText(),getCityOsmId())">Alle Filter anwenden</button>
-            </div>
         </div>
 
-        <div class="row" style="padding:3px">
-            <!--Ausgewählte Filter-->
-            <div class="col-md-2" style="margin-top: 5px; text-align:right;">
+        <div class="row" style="margin-left:0px">
+            <!--Umkreis Minimum-->
+            <div class="col-md-1" style="margin-top:20px; text-align:right;">
                 <div class="form-group">
-                    <label class="marked_filter" id="input_marked_filter">Ausgewählte Filter</label>
+                  <label class="umkreis" id ="inputmin" for="min">min</label>
                 </div>
             </div>
 
+            <!--Umkreif Minimum Textfeld-->
+            <div class="col-md-1" style="margin-top:20px">
+                <div class="forn-group">
+                    <input type="number" min="0" class="form-control" style="width:100px" name="min_radius" id = "min" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                </div>
+            </div>
+
+            <!--Umkreis Maximum-->
+            <div class="col-md-1" style="margin-top: 20px; text-align:right;">
+                <div class="form-group">
+                  <label class="umkreis" id ="inputmax" for="min">max</label>
+                </div>
+            </div>
+
+            <!--Umkreis Maximum Textfeld-->
+            <div class="col-md-1" style="margin-top: 20px">
+                <div class="form-group">
+                    <input type="number" min="0" class="form-control" style="width:100px" name="max_radius" id = "max" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                </div>
+            </div>
+
+            <!--Button um Filter zur Auswahl hinzuzufügen-->
+            <div class="col-md-2" style="margin-top:10px">
+                <button id="add-filter" type="button" style="width: 150px" name="add_filter" class="btn btn-default" onclick='addFilter()'>Hinzufügen</button>
+            </div>
+
+        </div>
+
+        <div class="row" style="margin-left:0px">
             <!--Ausgewählte Filter Textfeld-->
-            <div class="col-md-8" style="margin-top: 5px";>
+            <div class="col-md-8" style="margin-top: 10px";>
                 <div class="form-group">
                     <input type="text" class="form-control" style="width: 1150px" name="marked_filter" id = "markedFilter" value=""/> <!--Textfeld für ausgewählte Filter-->
                 </div>
             </div>
 
-            <div class="col-md-2" align="right">
-                <button id="filter_output" type="button" style="width: 200px" name="filter_output" class="btn btn-default" >Filter Anzeigen</button>
+            <!--Ausgewählte Filter-->
+            <div class="col-md-3" style="margin-top: 10px; text-align:right;">
+                <div class="form-group">
+                    <label class="marked_filter" id="input_marked_filter">Ausgewählte Filter</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-left:0px">
+            <!--Button um Filter anzuzeigen-->
+            <div class="col-md-2" style="margin-top:10px">
+                <button id="filter_output" type="button" style="width: 200px" name="filter_output" class="btn btn-default" onclick="getCityFilterMarker(getFilterText())">Filter anzeigen</button>
+            </div>
+
+            <!--Buttom um Schnittmengen anzuzeigen-->
+            <div class="col-md-2" style="margin-top:10px">
+                <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default" onclick="getCityFilter(getFilterText(),getCityOsmId())">Schnittmengen anzeigen</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-1" style="margin-top:10px">
+                <div class="checkbox">
+                  <label><input type="checkbox" value="" onclick="getOpenData('beschaeftigte', checked)">Beschäftigte</label>
+                </div>
+            </div>
+
+            <div class="col-md-1" style="margin-top:10px">
+                <div class="checkbox">
+                  <label><input name="pegel" type="checkbox" value="" onclick="getOpenData('pegel', checked)">Lärmpegel</label>
+                </div>
+            </div>
+
+            <div class="col-md-1" style="margin-top:10px">
+                <div class="checkbox">
+                  <label><input type="checkbox" value="" onclick="getOpenData('landtag',checked)">Landtagswahl</label>
+                </div>
             </div>
         </div>
     </div>
