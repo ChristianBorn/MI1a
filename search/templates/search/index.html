@@ -68,9 +68,20 @@ function jsUcfirst(string)
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 function getColor(value) {
-    return value == 'kindergarten' ? '#B2B2FF' :
-           value == 'supermarket'  ? '##FFFF7F' :
-                      'green';
+    return value == 'bus_stop'  ? '#C7ABCA' :
+           value == 'station'  ? '#A684AA' :
+           value == 'subway_entrance'  ? '#B6A6B8' :
+           value == 'tram_stop'  ? '#EFC7F3' :
+           value == 'terminal'  ? '#766278' :
+           value == 'dog_park'  ? '#EBD6ED' :
+           value == 'fitness_centre'  ? '#EBD6ED' :
+           value == 'park'  ? '#EBD6ED' :
+           value == 'playground'  ? '#EBD6ED' :
+           value == 'cinema'  ? '#EBD6ED' :
+           value == 'nightclub'  ? '#EBD6ED' :
+           value == 'theatre'  ? '#EBD6ED' :
+           value == 'recreation_ground'  ? '#EBD6ED' :
+                      '#FFEDA0';
 }
 function getCityPoly (cityName) {
     $.ajax(
@@ -342,7 +353,6 @@ function getCityPoly (cityName) {
             <div class="col-md-2" style="margin-top:10px">
                 <button id="add-filter" type="button" style="width: 150px" name="add_filter" class="btn btn-default" onclick='addFilter()'>Hinzufügen</button>
             </div>
-
         </div>
 
         <div class="row" style="margin-left:0px">
@@ -372,35 +382,25 @@ function getCityPoly (cityName) {
                 <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default" onclick="getCityFilter(getFilterText(),getCityOsmId())">Schnittmengen anzeigen</button>
             </div>
         </div>
+    </div>
 
-        <div class="row">
-            <div class="col-md-1" style="margin-top:10px">
-                <div class="checkbox">
-                  <label><input type="checkbox" value="" onclick="getOpenData('beschaeftigte', checked)">Beschäftigte</label>
-                </div>
-            </div>
+    <div class="container-fluid" style="margin-top: 15px">
+        <div class="col-md-10">
+            <div id="mapid" class="mapcanvas"style="border:1px solid #000000; width:100%; height:80%;"></div> <!--style="border:1px solid #000000; width:640px; height:480px;"-->
+        </div>
 
-            <div class="col-md-1" style="margin-top:10px">
-                <div class="checkbox">
-                  <label><input name="pegel" type="checkbox" value="" onclick="getOpenData('pegel', checked)">Lärmpegel</label>
-                </div>
-            </div>
+        <div class="col-md-2">
+            <button id="beschaeftigte" type="button" style="width: 200px" name="Beschäftigte" class="btn btn-default" onclick="getOpenData('beschaeftigte')">Beschäftigte</button>
+        </div>
 
-            <div class="col-md-1" style="margin-top:10px">
-                <div class="checkbox">
-                  <label><input type="checkbox" value="" onclick="getOpenData('landtag',checked)">Landtagswahl</label>
-                </div>
-            </div>
+        <div class="col-md-2" style="margin-top:10px">
+            <button id="laermpegel" type="button" style="width: 200px" name="Lärmpegel" class="btn btn-default" onclick="getOpenData('pegel')">Lärmpegel</button>
+        </div>
+
+        <div class="col-md-2" style="margin-top:10px">
+            <button id="landtagswahl" type="button" style="width: 200px" name="Landtagswahl" class="btn btn-default" onclick="getOpenData('landtag')">Landtagswahl</button>
         </div>
     </div>
-
-    <div class="container-fluid" style="margin-top: 10px">
-          <div class="col-xs-12">
-		    <div id="mapid" class="mapcanvas"style="border:1px solid #000000; width:100%; height:80%;"></div> <!--style="border:1px solid #000000; width:640px; height:480px;"-->
-          </div>
-    </div>
-
-
 
     <!-- Footer -->
     <footer>
@@ -420,12 +420,6 @@ function getCityPoly (cityName) {
             <input name="city_osm_id" id="city_osm_id" value="-62578"/>
         </div>
     </footer>
-
-
-
-
-
-
 
 </body>
 </html>
