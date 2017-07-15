@@ -37,154 +37,6 @@
     <!-- Leaflet -->
     <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %} "/>
     <script src="{% static 'leaflet/leaflet-src.js' %}" type="text/javascript"></script>
-    <!--<script>
-        var map;
-        var csrftoken;
-        $(document).ready(
-            function init_map() {
-                csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-                map = L.map('mapid').setView([50.938, 6.95], 10);
-                L.tileLayer(
-                    'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
-                    {
-                        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-                        maxZoom: 18,
-                        //id: 'mapbox.mapbox-streets-v7',
-                        //id: 'mapbox.mapbox-terrain-v2',
-                        //id: 'mapbox.mapbox-traffic-v1',
-                        id: 'mapbox.satellite',
-                        accessToken: 'pk.eyJ1IjoicnN0b2RkZW4iLCJhIjoiY2ozdmt0ZDN3MDAydDR1cG1ybXduYjFsZiJ9.1SgNsXjR5DBwU6uEWTZF1A'
-                    }
-                ).addTo(map);
-                //var marker = L.marker([50.938, 6.95]).addTo(map);
-                //var poly = L.polygon([[[50.9690877834368,7.00925780777239],[50.9682048669575,7.00911972076204],[50.9673558646356,7.00871076633736],[50.9665734058739,7.00804666038754],[50.9658875641941,7.00715292413179],[50.9653247009086,7.00606390335322],[50.9649064513392,7.00482144850962],[50.9646488926526,7.00347330644385],[50.9645619254045,7.00207128549944],[50.9646488926526,7.00066926455503],[50.9649064513392,6.99932112248925],[50.9653247009086,6.99807866764565],[50.9658875641941,6.99698964686708],[50.9665734058739,6.99609591061134],[50.9673558646356,6.99543180466152],[50.9682048669575,6.99502285023683],[50.9690877834368,6.99488476322648],[50.9699706831334,6.99502285023683],[50.9708196376624,6.99543180466152],[50.9716020248969,6.99609591061134],[50.9722877822047,6.99698964686708],[50.9728505611183,6.99807866764565],[50.9732687391606,6.99932112248925],[50.9735262500543,7.00066926455503],[50.9736132005197,7.00207128549944],[50.9735262500543,7.00347330644385],[50.9732687391606,7.00482144850962],[50.9728505611183,7.00606390335322],[50.9722877822047,7.00715292413179],[50.9716020248969,7.00804666038754],[50.9708196376624,7.00871076633736],[50.9699706831334,7.00911972076204],[50.9690877834368,7.00925780777239]],[[50.9690877834368,7.02363085231831],[50.9655736869431,7.02289622789339],[50.9622988310278,7.02074241805917],[50.959486464264,7.0173162013965],[50.9573283439166,7.01285106890887],[50.9559716414413,7.00765131199632],[50.9555088864332,7.00207128549944],[50.9559716414413,6.99649125900256],[50.9573283439166,6.99129150209],[50.959486464264,6.98682636960237],[50.9622988310278,6.98340015293971],[50.9655736869431,6.98124634310549],[50.9690877834368,6.98051171868057],[50.9726016140884,6.98124634310549],[50.9758757437098,6.98340015293971],[50.9786871183376,6.98682636960237],[50.9808442465492,6.99129150209],[50.9822002227305,6.99649125900256],[50.9826627118967,7.00207128549944],[50.9822002227305,7.00765131199632],[50.9808442465492,7.01285106890887],[50.9786871183376,7.0173162013965],[50.9758757437098,7.02074241805917],[50.9726016140884,7.02289622789339],[50.9690877834368,7.02363085231831]]]).addTo(map);
-            }
-        );
-        /**
-         * @global map
-         */
-function jsUcfirst(string)
-{
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-function getColor(value) {
-    return value == 'bus_stop'  ? '#C7ABCA' :
-           value == 'station'  ? '#A684AA' :
-           value == 'subway_entrance'  ? '#B6A6B8' :
-           value == 'tram_stop'  ? '#EFC7F3' :
-           value == 'terminal'  ? '#766278' :
-           value == 'dog_park'  ? '#EBD6ED' :
-           value == 'fitness_centre'  ? '#EBD6ED' :
-           value == 'park'  ? '#EBD6ED' :
-           value == 'playground'  ? '#EBD6ED' :
-           value == 'cinema'  ? '#EBD6ED' :
-           value == 'nightclub'  ? '#EBD6ED' :
-           value == 'theatre'  ? '#EBD6ED' :
-           value == 'recreation_ground'  ? '#EBD6ED' :
-                      '#FFEDA0';
-}
-function getCityPoly (cityName) {
-    $.ajax(
-        './search/cityPolygon',
-        {
-            cache: false,
-            dataType: "json",
-            data: {
-                csrfmiddlewaretoken: csrftoken,
-                city: cityName
-            },
-            method: 'POST',
-            success: function (data, textStatus, jqXHR) {
-                for (i = 0; i < data.length; i++) {
-                    var latlngs = data[i].way;
-                    //console.log(latlngs);
-                    var polygon = L.polygon(latlngs, {color: 'red'});
-                    var tooltip = L.tooltip({sticky: true,
-                                            direction: 'top'})
-                        .setContent(jsUcfirst(cityName))
-                    polygon.bindTooltip(tooltip);
-                    var popup = L.popup({closeOnClick: true,
-                                        className: 'map-popup'})
-                        .setContent('Lorem Ipsum dolor sit amet');
-                    polygon.bindPopup(popup);
-                    polygon.addTo(map);
-                    if (i == 0) {
-                        map.fitBounds(polygon.getBounds());
-                    }
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert("Error: " + errorThrown
-                    + "\nStatus: " + textStatus
-                    + "\njqXHR: " + JSON.stringify(jqXHR)
-                );
-            },
-            complete: function (jqXHR, textStatus) {}
-        }
-    );
-}
-
-        function getCityFilter (filter) {
-            $.ajax(
-                './search/cityFilterIntersects',
-                {
-                    cache: false,
-                    dataType: "json",
-                    data: {
-                        csrfmiddlewaretoken: csrftoken,
-                        filter_value: filter
-                    },
-                    method: 'POST',
-                    success: function (data, textStatus, jqXHR) {
-                        console.log(data.length);
-                        if (data.length == 0) {
-                            alert("Bitte mindestens einen und maximal 3 Filter auswählen! Es wurden keine Treffer gefunden.");
-                        }
-                        else {
-                            for (i = 0; i < data.length; i++) {
-                                var latlngs = data[i].way;
-                                var polygon = L.polygon(latlngs, {color: getColor(getFilter())}).addTo(map);
-                            }
-                        }
-                    },
-                    /*success: function (data, textStatus, jqXHR) {
-                        console.log(data);
-                        var latlongs = makePoints(data[0].way); // todo: funktioniert nicht für Ringe, da doppeltes Polygon, muss anders gesplittet werden
-                        var polygon = L.polygon(latlongs, {color: 'red'}).addTo(map);
-                        map.fitBounds(polygon.getBounds())
-                    },*/
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        alert("Error: " + errorThrown
-                            + "\nStatus: " + textStatus
-                            + "\njqXHR: " + JSON.stringify(jqXHR)
-                        );
-                    },
-                    complete: function (jqXHR, textStatus) {}
-                }
-            );
-        }
-
-        /**
-         * 51.0616154051779 6.77253026067161
-         */
-        /*function retPoint (pointStr, index, refToArray) {
-            var temp = pointStr.split(" ", 2);
-            refToArray[index] = [parseFloat(temp[0]), parseFloat(temp[1])];
-        }*/
-
-        /**
-         * POLYGON((51.0616154051779 6.77253026067161,51.0616932038293 6.77256430682088,51.0622437751639 6.77280460615938,51.0633110812758 6.77339956037205))
-         */
-        /*function makePoints (polygonPointsStr) {
-            var retVal = polygonPointsStr.substring(9, polygonPointsStr.length - 2).split(',');
-            retVal.forEach(retPoint);
-            console.log(retVal);
-            return retVal;
-        }*/
-    </script>-->
-
-
-    <!-- AJAX -->
     <script src="{% static 'js/ajax.js' %}" type="text/javascript"></script>
 
 </head>
@@ -236,7 +88,7 @@ function getCityPoly (cityName) {
             <!--Filter: Transport-->
             <div class="col-md-2" style="margin-top: 10px">
                 <div class="dropdown">
-                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Transport<span class="caret"></span></button>
+                    <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown" id="transport_button">Transport<span class="caret"></span></button>
                     <ul class="dropdown-menu">
                         <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="1" value="bus_stop"/><label for="1">Bushaltestelle</label></a></li>
                         <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="2"><input type="radio" name="filter" class="sliderfilter" id="2" value="bus_station"/><label for="2">Busbahnhof</label></a></li>
@@ -253,14 +105,14 @@ function getCityPoly (cityName) {
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Freizeit<span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="7" value="park"/>Park</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="8" value="recreation_ground"/>Erholungsgebiet</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="9" value="dog_park"/>Hundepark</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="10" value="playground"/>Spielplatz</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="11" value="fitness_centre"/>Fitnessstudio</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="12" value="cinema"/>Kino</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="13" value="theatre"/>Theater</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="14" value="nightclub"/>Nachtclub</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="7" value="park"/><label for="7">Park</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="8" value="recreation_ground"/><label for="8">Erholungsgebiet</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="9" value="dog_park"/><label for="9">Hundepark</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="10" value="playground"/><label for="10">Spielplatz</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="11" value="fitness_centre"/><label for="11">Fitnessstudio</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="12" value="cinema"/><label for="12">Kino</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="13" value="theatre"/><label for="13">Theater</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="14" value="nightclub"/><label for="14">Nachtclub</label></a></li>
                     </ul>
                 </div>
             </div>
@@ -270,10 +122,10 @@ function getCityPoly (cityName) {
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Bildung<span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="15" value="kindergarten"/>Kindergarten</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="16" value="school"/>Schule</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="17" value="college"/>Hochschule</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="18" value="university"/>Universität</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="15" value="kindergarten"/><label for="15">Kindergarten</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="16" value="school"/><label for="16">Schule</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="17" value="college"/><label for="17">Hochschule</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="18" value="university"/><label for="18">Universität</label></a></li>
                     </ul>
                 </div>
             </div>
@@ -283,13 +135,13 @@ function getCityPoly (cityName) {
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Gesundheit<span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="19" value="doctors"/>Artzpraxi</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="20" value="clinic"/>Klinik</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="21" value="dentist"/>Zahnarzt</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="22" value="hospital"/>Krankenhaus</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="23" value="social_facility"/>Soziale Einrichtung</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="24" value="nursing_home"/>Pflegeheim</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="25" value="veterinary"/>Tierarzt</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="19" value="doctors"/><label for="19">Artzpraxi</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="20" value="clinic"/><label for="20">Klinik</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="21" value="dentist"/><label for="21">Zahnarzt</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="22" value="hospital"/><label for="22">Krankenhaus</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="23" value="social_facility"/><label for="23">Soziale Einrichtung</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="24" value="nursing_home"/><label for="24">Pflegeheim</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="25" value="veterinary"/><label for="25">Tierarzt</label></a></li>
                     </ul>
                 </div>
             </div>
@@ -299,7 +151,7 @@ function getCityPoly (cityName) {
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Religion<span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="26" value="place_of_worship"/>Andachtsort</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="26" value="place_of_worship"/><label for="26">Andachtsort</label></a></li>
                     </ul>
                 </div>
             </div>
@@ -309,13 +161,13 @@ function getCityPoly (cityName) {
                 <div class="dropdown">
                     <button  class="btn btn-primary dropdown-toggle" type="button"  data-toggle="dropdown">Geschäfte & Co.<span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="27" value="supermarket"/>Supermarkt</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="28" value="chemist"/>Drogerie</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="29" value="pharmacy"/>Apotheke</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="30" value="mall"/>Einkaufszentrum</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="31" value="bank"/>Bank</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="32" value="atm"/>Geldautomat</a></li>
-                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="33" value="restaurant"/>Restaurant</a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="27" value="supermarket"/><label for="27">Supermarkt</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="28" value="chemist"/><label for="28">Drogerie</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="29" value="pharmacy"/><label for="29">Apotheke</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="30" value="mall"/><label for="30">Einkaufszentrum</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="31" value="bank"/><label for="31">Bank</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="32" value="atm"/><label for="32">Geldautomat</label></a></li>
+                        <li><a href="#" name="checks2[]" class="dropdownauswahl" data-value="1"><input type="radio" name="filter" class="sliderfilter" id="33" value="restaurant"/><label for="33">Restaurant</label></a></li>
                     </ul>
                 </div>
             </div>
@@ -358,14 +210,14 @@ function getCityPoly (cityName) {
 
         <div class="row" style="margin-left:0px">
             <!--Ausgewählte Filter Textfeld-->
-            <div class="col-md-8" style="margin-top: 10px";>
+            <div class="col-md-2" style="margin-top: 10px";>
                 <div class="form-group">
-                    <input type="text" class="form-control" style="width: 1150px" name="marked_filter" id = "markedFilter" value=""/> <!--Textfeld für ausgewählte Filter-->
+                    <input type="text" class="form-control" style="width: 250px" name="marked_filter" id = "markedFilter" value=""/> <!--Textfeld für ausgewählte Filter-->
                 </div>
             </div>
 
             <!--Ausgewählte Filter-->
-            <div class="col-md-3" style="margin-top: 10px; text-align:right;">
+            <div class="col-md-10" style="margin-top: 10px; text-align:left;">
                 <div class="form-group">
                     <label class="marked_filter" id="input_marked_filter">Ausgewählte Filter</label>
                 </div>

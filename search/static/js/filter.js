@@ -25,6 +25,22 @@ function getFilter() {
     }
     return x;
 }
+
+function getFilterID(){
+
+
+    var i = 1;
+
+    while (i <= 33) {
+
+        var filter_id = i.toString();
+        if (document.getElementById(filter_id).checked == true){
+        //console.log(document.getElementById(filter_id).value);
+        return filter_id;
+        }
+    }
+
+}
 /**
  * liest die Filter und die passenden Umkreise aus und überprüft ob ein Filter noch nicht in der Filterzeile steht
  * @returns {string}
@@ -104,9 +120,11 @@ function addFilter() {
         }
         else if(getMin() == "" && getMax() == ""){ // gibt den Wert "marker" in die Filter-Zeile (an Stelle der Radius-Werte) wenn beide Radisu-Felder leer gelassen wurden
             document.getElementById("markedFilter").value += getFilter() + ":" + " marker;";
+            createFilterButton(getFilter(), getFilterID());
         }
         else {  //fügt die neuen Einträge in die Filter-Zeile hinzu. --> das ist der Basisfall
             document.getElementById("markedFilter").value += getFilter() + ":" + getMin() + ", " + getMax() + ";";
+            createFilterButton(getFilter(), getFilterID());
         }
     }
 
@@ -154,3 +172,15 @@ function searchOnClicks(){
     changeAuswahlName();
 
 }
+
+// function createFilterButton(name, filter){
+//     var button = document.createElement("BUTTON");
+//     button.type = "button";
+//     var t = document.createTextNode(document.getElementById(filter).textContent);
+//     button.appendChild(t);
+//     button.className= "btn";
+//     button.id = filter;
+//     button.innerHTML = document.getElementById(filter);
+//     // button.onclick = func;
+//     document.getElementById('input_marked_filter').appendChild(button);
+// }
