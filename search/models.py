@@ -481,6 +481,22 @@ class PlanetOsmPoint(models.Model):
         #print(len(data))
         return data
 
+    def get_landuse_polygons(filter_value, osm_id_polygon):
+        data = list()
+        for p in PlanetOsmPolygon.objects.raw("SELECT poly.osm_id, ST_asText(poly.way) AS intersection "
+                                              "FROM planet_osm_polygon polygon, planet_osm_polygon poly "
+                                                "WHERE polygon.osm_id = {} AND ST_Intersects(poly.way, polygon.way)"
+                                                "AND(poly.landuse IN('grass', 'meadow', 'recreation_ground', 'village_green', 'allotments', 'brownfield', 'landfill', 'commercial', 'construction', 'greenfield', 'residential') "
+                                                "OR poly.natural IN('grassland', 'sand', 'beach', 'bare_rock', 'scree', 'shingle', 'coastline'));".format(
+                    osm_id_polygon)):
+            p.way = transform_coords(p.intersection)
+            try:
+            # print(p.name, p.way[:25], '+')
+                data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way)})
+            except:
+                print("search.models.MultipleObjectsReturned: get() returned more than one PlanetOsmPolygon -- it returned 2!")
+        return data
+
 
     osm_id = models.BigIntegerField(primary_key='osm_id', blank=True)
     access = models.TextField(blank=True, null=True)

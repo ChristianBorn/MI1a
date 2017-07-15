@@ -71,7 +71,7 @@ function getCityPoly (cityName) {
                     var polygon = L.polygon(latlngs, {color: 'red'});
                     var tooltip = L.tooltip({sticky: true,
                                             direction: 'top'})
-                        .setContent(jsUcfirst(cityName))
+                        .setContent(jsUcfirst(data[i].name))
                     polygon.bindTooltip(tooltip);
                     var popup = L.popup({closeOnClick: true,
                                         className: 'map-popup'})
