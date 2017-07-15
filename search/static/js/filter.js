@@ -109,26 +109,23 @@ function getMax(){
 
 function addFilter() {
 
-
     if (getFilterProof() == ""){    //verhindert dass etwas in die Filterzeile geschrieben wird, wenn kein Filter angeklickt wurde
         document.getElementById("markedFilter").value += "";
     }
     else {
-        if (getMin() >= getMax() && getMin() != "" && getMax() != ""){  // kontrolliert ob der minimale Wert des Rasius wirklick klein er als der größere Umkreis-Wert ist
+        if (getMin() >= getMax() && getMin() != "" && getMax() != ""){  // kontrolliert ob der minimale Wert des Radius wirklick klein er als der größere Umkreis-Wert ist
             alert("Die Minimale Entfernung muss größer als die Maximale entfernung sein!")
             document.getElementById("markedFilter").value += "";
         }
         else if(getMin() == "" && getMax() == ""){ // gibt den Wert "marker" in die Filter-Zeile (an Stelle der Radius-Werte) wenn beide Radisu-Felder leer gelassen wurden
             document.getElementById("markedFilter").value += getFilter() + ":" + " marker;";
-            createFilterButton(getFilter(), getFilterID());
+            //createFilterButton(getFilter(), getFilterID());
         }
         else {  //fügt die neuen Einträge in die Filter-Zeile hinzu. --> das ist der Basisfall
             document.getElementById("markedFilter").value += getFilter() + ":" + getMin() + ", " + getMax() + ";";
-            createFilterButton(getFilter(), getFilterID());
+            //createFilterButton(getFilter(), getFilterID());
         }
     }
-
-
 }
 
 function getCityName() {
@@ -170,7 +167,52 @@ function changeAuswahlName(){
 function searchOnClicks(){
     getCityPoly(getCityName());
     changeAuswahlName();
+    showAuswahl();
+}
 
+function showAuswahl() {
+    document.getElementById("stadtbezirk_auswahl").style.visibility="visible";
+}
+
+function getFilterName(x) {
+    var result = "";
+
+    if (x == 1){ result = "Bushaltestelle"; }
+    else if (x == 2){ result = "Busbahnhof"; }
+    else if (x == 3){ result = "Bahnhof"; }
+    else if (x == 4){ result = "U-Bahn"; }
+    else if (x == 5){ result = "Straßenbahn"; }
+    else if (x == 6){ result = "Flughafen"; }
+    else if (x == 7){ result = "Park"; }
+    else if (x == 8){ result = "Erholungsgebiet"; }
+    else if (x == 9){ result = "Hundepark"; }
+    else if (x == 10){ result = "Spielplatz"; }
+    else if (x == 11){ result = "Fitnessstudio"; }
+    else if (x == 12){ result = "Kino"; }
+    else if (x == 13){ result = "Theater"; }
+    else if (x == 14){ result = "Nachtclub"; }
+    else if (x == 15){ result = "Kindergarten"; }
+    else if (x == 16){ result = "Schule"; }
+    else if (x == 17){ result = "Hochschule"; }
+    else if (x == 18){ result = "Universität"; }
+    else if (x == 19){ result = "Arztpraxis"; }
+    else if (x == 20){ result = "Klinik"; }
+    else if (x == 21){ result = "Zahnarzt"; }
+    else if (x == 22){ result = "Krankenhaus"; }
+    else if (x == 23){ result = "Soziale Einrichtung"; }
+    else if (x == 24){ result = "Pfelgeheim"; }
+    else if (x == 25){ result = "Tierarzt"; }
+    else if (x == 26){ result = "Andachtsort"; }
+    else if (x == 27){ result = "Supermarkt"; }
+    else if (x == 28){ result = "Drogerie"; }
+    else if (x == 29){ result = "Apotheke"; }
+    else if (x == 30){ result = "Einkaufszentrum"; }
+    else if (x == 31){ result = "Bank"; }
+    else if (x == 32){ result = "Geldautomat"; }
+    else if (x == 33){ result = "Restaurant"; }
+
+    console.log(result);
+    return result;
 }
 
 // function createFilterButton(name, filter){
