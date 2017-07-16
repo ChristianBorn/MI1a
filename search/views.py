@@ -87,7 +87,6 @@ def index(request):
 
 def search_filter(request):
     filter_value = request.POST.get('filter_value')
-    filter_name = filter_value.split(':')[0] #Wie kriegt man den Filternamen in die Javascript Funktion?
     print(filter_value, 'filter')
     if filter_value is not None:
         # osm_id wird aus der Session ausgelesen
