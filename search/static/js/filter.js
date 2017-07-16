@@ -35,6 +35,9 @@ function getFilterID(){
         //console.log(document.getElementById(filter_id).value);
         return filter_id;
         }
+        else {
+            i++;
+        }
     }
 
 }
@@ -116,11 +119,12 @@ function addFilter() {
         }
         else if(getMin() == "" && getMax() == ""){ // gibt den Wert "marker" in die Filter-Zeile (an Stelle der Radius-Werte) wenn beide Radisu-Felder leer gelassen wurden
             document.getElementById("markedFilter").value += getFilter() + ":" + " marker;";
-            //createFilterButton(getFilter(), getFilterID());
+            createFilterButton(getFilter(), getFilterID());
         }
         else {  //fügt die neuen Einträge in die Filter-Zeile hinzu. --> das ist der Basisfall
             document.getElementById("markedFilter").value += getFilter() + ":" + getMin() + ", " + getMax() + ";";
-            //createFilterButton(getFilter(), getFilterID());
+            createFilterButton(getFilter(), getFilterID());
+            // testGetFilterName(getFilterID());
         }
     }
 }
@@ -152,7 +156,7 @@ function getCityOsmId() {
 /**
  * Bennent den Button der Stadtbezirksauswahl um und gibt ihm den Namen der aktuellen Suchanfrage.
  */
-function changeAuswahlName(cityName=getCityName()){
+function changeAuswahlName(cityName = getCityName()){
     console.log(getCityName());
     document.getElementById("stadtbezirk_auswahl").innerHTML= cityName;
     console.log("Auswahlname geändert!");
@@ -212,14 +216,26 @@ function getFilterName(x) {
     return result;
 }
 
-// function createFilterButton(name, filter){
-//     var button = document.createElement("BUTTON");
-//     button.type = "button";
-//     var t = document.createTextNode(document.getElementById(filter).textContent);
-//     button.appendChild(t);
-//     button.className= "btn";
-//     button.id = filter;
-//     button.innerHTML = document.getElementById(filter);
-//     // button.onclick = func;
-//     document.getElementById('input_marked_filter').appendChild(button);
-// }
+
+function testGetFilterName(filter_id){
+    console.log("TestGetFilterName: Ausgewählter Filter:" + getFilterName(filter_id));
+}
+
+function createFilterButton(name, filter){
+    var button = document.createElement("BUTTON");
+    button.className= "btn";
+    var newID= filter + "button";
+    button.id = newID;
+    var t = document.createTextNode(getFilterName(filter));
+    button.appendChild(t);
+    document.getElementById('input_marked_filter').appendChild(button);
+    button.onclick = function() {
+        document.getElementById(newID).remove();
+    }
+}
+
+/*function removeFilterButton(filter_id) {
+    document.getElementById(filter_id).remove;
+}*/
+    /*var elem = document.getElementById(filter_id);
+    elem.parentNode.removeChild(elem);*/
