@@ -37,17 +37,35 @@
     <script src="{% static 'leaflet/leaflet-src.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/ajax.js' %}" type="text/javascript"></script>
 
+    <!-- Leaflet-Loader -->
+    <link rel="stylesheet" href="{% static 'leaflet-loader/leaflet-loader.css' %}" />
+    <script src="{% static 'leaflet-loader/leaflet-loader.js' %}" type="text/javascript"></script>
+
     <!-- Theme CSS -->
     <link href="{% static 'css/clean-blog.min.css' %}" rel="stylesheet">
 
 </head>
 
 <body>
-
-
+<div id="overlay" style="position: absolute; background: rgba(255,255,255,0.5); height:200%; width: 200%; z-index: 10; overflow: hidden;">
+    <div id="loading" style="position: relative; top: 20%; left: 20%; background: none">
+        <img src="{% static 'css/Spin2.gif' %}" />
+    </div>
+    <script>
+    var $loading = $('#overlay').hide();
+                   $(document)
+                     .ajaxStart(function () {
+                         $loading.show();
+                     })
+                   .ajaxStop(function () {
+                        $loading.hide();
+                    });
+    </script>
+</div>
 
     <div class="container-fluid">
         <div class="row">
+
             <!--Suchfeld-->
             <div class="col-md-8" style="margin-top:6px">
                 <div class="search-field">

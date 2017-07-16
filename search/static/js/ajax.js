@@ -71,7 +71,7 @@ function getCityPoly (cityName, osmId=false ) {
                 if (data.length == 1) {
                 $('#stadtauswahl').html('<a href="#" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
                 }
-                changeAuswahlName(data[0].name)
+                changeAuswahlName(data[0].name);
                 for (i = 0; i < data.length; i++) {
                     if (i != 0) {
                         list+= '<a href="#" class="list-group-item list-group-item-action" onclick="getCityPoly('+data[i].osm_id+',true)">'+data[i].name+'</a>';
@@ -92,6 +92,9 @@ function getCityPoly (cityName, osmId=false ) {
                         map.fitBounds(polygon.getBounds());
                     }
                 }$('#stadtauswahl').append(list);
+                $('html, body').animate({
+        scrollTop:$('#mapid').offset().top*0.7
+    },'slow');
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert("Error: " + errorThrown

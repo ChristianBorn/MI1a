@@ -1,6 +1,3 @@
-
-
-
 var used_filters = [];
 
 /**
