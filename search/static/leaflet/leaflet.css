@@ -622,3 +622,9 @@
 	margin-left: -12px;
 	border-right-color: #fff;
 	}
+.cityPoly:hover, .cityPoly:focus {
+    fill: #337ab7;
+}
+.cityPoly:active {
+    fill: #286090;
+}

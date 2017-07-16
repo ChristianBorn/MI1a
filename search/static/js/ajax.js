@@ -78,7 +78,7 @@ function getCityPoly (cityName, osmId=false ) {
                     }
                     console.log(data.length);
                     var latlngs = data[i].way;
-                    var polygon = L.polygon(latlngs, {color: 'red'});
+                    var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly'});
                     var tooltip = L.tooltip({sticky: true,
                                             direction: 'top'})
                         .setContent(jsUcfirst(data[i].name))
