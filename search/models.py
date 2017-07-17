@@ -412,8 +412,16 @@ class PlanetOsmPoint(models.Model):
 
         type_filter = filter_data[0].strip()
         radius = filter_data[1].strip().split(',')
-        inner_radius = int(radius[0])
-        outer_radius = int(radius[1])
+        if radius == 'marker':
+            pass
+        if radius[0] == '':
+            inner_radius = 0
+        else:
+            inner_radius = int(radius[0])
+        if radius[1] == '':
+            outer_radius = 10000
+        else:
+            outer_radius = int(radius[1])
         # innere kreise als multiploygone mergen
         query_inner_circle = '''SELECT st_astext(st_multi(st_union(st_buffer(point.way, {})))) AS intersection  
                                             FROM planet_osm_point point, planet_osm_polygon stadtteil 
@@ -422,41 +430,54 @@ class PlanetOsmPoint(models.Model):
                                                                                                    osm_id_polygon,
                                                                                                    filter_dict[type_filter],
                                                                                                    type_filter)
+        query_outer_circle = '''SELECT st_astext(st_multi(st_union(st_buffer(point.way, {})))) AS intersection 
+                                                    FROM planet_osm_point point, planet_osm_polygon stadtteil 
+                                                    WHERE stadtteil.osm_id={} AND point.{}='{}' 
+                                                    AND st_intersects(point.way, stadtteil.way);'''.format(outer_radius,
+                                                                                                           osm_id_polygon,
+                                                                                                           filter_dict[type_filter],
+                                                                                                           type_filter)
+        query_landuse = '''SELECT ST_asText(st_multi(st_union(poly.way))) 
+                                    FROM planet_osm_polygon stadtteil, planet_osm_polygon poly 
+                                    WHERE stadtteil.osm_id = {} AND ST_Intersects(poly.way, stadtteil.way) 
+                                    AND (poly.landuse IN ('grass', 'meadow', 'recreation_ground', 'village_green', 'allotments',
+                                     'brownfield', 'landfill', 'commercial', 'construction', 'greenfield', 'residential') 
+                                     OR poly.natural IN ('grassland', 'sand', 'beach', 'bare_rock', 'scree', 'shingle', 
+                                     'coastline'));'''.format(osm_id_polygon)
+        query_intersection_landuse_outer_circle = '''SELECT st_astext(ST_Intersection(
+                                                        ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3),
+                                                        ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3)));'''
+
+        query_difference_inner_outer = '''SELECT st_astext(ST_difference(
+                                                            ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3), 
+                                                            ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3)));'''
         conn = connect_to_db(path='mysite/settings.py')
         cur = conn.cursor()
-        cur.execute(query_inner_circle)
-        result_inner_circle = transform_coords(cur.fetchone()[0])
 
-        # äußere kreise als multipolygon mergen
-        query_outer_circle = '''SELECT st_astext(st_multi(st_union(st_buffer(point.way, {})))) AS intersection 
-                                            FROM planet_osm_point point, planet_osm_polygon stadtteil 
-                                            WHERE stadtteil.osm_id={} AND point.{}='{}' 
-                                            AND st_intersects(point.way, stadtteil.way);'''.format(outer_radius,
-                                                                                                   osm_id_polygon,
-                                                                                                   filter_dict[type_filter],
-                                                                                                   type_filter)
-        cur.execute(query_outer_circle)
-        result_outer_circle = transform_coords(cur.fetchone()[0])
+        # landuse auskommentiert, da verarbeitungszeit zu lange
+        if inner_radius == 0:
+            # wenn minimaler Abstand = 0, nur äußeren Kreis zeichnen und keine Differenz bilden
+            cur.execute(query_outer_circle)
+            result_outer_circle = cur.fetchone()[0]
+            # cur.execute(query_landuse)
+            # result_landuse = cur.fetchone()[0]
+            # cur.execute(query_intersection_landuse_outer_circle, [result_outer_circle, result_landuse])
+            # result_outer_circle = cur.fetchone()[0]
+            return transform_coords(result_outer_circle)
+        else:
+            # wenn minimaler Abstand > 0, Differenz zwischen innerem Kreis und äußerem bilden
+            cur.execute(query_inner_circle)
+            result_inner_circle = cur.fetchone()[0]
+            cur.execute(query_outer_circle)
+            result_outer_circle = cur.fetchone()[0]
+            # cur.execute(query_landuse)
+            # result_landuse = cur.fetchone()[0]
+            # cur.execute(query_intersection_landuse_outer_circle, [result_outer_circle, result_landuse])
+            # result_outer_circle = cur.fetchone()[0]
+            cur.execute(query_difference_inner_outer, [result_outer_circle, result_inner_circle])
+            result_difference = cur.fetchone()[0]
+            return transform_coords(result_difference)
 
-        # landuse flächen als multipolygon mergen
-        # auskommentiert, da verarbeitungszeit zu lange
-        # coords_landuse = PlanetOsmPoint.get_landuse_polygons(osm_id_polygon)
-        # query_intersection_landuse_outer_circle = '''SELECT st_astext(ST_Intersection(
-        #                                            ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3),
-        #                                            ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3)));'''
-        # cur.execute(query_intersection_landuse_outer_circle, [result_outer_circle, coords_landuse])
-        # result_intersection_outer_circle_landuse = cur.fetchone()[0]
-        # print(result_intersection_outer_circle_landuse)
-
-        # differenz von inneren und äußeren Kreisen berechnen
-        query_difference_inner_outer = '''SELECT st_astext(ST_difference(ST_CollectionExtract(ST_MakeValid(
-                                                    st_geomfromtext(%s)), 3), ST_CollectionExtract(ST_MakeValid(
-                                                    st_geomfromtext(%s)), 3)));'''
-
-        # cur.execute(query_difference_inner_outer, [result_intersection_outer_circle_landuse, result_inner_circle])
-        cur.execute(query_difference_inner_outer, [result_outer_circle, result_inner_circle])
-        result_difference = cur.fetchone()[0]
-        return result_difference
 
     @staticmethod
     def get_filter_intersection(osm_id_polygon, filter_value):
@@ -467,7 +488,6 @@ class PlanetOsmPoint(models.Model):
                 data = [{'way':str_coords_to_array_coords(coords_landuse)}]
                 return data
             else:
-                #data = [{'way': ''}]
                 return []
         filter_lines = filter_value.strip(';').split(';') # mit strip(;) wird verhindert, dass der Liste ein leeres Element hinzugefügt wird
 
@@ -488,9 +508,11 @@ class PlanetOsmPoint(models.Model):
             else:
                 #wenn ein Filter kein Ergebnis liefert, kompletter Abbruch der Suche
                 return []
-
-        data = [{'way': str_coords_to_array_coords(result_intersection)}]
-        return data
+        if result_intersection:
+            data = [{'way': str_coords_to_array_coords(result_intersection)}]
+            return data
+        else:
+            return []
 
 
     osm_id = models.BigIntegerField(primary_key='osm_id', blank=True)
