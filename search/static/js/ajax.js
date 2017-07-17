@@ -168,7 +168,8 @@ function getCityFilterMarker  (filter) {
                     var markerClusters = L.markerClusterGroup();
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
-                        var marker = L.marker(latlngs);
+                        var markerStyle = L.AwesomeMarkers.icon({icon: getCityFilterMarkerIcon(data[i].amenity), markerColor: getCityFilterMarkerColor(data[i].amenity), prefix:'fa'});
+                        var marker = L.marker(latlngs, {icon: markerStyle});
                         var amenity = getAmenity(data[i].amenity)
                         var name = data[i].name
                         var marker_text = ""
@@ -300,4 +301,42 @@ function getAmenity (x) {
     else if (x == "restaurant"){ amenity = "Restaurant"; }
 
     return amenity;
+}
+
+function getCityFilterMarkerColor (x) {
+    var color = "";
+
+    if (x == "bus_stop" || x == "bus_station" || x == "subway_entrance" || x == "tram_stop" || x == "terminal"){ color = "purple"; }
+    else if (x == "park" || x == "recreation_ground" || x == "dog_park" || x == "playground"){ color = "green"; }
+    else if (x == "fitness_centre" || x == "cinema" || x == "theatre" || x == "nightclub" || x == "restaurant"){ color = "cadetblue"; }
+    else if (x == "kindergarten" || x == "school" || x == "college" || x == "university") { color = "red"; }
+    else if (x == "doctors" || x == "clinic" || x == "dentist" || x == "hospital" || x == "social_facility" || x == "nursing_home" || x == "veterinary"){ color = "blue"; }
+    else if (x == "supermarket" || x == "chemist" || x == "pharmacy" || x == "mall") { color = "darkgreen"; }
+    else if (x == "place_of_worship") { color = "darkpurple";}
+    else if (x == "atm" || x == "bank") { color = "orange";}
+    else {color = "darkred";}
+
+    return color;
+}
+
+function getCityFilterMarkerIcon (x) {
+    var icon = "";
+
+    if (x == "bus_stop" || x == "bus_station") { icon = "bus"; }
+    else if (x == "terminal") { icon = "plane";}
+    else if (x == "subway_entrance") { icon = "subway";}
+    else if (x == "tram_stop"){ icon = "train"; }
+    else if (x == "park" || x == "recreation_ground" || x == "dog_park" || x == "playground"){ icon = "leaf"; }
+    else if (x == "fitness_centre" || x == "cinema" || x == "theatre" || x == "nightclub"){ icon = "star"; }
+    else if (x == "restaurant") { icon = "cutlery";}
+    else if (x == "kindergarten") { icon = "child";}
+    else if (x == "school" || x == "college" || x == "university") { icon = "graduation-cap"; }
+    else if (x == "doctors" || x == "clinic" || x == "dentist" || x == "hospital" || x == "social_facility" || x == "nursing_home"){ icon = "plus"; }
+    else if (x == "veterinary") { icon = "paw";}
+    else if (x == "supermarket" || x == "chemist" || x == "pharmacy" || x == "mall") { icon = "shopping-cart"; }
+    else if (x == "place_of_worship") { icon = "users";}
+    else if (x == "atm" || x == "bank") { icon = "eur";}
+    else {icon = "question";}
+
+    return icon;
 }

@@ -177,7 +177,7 @@ function showAuswahl() {
 //    document.getElementById("filter2").style.visibility="visible";
 //    document.getElementById("filter3").style.visibility="visible";
 //    document.getElementById("filter4").style.visibility="visible";
-//    document.getElementById("filter5").style.visibility="visible";
+//    document.getElementById("filter5").style.visibility="vis<ible";
 //    document.getElementById("filter6").style.visibility="visible";
 //    document.getElementById("inputmin_div").style.visibility="visible";
 //    document.getElementById("inputmax_div").style.visibility="visible";
