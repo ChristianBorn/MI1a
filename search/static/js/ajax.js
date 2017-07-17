@@ -13,8 +13,9 @@ $(document).ready(
             maxZoom: 16
             }
 
-            /*
+
             //old via mapbox
+            /*
             'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
             {
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -42,14 +43,14 @@ function getColor(value) {
            value == 'station'  ? '#A684AA' :
            value == 'subway_entrance'  ? '#B6A6B8' :
            value == 'tram_stop'  ? '#EFC7F3' :
-           value == 'terminal'  ? '#766278' :
-           value == 'dog_park'  ? '#EBD6ED' :
-           value == 'fitness_centre'  ? '#EBD6ED' :
-           value == 'park'  ? '#EBD6ED' :
-           value == 'playground'  ? '#EBD6ED' :
-           value == 'cinema'  ? '#EBD6ED' :
-           value == 'nightclub'  ? '#EBD6ED' :
-           value == 'theatre'  ? '#EBD6ED' :
+           value == 'terminal'  ? '#D3CCF8' :
+           value == 'dog_park'  ? '#76B38A' :
+           value == 'fitness_centre'  ? '#75D6AF' :
+           value == 'park'  ? '#BFF6D1' :
+           value == 'playground'  ? '#9ACFAB' :
+           value == 'cinema'  ? '#3CA57B' :
+           value == 'nightclub'  ? '#3EE4A2' :
+           value == 'theatre'  ? '#A5CEBE' :
            value == 'recreation_ground'  ? '#EBD6ED' :
                       '#FFEDA0';
 }
@@ -168,7 +169,17 @@ function getCityFilterMarker  (filter) {
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var marker = L.marker(latlngs);
-                        var marker_text = "Name: "+data[i].name+"; Art: "+data[i].amenity;
+                        var amenity = getAmenity(data[i].amenity)
+                        var name = data[i].name
+                        var marker_text = ""
+
+                        if (name != null) {
+                            marker_text = "Name: "+name+"; Art: "+amenity;
+                        }
+                        else {
+                            marker_text = "Art: "+amenity;
+                        }
+
                         marker.bindPopup(marker_text);
                         marker.on('mouseover', function (e) {
                             this.openPopup();
@@ -249,4 +260,44 @@ function getOpenData  (type_data) {
             complete: function (jqXHR, textStatus) {}
         }
     );
+}
+
+function getAmenity (x) {
+    var amenity = "";
+
+    if (x == "bus_stop"){ amenity = "Bushaltestelle"; }
+    else if (x == "bus_station"){ amenity = "Busbahnhof"; }
+    else if (x == "station"){ amenity = "Bahnhof"; }
+    else if (x == "subway_entrance"){ amenity = "U-Bahn"; }
+    else if (x == "tram_stop"){ amenity = "Straßenbahn"; }
+    else if (x == "terminal"){ amenity = "Flughafen"; }
+    else if (x == "park"){ amenity = "Park"; }
+    else if (x == "recreation_ground"){ amenity = "Erholungsgebiet"; }
+    else if (x == "dog_park"){ amenity = "Hundepark"; }
+    else if (x == "playground"){ amenity = "Spielplatz"; }
+    else if (x == "fitness_centre"){ amenity = "Fitnessstudio"; }
+    else if (x == "cinema"){ amenity = "Kino"; }
+    else if (x == "theatre"){ amenity = "Theater"; }
+    else if (x == "nightclub"){ amenity = "Nachtclub"; }
+    else if (x == "kindergarten"){ amenity = "Kindergarten"; }
+    else if (x == "school"){ amenity = "Schule"; }
+    else if (x == "college"){ amenity = "Hochschule"; }
+    else if (x == "university"){ amenity = "Universität"; }
+    else if (x == "doctors"){ amenity = "Arztpraxis"; }
+    else if (x == "clinic"){ amenity = "Klinik"; }
+    else if (x == "dentist"){ amenity= "Zahnarzt"; }
+    else if (x == "hospital"){ amenity = "Krankenhaus"; }
+    else if (x == "social_facility"){ amenity = "Soziale Einrichtung"; }
+    else if (x == "nursing_home"){ amenity = "Pfelgeheim"; }
+    else if (x == "veterinary"){ amenity = "Tierarzt"; }
+    else if (x == "place_of_worship"){ amenity = "Andachtsort"; }
+    else if (x == "supermarket"){ amenity = "Supermarkt"; }
+    else if (x == "chemist"){ amenity = "Drogerie"; }
+    else if (x == "pharmacy"){ amenity = "Apotheke"; }
+    else if (x == "mall"){ amenity = "Einkaufszentrum"; }
+    else if (x == "bank"){ amenity = "Bank"; }
+    else if (x == "atm"){ amenity = "Geldautomat"; }
+    else if (x == "restaurant"){ amenity = "Restaurant"; }
+
+    return amenity;
 }

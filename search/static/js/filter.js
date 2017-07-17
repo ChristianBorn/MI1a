@@ -173,6 +173,41 @@ function searchOnClicks(){
 
 function showAuswahl() {
     document.getElementById("stadtbezirk_auswahl").style.visibility="visible";
+//    document.getElementById("filter1").style.visibility="visible";
+//    document.getElementById("filter2").style.visibility="visible";
+//    document.getElementById("filter3").style.visibility="visible";
+//    document.getElementById("filter4").style.visibility="visible";
+//    document.getElementById("filter5").style.visibility="visible";
+//    document.getElementById("filter6").style.visibility="visible";
+//    document.getElementById("inputmin_div").style.visibility="visible";
+//    document.getElementById("inputmax_div").style.visibility="visible";
+//    document.getElementById("min_div").style.visibility="visible";
+//    document.getElementById("max_div").style.visibility="visible";
+//    document.getElementById("add-filter_div").style.visibility="visible";
+//    document.getElementById("input_marked_filter_div").style.visibility="visible";
+//    document.getElementById("filter_output_div").style.visibility="visible";
+//    document.getElementById("use_filter_div").style.visibility="visible";
+
+    document.getElementById("filter1").style.display="block";
+    document.getElementById("filter2").style.display="block";
+    document.getElementById("filter3").style.display="block";
+    document.getElementById("filter4").style.display="block";
+    document.getElementById("filter5").style.display="block";
+    document.getElementById("filter6").style.display="block";
+    document.getElementById("inputmin_div").style.display="block";
+    document.getElementById("inputmax_div").style.display="block";
+    document.getElementById("min_div").style.display="block";
+    document.getElementById("max_div").style.display="block";
+    document.getElementById("add-filter_div").style.display="block";
+    document.getElementById("input_marked_filter_div").style.display="block";
+    document.getElementById("filter_output_div").style.display="block";
+    document.getElementById("use_filter_div").style.display="block";
+
+    document.getElementById("beschaeftigte_div").style.visibility="visible";
+    document.getElementById("laermpegel_div").style.visibility="visible";
+    document.getElementById("landtagswahl_div").style.visibility="visible";
+    document.getElementById("lkw_verbot_div").style.visibility="visible";
+    document.getElementById("landuse_div").style.visibility="visible";
 }
 
 function getFilterName(x) {
@@ -212,7 +247,6 @@ function getFilterName(x) {
     else if (x == 32){ result = "Geldautomat"; }
     else if (x == 33){ result = "Restaurant"; }
 
-    console.log(result);
     return result;
 }
 
