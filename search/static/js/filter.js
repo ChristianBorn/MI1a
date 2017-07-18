@@ -86,7 +86,7 @@ function getFilterProof(){
 
 function getMin(){
     var umrkeis = "";
-    var umkreis = document.getElementById("min").value;
+    var umkreis = parseInt(document.getElementById("min").value);
     if (!isNaN(umkreis)) {
         return umkreis;
     }
@@ -97,7 +97,7 @@ function getMin(){
 
 function getMax(){
     var umkreis = "";
-    var umkreis = document.getElementById("max").value;
+    var umkreis = parseInt(document.getElementById("max").value);
     if (!isNaN(umkreis)) {
         return umkreis;
     }
