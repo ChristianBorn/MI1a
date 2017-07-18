@@ -366,6 +366,14 @@ form .row:first-child .floating-label-form-group {
   letter-spacing: 1px;
   border-radius: 4px;
   padding: 15px 25px;
+  transition: background-color .5s;
+}
+.chosen-filter {
+    margin-left: 10px;
+}
+.btn.chosen-filter:hover {
+    background-color: #9a9a9a;
+    text-decoration: line-through;
 }
 .btn-lg {
   font-size: 16px;
@@ -437,9 +445,16 @@ body {
 
 .list-group {
     width: 70%;
-
 }
-
+.list-group-item {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+#stadtauswahl {
+    padding-top: 0px;
+}
 #ex2Slider {
     width: 50%;
 }
@@ -450,6 +465,7 @@ body {
 
 .dropdown-menu{
     width: 200%;
+    padding-top: 5px;
 }
 
 .dropdown{
@@ -468,7 +484,7 @@ body {
 font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 14px;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   padding: 25px 25px;
   background-color: white;
   border-radius: 0;

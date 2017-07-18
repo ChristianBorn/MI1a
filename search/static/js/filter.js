@@ -257,12 +257,12 @@ function testGetFilterName(filter_id){
 
 function createFilterButton(name, filter){
     var button = document.createElement("BUTTON");
-    button.className= "btn";
+    button.className= "btn chosen-filter";
     var newID= filter + "button";
     button.id = newID;
     var t = document.createTextNode(getFilterName(filter));
     button.appendChild(t);
-    document.getElementById('input_marked_filter').appendChild(button);
+    document.getElementById('input_marked_filter_div').appendChild(button);
     button.onclick = function() {
         document.getElementById(newID).remove();
     }
