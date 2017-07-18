@@ -173,20 +173,6 @@ function searchOnClicks(){
 
 function showAuswahl() {
     document.getElementById("stadtbezirk_auswahl").style.visibility="visible";
-//    document.getElementById("filter1").style.visibility="visible";
-//    document.getElementById("filter2").style.visibility="visible";
-//    document.getElementById("filter3").style.visibility="visible";
-//    document.getElementById("filter4").style.visibility="visible";
-//    document.getElementById("filter5").style.visibility="vis<ible";
-//    document.getElementById("filter6").style.visibility="visible";
-//    document.getElementById("inputmin_div").style.visibility="visible";
-//    document.getElementById("inputmax_div").style.visibility="visible";
-//    document.getElementById("min_div").style.visibility="visible";
-//    document.getElementById("max_div").style.visibility="visible";
-//    document.getElementById("add-filter_div").style.visibility="visible";
-//    document.getElementById("input_marked_filter_div").style.visibility="visible";
-//    document.getElementById("filter_output_div").style.visibility="visible";
-//    document.getElementById("use_filter_div").style.visibility="visible";
 
     document.getElementById("filter1").style.display="block";
     document.getElementById("filter2").style.display="block";

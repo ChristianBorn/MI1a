@@ -7,15 +7,14 @@ $(document).ready(
         L.tileLayer(
             //local
 
-            //'/static/leaflet/tiles/{z}/{x}/{y}.png',
-            //{
-            //minZoom: 9,
-            //maxZoom: 16
-            //}
+            /*'static/leaflet/tiles/{z}/{x}/{y}.png',
+            {
+            minZoom: 9,
+            maxZoom: 16
+            }*/
 
 
             //old via mapbox
-
             'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
             {
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -38,21 +37,21 @@ function jsUcfirst(string)
 {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
-function getColor(value) {
-    return value == 'bus_stop'  ? '#C7ABCA' :
-           value == 'station'  ? '#A684AA' :
-           value == 'subway_entrance'  ? '#B6A6B8' :
-           value == 'tram_stop'  ? '#EFC7F3' :
-           value == 'terminal'  ? '#D3CCF8' :
-           value == 'dog_park'  ? '#76B38A' :
-           value == 'fitness_centre'  ? '#75D6AF' :
-           value == 'park'  ? '#BFF6D1' :
-           value == 'playground'  ? '#9ACFAB' :
-           value == 'cinema'  ? '#3CA57B' :
-           value == 'nightclub'  ? '#3EE4A2' :
-           value == 'theatre'  ? '#A5CEBE' :
-           value == 'recreation_ground'  ? '#EBD6ED' :
-                      '#FFEDA0';
+function getColor(x) {
+    var color = "";
+
+    if (x == "bus_stop" || x == "bus_station" || x == "subway_entrance" || x == "tram_stop" || x == "terminal"){ color = "purple"; }
+    else if (x == "park" || x == "recreation_ground" || x == "dog_park" || x == "playground"){ color = "green"; }
+    else if (x == "fitness_centre" || x == "cinema" || x == "theatre" || x == "nightclub" || x == "restaurant"){ color = "cadetblue"; }
+    else if (x == "kindergarten" || x == "school" || x == "college" || x == "university") { color = "darkred"; }
+    else if (x == "doctors" || x == "clinic" || x == "dentist" || x == "hospital" || x == "social_facility" || x == "nursing_home" || x == "veterinary"){ color = "blue"; }
+    else if (x == "supermarket" || x == "chemist" || x == "pharmacy" || x == "mall") { color = "darkgreen"; }
+    else if (x == "place_of_worship") { color = "darkpurple";}
+    else if (x == "atm" || x == "bank") { color = "orange";}
+    else if (x == "station") { color = "purple";}
+    else {color = "darkred";}
+
+    return color;
 }
 function getCityPoly (cityName, osmId=false ) {
     $.ajax(
@@ -315,6 +314,7 @@ function getCityFilterMarkerColor (x) {
     else if (x == "supermarket" || x == "chemist" || x == "pharmacy" || x == "mall") { color = "darkgreen"; }
     else if (x == "place_of_worship") { color = "darkpurple";}
     else if (x == "atm" || x == "bank") { color = "orange";}
+    else if (x == "station") { color = "purple";}
     else {color = "darkred";}
 
     return color;
@@ -327,7 +327,10 @@ function getCityFilterMarkerIcon (x) {
     else if (x == "terminal") { icon = "plane";}
     else if (x == "subway_entrance") { icon = "subway";}
     else if (x == "tram_stop"){ icon = "train"; }
-    else if (x == "park" || x == "recreation_ground" || x == "dog_park" || x == "playground"){ icon = "leaf"; }
+    else if (x == "station") { icon = "train";}
+    else if (x == "park" || x == "recreation_ground"){ icon = "leaf"; }
+    else if (x == "playground") { icon = "child";}
+    else if (x == "dog_park") { icon = "paw";}
     else if (x == "fitness_centre" || x == "cinema" || x == "theatre" || x == "nightclub"){ icon = "star"; }
     else if (x == "restaurant") { icon = "cutlery";}
     else if (x == "kindergarten") { icon = "child";}
