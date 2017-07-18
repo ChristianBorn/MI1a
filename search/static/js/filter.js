@@ -261,7 +261,7 @@ function createFilterButton(name, filter){
     var newID= filter + "button";
     button.id = newID;
     // var filter_name = document.getElementById("filter"
-    var t = document.createTextNode(getFilterName(filter));
+    var t = document.createTextNode(getFilterName(filter)+ ": " + getMin() + " - " + getMax());
     button.appendChild(t);
     document.getElementById('input_marked_filter_div').appendChild(button);
     button.onclick = function() {
