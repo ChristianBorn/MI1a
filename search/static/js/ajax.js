@@ -82,12 +82,13 @@ function getCityPoly (cityName, osmId=false ) {
                     var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly', opacity:0.99});
                     var tooltip = L.tooltip({sticky: true,
                                             direction: 'top'})
-                        .setContent(jsUcfirst(data[i].name))
+                        .setContent(jsUcfirst(data[i].name));
                     polygon.bindTooltip(tooltip);
-                    var popup = L.popup({closeOnClick: true,
-                                        className: 'map-popup'})
-                        .setContent('Lorem Ipsum dolor sit amet');
-                    polygon.bindPopup(popup);
+                    if (data[i].admin_level == '10' && data[i].open_data != 'undefined') {
+                        var tooltip_text = 'Stadtteil: ' + data[i].name + ' Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ', Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + '. Durchschnittsalter: ' + data[i].open_data.alter[0]['durchschnittsalter'] + '. Landtagswahlergebnis: '+'SPD: ' + data[i].open_data.wahl[0]['gesamt_spd']+'; CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu']+'; Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene']+'; FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp']+'; Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke']+'; AfD: ' + data[i].open_data.wahl[0]['gesamt_afd']+'; NPD: ' + data[i].open_data.wahl[0]['gesamt_npd']+'; Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'];
+                        var popup = L.popup({closeOnClick: true,className: 'map-popup'}).setContent(tooltip_text);
+                        polygon.bindPopup(popup);
+                    }
                     polygon.addTo(map);
                     if (i == 0) {
                         map.fitBounds(polygon.getBounds());
