@@ -260,12 +260,39 @@ function createFilterButton(name, filter){
     button.className= "btn chosen-filter";
     var newID= filter + "button";
     button.id = newID;
+    // var filter_name = document.getElementById("filter"
     var t = document.createTextNode(getFilterName(filter));
     button.appendChild(t);
     document.getElementById('input_marked_filter_div').appendChild(button);
     button.onclick = function() {
         document.getElementById(newID).remove();
+        removeFilterFromTextarea(name);
     }
+
+}
+
+function removeFilterFromTextarea(filter_name) {
+    console.log("zu löschender Filter: " + filter_name);
+    var textarea_text = document.getElementById("markedFilter").value;
+    console.log(textarea_text);
+    var res = textarea_text.split(";");
+    console.log(res);
+    for (var i=0; i < res.length-1; i++){
+        res[i]= res[i] + ";";
+    }
+    console.log(res);
+    for (var i=0; i < res.length; i++){
+        if (res[i].startsWith(filter_name)){
+            console.log(res[i]);
+            res.splice(i, i+1)
+        }
+    }
+    console.log(res);
+    document.getElementById("markedFilter").value = "";
+    for (var i=0; i < res.length; i++) {
+        document.getElementById("markedFilter").value += res[i];
+    }
+
 }
 
 /*function removeFilterButton(filter_id) {
