@@ -242,7 +242,7 @@ class Landtagswahl(models.Model):
         for element in results:
             data.append({'stadtteil': element.stadtteil, 'gesamt_spd': element.gesamt_spd, 'gesamt_cdu': element.gesamt_cdu,
                          'gesamt_gruene': element.gesamt_gruene, 'gesamt_fdp': element.gesamt_fdp,
-                         'gesamt_die_linke': element.gesamt_die_linke, 'gesamt_afd': element.gesamt_afd,
+                         'gesamt_die_linke': element.gesamt_die_linke, 'gesamt_npd': element.gesamt_npd,
                          'gesamt_afd': element.gesamt_afd, 'gesamt_piraten': element.gesamt_piraten})
         return data
 
@@ -680,10 +680,30 @@ class PlanetOsmPolygon(models.Model):
             element.admin_level = int(element.admin_level)
         results = sorted(results, key=lambda x: int(x.admin_level))  # Sortiere Liste anhand des 2. Elements
         data = []
+        beschaeftigte = []
+        mietpreis = []
+        alter = []
+        wahl = []
         for element in results:
             print(element.name+"  |   "+str(element.admin_level))
-            data.append({'name': element.name, 'osm_id':element.osm_id, 'admin_level': element.admin_level,
-                         'way': str_coords_to_array_coords(transform_coords(element.way))})
+            if element.admin_level ==10: #nur stadtteile von köln in opendata, deswegen keine berücksichgigung anderer adminlevel
+                beschaeftigte = Beschaeftigte.get_arbeitslosenquote(element.name)
+                mietpreis = DurchschnittlicheMietpreise.get_mietpreise(element.name)
+                alter = Durchschnittsalter.get_durchschnittsalter(element.name)
+                wahl = Landtagswahl.get_parteiverteilung_in_stadtteil(element.name)
+                if beschaeftigte != [] and mietpreis != [] and alter != [] and wahl != []:
+                    open_data = True
+                else:
+                    open_data = False
+            else:
+                open_data = False
+            if open_data:
+                data.append({'name': element.name, 'osm_id':element.osm_id, 'admin_level': element.admin_level,
+                         'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': {
+                         'beschaeftigte': beschaeftigte, 'mietpreis': mietpreis, 'alter': alter, 'wahl': wahl}})
+            else:
+                data.append({'name': element.name, 'osm_id': element.osm_id, 'admin_level': element.admin_level,
+                             'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': 'undefined'})
         return data
 
 
