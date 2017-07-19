@@ -53,6 +53,36 @@ function getColor(x) {
 
     return color;
 }
+function alphanum(a, b) {
+  a = String(a).slice(94,-4);
+  b = String(b).slice(94,-4);
+  function chunkify(t) {
+    var tz = [], x = 0, y = -1, n = 0, i, j;
+
+    while (i = (j = t.charAt(x++)).charCodeAt(0)) {
+      var m = (i == 46 || (i >=48 && i <= 57));
+      if (m !== n) {
+        tz[++y] = "";
+        n = m;
+      }
+      tz[y] += j;
+    }
+    return tz;
+  }
+
+  var aa = chunkify(a);
+  var bb = chunkify(b);
+
+  for (x = 0; aa[x] && bb[x]; x++) {
+    if (aa[x] !== bb[x]) {
+      var c = Number(aa[x]), d = Number(bb[x]);
+      if (c == aa[x] && d == bb[x]) {
+        return c - d;
+      } else return (aa[x] > bb[x]) ? 1 : -1;
+    }
+  }
+  return aa.length - bb.length;
+}
 function getCityPoly (cityName, osmId=false ) {
     $.ajax(
         './search/cityPolygon',
@@ -66,7 +96,7 @@ function getCityPoly (cityName, osmId=false ) {
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
-                var list = "";
+                var sortList = []
                 $('#stadtauswahl').text('');
                 if (data.length == 1) {
                 $('#stadtauswahl').html('<a href="#" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
@@ -74,9 +104,9 @@ function getCityPoly (cityName, osmId=false ) {
                 changeAuswahlName(data[0].name);
                 for (i = 0; i < data.length; i++) {
                     if (i != 0) {
-                        list+= '<a href="#" class="list-group-item list-group-item-action" onclick="getCityPoly('+data[i].osm_id+',true)">'+data[i].name+'</a>';
+                        sortList.push('<a href="#" class="list-group-item list-group-item-action" onclick="getCityPoly('+data[i].osm_id+',true)">'+data[i].name+'</a>');
                     }
-                    console.log(data.length);
+                    //console.log(String(sortList[0]).slice(94,-4));
                     var latlngs = data[i].way;
                     var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly', opacity:0.99});
                     var tooltip = L.tooltip({sticky: true,
@@ -92,7 +122,9 @@ function getCityPoly (cityName, osmId=false ) {
                     if (i == 0) {
                         map.fitBounds(polygon.getBounds());
                     }
-                }$('#stadtauswahl').append(list);
+                }
+                sortList.sort(alphanum);
+                $('#stadtauswahl').append(sortList.join(''));
                 $('html, body').animate({
         scrollTop:$('#mapid').offset().top*0.7
     },'slow');
