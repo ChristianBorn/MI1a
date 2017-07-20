@@ -107,6 +107,28 @@ function getMax(){
 
 }
 
+function isInteger() {
+    var min = document.getElementById("min").value;
+    var max = document.getElementById("max").value;
+    noComma = false;
+    if (min.indexOf(',') != -1) {
+        noComma = false;
+    }
+    else if (min.indexOf('.') != -1) {
+        noComma = false;
+    }
+    else if (max.indexOf(',') != -1) {
+        noComma = false;
+    }
+    else if (max.indexOf('.') != -1) {
+        noComma = false;
+    }
+    else {
+        noComma = true;
+    }
+    return noComma;
+}
+
 function checkRadius() {
     radius = false;
     var max = parseInt(document.getElementById("max").value);
@@ -155,6 +177,10 @@ function checkMinMax() {
 function addFilter() {
     if (getFilterProof() == ""){    //verhindert dass etwas in die Filterzeile geschrieben wird, wenn kein Filter angeklickt wurde
         document.getElementById("markedFilter").value += "";
+    }
+    else if (!isInteger()) {
+        alert("Bitte keine Kommazahlen eintragen!");
+        document.getElementbyId("markedFilter").value += "";
     }
     else {
         if (checkMin() >= checkMax() && checkMinMax()){  // kontrolliert ob der minimale Wert des Radius wirklick klein er als der größere Umkreis-Wert ist
@@ -336,7 +362,6 @@ function createFilterButton(name, filter, radiusCase){
         document.getElementById(newID).remove();
         removeFilterFromTextarea(name);
     }
-
 }
 
 function removeFilterFromTextarea(filter_name) {
