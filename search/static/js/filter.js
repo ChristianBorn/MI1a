@@ -107,24 +107,82 @@ function getMax(){
 
 }
 
-function addFilter() {
+function checkRadius() {
+    radius = false;
+    var max = parseInt(document.getElementById("max").value);
+    var min = parseInt(document.getElementById("min").value);
+    if (!isNaN(max)) {
+        radius = true;
+    }
+    else if (!isNaN(min)){
+        radius = true;
+    }
+    else {
+       radius = false;
+    }
+    return radius;
+}
 
+function checkMin() {
+    var min = parseInt(document.getElementById("min").value);
+    if (!isNaN(min)){
+       return min;
+    }
+}
+
+function checkMax() {
+    var max = parseInt(document.getElementById("max").value);
+    if (!isNaN(max)) {
+        return max;
+    }
+}
+
+function checkMinMax() {
+    minMax = false;
+    var max = parseInt(document.getElementById("max").value);
+    var min = parseInt(document.getElementById("min").value);
+    if (!isNaN(max)) {
+        if (!isNaN(min)) {
+            minMax = true;
+        }
+    }
+    else {
+       minMax = false;
+    }
+    return minMax;
+}
+
+function addFilter() {
     if (getFilterProof() == ""){    //verhindert dass etwas in die Filterzeile geschrieben wird, wenn kein Filter angeklickt wurde
         document.getElementById("markedFilter").value += "";
     }
     else {
-        if (getMin() >= getMax() && getMin() != "" && getMax() != ""){  // kontrolliert ob der minimale Wert des Radius wirklick klein er als der größere Umkreis-Wert ist
+        if (checkMin() >= checkMax() && checkMinMax()){  // kontrolliert ob der minimale Wert des Radius wirklick klein er als der größere Umkreis-Wert ist
             alert("Die Minimale Entfernung muss größer als die Maximale entfernung sein!")
             document.getElementById("markedFilter").value += "";
         }
-        else if(getMin() == "" && getMax() == ""){ // gibt den Wert "marker" in die Filter-Zeile (an Stelle der Radius-Werte) wenn beide Radisu-Felder leer gelassen wurden
+        else if(!checkRadius()){ // gibt den Wert "marker" in die Filter-Zeile (an Stelle der Radius-Werte) wenn beide Radisu-Felder leer gelassen wurden
             document.getElementById("markedFilter").value += getFilter() + ":" + " marker;";
-            createFilterButton(getFilter(), getFilterID());
+            createFilterButton(getFilter(), getFilterID(), 1);
+            showFilter();
+        }
+        //nur Min wird leer gelassen
+        else if(!checkMin() && checkMax()) {
+            document.getElementById("markedFilter").value += getFilter() + ":" + "0, " + getMax() + ";";
+            createFilterButton(getFilter(), getFilterID(), 2);
+            showFilterIntersections();
+        }
+        //nur Max wird leer gelassen
+        else if(checkMin() && !checkMax())  {
+            document.getElementById("markedFilter").value += getFilter() + ":" + getMin() + ", 10000;";
+            createFilterButton(getFilter(), getFilterID(), 3);
+            showFilterIntersections();
         }
         else {  //fügt die neuen Einträge in die Filter-Zeile hinzu. --> das ist der Basisfall
             document.getElementById("markedFilter").value += getFilter() + ":" + getMin() + ", " + getMax() + ";";
-            createFilterButton(getFilter(), getFilterID());
+            createFilterButton(getFilter(), getFilterID(), 4);
             // testGetFilterName(getFilterID());
+            showFilterIntersections();
         }
     }
 }
@@ -186,14 +244,21 @@ function showAuswahl() {
     document.getElementById("max_div").style.display="block";
     document.getElementById("add-filter_div").style.display="block";
     document.getElementById("input_marked_filter_div").style.display="block";
-    document.getElementById("filter_output_div").style.display="block";
-    document.getElementById("use_filter_div").style.display="block";
 
     document.getElementById("beschaeftigte_div").style.visibility="visible";
     document.getElementById("laermpegel_div").style.visibility="visible";
     document.getElementById("landtagswahl_div").style.visibility="visible";
     document.getElementById("lkw_verbot_div").style.visibility="visible";
     document.getElementById("landuse_div").style.visibility="visible";
+}
+
+function showFilterIntersections() {
+    document.getElementById("filter_output_div").style.display="block";
+    document.getElementById("use_filter_div").style.display="block";
+}
+
+function showFilter() {
+    document.getElementById("filter_output_div").style.display="block";
 }
 
 function getFilterName(x) {
@@ -241,13 +306,25 @@ function testGetFilterName(filter_id){
     console.log("TestGetFilterName: Ausgewählter Filter:" + getFilterName(filter_id));
 }
 
-function createFilterButton(name, filter){
+function createFilterButton(name, filter, radiusCase){
     var button = document.createElement("BUTTON");
     button.className= "btn chosen-filter";
     var newID= filter + "button";
     button.id = newID;
     // var filter_name = document.getElementById("filter"
-    var t = document.createTextNode(getFilterName(filter)+ ": " + getMin() + " - " + getMax());
+    var t = "";
+    if (radiusCase == 1) {
+        t = document.createTextNode(getFilterName(filter));
+    }
+    else if (radiusCase == 2) {
+        t = document.createTextNode(getFilterName(filter)+ ": 0" + " - " + getMax());
+    }
+    else if (radiusCase == 3) {
+        t = document.createTextNode(getFilterName(filter)+ ": " + getMin() + " - 10000");
+    }
+    else {
+        t = document.createTextNode(getFilterName(filter)+ ": " + getMin() + " - " + getMax());
+    }
     button.appendChild(t);
     document.getElementById('input_marked_filter_div').appendChild(button);
     button.onclick = function() {
