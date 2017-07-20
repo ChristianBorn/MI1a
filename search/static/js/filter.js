@@ -219,7 +219,16 @@ function addFilter() {
 }
 
 function getCityName() {
-    return document.getElementById('town').value;
+    var failed = "failed";
+    var city = document.getElementById('town').value;
+    console.log(city);
+    if (city == "") {
+        alert("Bitte etwas in das Suchfeld eintragen!")
+        return failed;
+    }
+    else {
+        return city;
+    }
 }
 
 function getFilterText() {
@@ -255,6 +264,10 @@ function changeAuswahlName(cityName = getCityName()){
  * Fasst alle Methoden zusammen die beim Betätigen des Such-Buttons ausgelöst werden sollen.
  */
 function searchOnClicks(){
+    var city = getCityName();
+    if (city == "failed") {
+        return;
+    }
     getCityPoly(getCityName());
     changeAuswahlName();
     showAuswahl();
