@@ -87,15 +87,6 @@
                             </div>
                     </form>
                 </div>
-
-                <!--Stadbezirk/-teil Auswahl-->
-                <div class="col-md-2" style="margin-top:0px">
-                    <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle" style="visibility:hidden" type="button"  data-toggle="dropdown" id="stadtbezirk_auswahl">Auswahl<span class="caret"></span></button>
-                        <ul class="dropdown-menu" id="stadtauswahl">
-                        </ul>
-                    </div>
-                </div>
             </div>
 
             <!--Suchbutton-->
@@ -245,13 +236,22 @@
 
         <div class="row" style="margin-left:0px">
             <!--Button um Filter anzuzeigen-->
-            <div class="col-md-2" id="filter_output_div" style="margin-top:10px;display:none">
+            <div class="col-md-2" id="filter_output_div" style="margin-top:10px;visibility:hidden">
                 <button id="filter_output" type="button" style="width: 200px" name="filter_output" class="btn btn-default" onclick="getCityFilterMarker(getFilterText())">Filter anzeigen</button>
             </div>
 
             <!--Buttom um Schnittmengen anzuzeigen-->
-            <div class="col-md-2" id="use_filter_div" style="margin-top:10px;display:none">
+            <div class="col-md-3" id="use_filter_div" style="margin-top:10px;visibility:hidden">
                 <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default" onclick="getCityFilter(getFilterText())">Schnittmengen anzeigen</button>
+            </div>
+
+            <!--Stadbezirk/-teil Auswahl-->
+            <div class="col-md-4" style="margin-top:10px">
+                <div class="dropdown pull-right">
+                    <button id="stadtbezirk_auswahl" type="button" style="visibility:hidden;" class="btn btn-default" data-toggle="dropdown">Auswahl<span class="caret"></span></button>
+                    <ul class="dropdown-menu" id="stadtauswahl">
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
