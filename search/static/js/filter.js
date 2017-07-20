@@ -74,7 +74,7 @@ function getFilterProof(){
                 alert("Achtung: " + err);
                 }
     }
-    else {
+    else if(x == "") {
         alert("Achtung: Bitte einen Filter auswählen!");
     }
     used_filters.push(x);
@@ -160,6 +160,11 @@ function addFilter() {
         if (checkMin() >= checkMax() && checkMinMax()){  // kontrolliert ob der minimale Wert des Radius wirklick klein er als der größere Umkreis-Wert ist
             alert("Die Minimale Entfernung muss größer als die Maximale entfernung sein!")
             document.getElementById("markedFilter").value += "";
+            for (var i = 0; i < used_filters.length; i++){
+                if (getFilter() == used_filters[i]){
+                    used_filters.splice(i, i+1)
+                 }
+            }
         }
         else if(!checkRadius()){ // gibt den Wert "marker" in die Filter-Zeile (an Stelle der Radius-Werte) wenn beide Radisu-Felder leer gelassen wurden
             document.getElementById("markedFilter").value += getFilter() + ":" + " marker;";
@@ -356,10 +361,20 @@ function removeFilterFromTextarea(filter_name) {
         document.getElementById("markedFilter").value += res[i];
     }
 
+    for (var i = 0; i < used_filters.length; i++){
+        if (filter_name == used_filters[i]){
+            used_filters.splice(i, i+1)
+        }
+    }
+
 }
 
-/*function removeFilterButton(filter_id) {
-    document.getElementById(filter_id).remove;
+
+/*function enterpressalert(e, textarea){
+var code = (e.keyCode ? e.keyCode : e.which);
+if(code == 13) { //Enter keycode
+    getCityPoly(getCityName());
+    changeAuswahlName();
+    showAuswahl();
+}
 }*/
-    /*var elem = document.getElementById(filter_id);
-    elem.parentNode.removeChild(elem);*/
