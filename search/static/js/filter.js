@@ -253,12 +253,12 @@ function showAuswahl() {
 }
 
 function showFilterIntersections() {
-    document.getElementById("filter_output_div").style.display="block";
-    document.getElementById("use_filter_div").style.display="block";
+    document.getElementById("filter_output_div").style.visibility="visible";
+    document.getElementById("use_filter_div").style.visibility="visible";
 }
 
 function showFilter() {
-    document.getElementById("filter_output_div").style.display="block";
+    document.getElementById("filter_output_div").style.visibility="visible";
 }
 
 function getFilterName(x) {
