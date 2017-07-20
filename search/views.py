@@ -71,7 +71,7 @@ def search_cityPolygon(request):
             request.session['polygons'].append({'osm_id': elem['osm_id'],
                                                 'name': elem['name'],
                                                 'admin_level': elem['admin_level'],
-                                                'way': elem['way']})
+                                                'way': elem['way'], 'filter': {}})
         request.session.modified = True
         #print(request.session['polygons'][0]['admin_level'])
         print("Polygone in Session ",len(request.session['polygons']))
@@ -91,9 +91,12 @@ def search_filter(request):
     if filter_value is not None:
         # osm_id wird aus der Session ausgelesen
         osm_id = request.session['polygons'][0]['osm_id']
-        circles = PlanetOsmPoint.get_filter_intersection(osm_id, filter_value)
-        if circles is not None:
-            return JsonResponse(circles, safe=False)
+        session_filter_dict = request.session['polygons'][0]['filter']
+        intersections = PlanetOsmPoint.get_filter_intersection(osm_id, filter_value, session_filter_dict)
+        request.session['polygons'][0]['filter'] = intersections[1]
+        request.session.modified = True
+        if intersections[0] is not None:
+            return JsonResponse(intersections[0], safe=False)
     print('none')
     return render(request, 'search/index.html', {'results': "Suche mit leerem Filterfeld ausgeführt."})
 
@@ -103,7 +106,10 @@ def search_marker(request):
     if filter_value is not None:
         # osm_id wird aus der Session ausgelesen
         osm_id = request.session['polygons'][0]['osm_id']
-        marker = PlanetOsmPoint.get_marker(osm_id, filter_value)
-        if marker is not None:
-            return JsonResponse(marker, safe=False)
+        session_filter_dict = request.session['polygons'][0]['filter']
+        marker = PlanetOsmPoint.get_marker(osm_id, filter_value, session_filter_dict)
+        request.session['polygons'][0]['filter'] = marker[1]
+        request.session.modified = True
+        if marker[0] is not None:
+            return JsonResponse(marker[0], safe=False)
     return render(request, 'search/index.html', {'results': "Suche mit leerem Filterfeld ausgeführt."})

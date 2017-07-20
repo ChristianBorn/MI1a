@@ -35,11 +35,12 @@ def connect_to_db(path='../mysite/settings.py'):
 
 def transform_coords(result):
     conn = connect_to_db(path='mysite/settings.py')
-    cur = conn.cursor()
-    sql_string = '''SELECT ST_asText(ST_flipcoordinates(ST_Transform(ST_SetSRID(St_GeomFromText(%s),3857),4326)))'''
-    cur.execute(sql_string, [result])
-    rows = cur.fetchone()
-    tmp_val = rows[0]
+    #cur = conn.cursor()
+    with conn.cursor() as cur:
+        sql_string = '''SELECT ST_asText(ST_flipcoordinates(ST_Transform(ST_SetSRID(St_GeomFromText(%s),3857),4326)))'''
+        cur.execute(sql_string, [result])
+        rows = cur.fetchone()
+        tmp_val = rows[0]
     return tmp_val
 
 def str_coords_to_array_coords(result):
@@ -47,10 +48,11 @@ def str_coords_to_array_coords(result):
     [[[51.0616154051779,6.77253026067161],[51.0616932038293 6.77256430682088],... 
     berücksichtigt einfache koordinatenstrings, doppelte polygone für Ringe und geometrycollections'''
     conn = connect_to_db(path='mysite/settings.py')
-    cur = conn.cursor()
-    sql_string = '''SELECT ST_asgeojson(St_GeomFromText(%s))'''
-    cur.execute(sql_string, [result])
-    rows = cur.fetchone()[0].replace(',', ', ')
+    #cur = conn.cursor()
+    with conn.cursor() as cur:
+        sql_string = '''SELECT ST_asgeojson(St_GeomFromText(%s))'''
+        cur.execute(sql_string, [result])
+        rows = cur.fetchone()[0].replace(',', ', ')
     coords = rows[rows.index('"coordinates":') + len('"coordinates":'):-1]
     list_coords = ast.literal_eval(coords)
     for poly_list_nr, poly_list in enumerate(list_coords):
@@ -349,7 +351,9 @@ class PlanetOsmPoint(models.Model):
         return results
 
     @staticmethod
-    def get_marker(osm_id, filter_value):
+    def get_marker(osm_id, filter_value, session_filter_dict):
+        '''gibt alle osm_daten der übergebenen Filter als liste mit dictionary zurück, 
+        worin punkte, namen, die art des Filters und die Korrdinaten für die einzeichnung der marker gespeichert werden'''
         filter_dict = {'school': 'amenity', 'kindergarten': 'amenity', 'college': 'amenity', 'university': 'amenity',
                        'pharmacy': 'amenity', 'doctors': 'amenity', 'hospital': 'amenity', 'clinic': 'amenity',
                        'dentist': 'amenity', 'nursing_home': 'amenity', 'veterinary': 'amenity',
@@ -362,54 +366,132 @@ class PlanetOsmPoint(models.Model):
                        'park': 'leisure', 'playground': 'leisure', 'attraction': 'tourism', 'museum': 'tourism',
                        'recreation_ground': 'landuse', 'mall': 'shop', 'supermarket': 'shop', 'chemist': 'shop'}
         data = []
-        for filter_lines  in filter_value.strip(';').split(';'):
+        for filter_lines in filter_value.strip(';').split(';'):
             filter_data = filter_lines.strip().split(':')
             type_filter = filter_data[0].strip()
-            query = "SELECT point.osm_id, point.{} as amenity, ST_AsText(point.way) AS way FROM planet_osm_point point, planet_osm_polygon polygon " \
-                    "WHERE polygon.osm_id = {} AND point.{} = '{}' AND ST_Intersects(point.way, polygon.way);".format(
-                filter_dict[type_filter], osm_id, filter_dict[type_filter], type_filter)
-            for p in PlanetOsmPoint.objects.raw(query):
+            data_type_filter = []
+            count_marker = 0
+
+            #überprüfen ob maker während der session schonmal für dieses polygon ausgewählt wurden
+            if type_filter in session_filter_dict:
+                for element in session_filter_dict[type_filter]:
+                    data.append(element)
+                count_marker = len(session_filter_dict[type_filter])
+                print('Anzahl Marker:',count_marker, 'für', type_filter)
+                continue
+
+            #marker hinzufügen die als osm_points gespeichert sind
+            '''query_point = "SELECT point.osm_id, point.{} as amenity, ST_AsText(point.way) AS way " \
+                          "FROM planet_osm_point point, planet_osm_polygon stadtteil " \
+                          "WHERE stadtteil.osm_id = {} AND point.{} = '{}' " \
+                          "AND ST_Intersects(point.way, stadtteil.way);".format(filter_dict[type_filter],
+                                                                              osm_id, filter_dict[type_filter],
+                                                                              type_filter)
+            for p in PlanetOsmPoint.objects.raw(query_point):
                 p.way = transform_coords(p.way)
                 data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way),
-                             'amenity': p.amenity})
-        return data
+                             'amenity': p.amenity})'''
+            conn = connect_to_db(path='mysite/settings.py')
+            #cur = conn.cursor()
+            with conn.cursor() as cur:
+                cur.execute('''SELECT point.name, point.osm_id, ST_AsText(point.way) 
+                              FROM planet_osm_point point, planet_osm_polygon stadtteil 
+                              WHERE stadtteil.osm_id = {} AND point.{} = '{}' 
+                              AND ST_Intersects(point.way, stadtteil.way);'''.format(osm_id, filter_dict[type_filter],
+                                                                                        type_filter))
+                for element in cur.fetchall():
+                    data.append({'name': element[0],'osm_id': element[1],
+                                 'way': str_coords_to_array_coords(transform_coords(element[2])),
+                                 'amenity': type_filter})
+                    data_type_filter.append({'name': element[0],'osm_id': element[1],
+                                 'way': str_coords_to_array_coords(transform_coords(element[2])),
+                                 'amenity': type_filter})
 
-    @staticmethod
-    def get_query_string_polyfilter(number, outer_radius, inner_radius):
-        return "ST_MakePolygon(ST_ExteriorRing(ST_Buffer(point{}.way, {}*1.6)), " \
-               "ARRAY[ST_ExteriorRing(ST_Buffer(point{}.way, {}*1.6, 6))])".format(number, outer_radius, number, inner_radius)
+                # marker hinzufügen die als osm_polygons gespeichert sind
+                '''query_polygon = "SELECT polygon.osm_id, polygon.{} as amenity, ST_AsText(ST_Centroid(polygon.way)) AS way " \
+                              "FROM planet_osm_polygon polygon, planet_osm_polygon stadtteil " \
+                              "WHERE stadtteil.osm_id = {} AND polygon.{} = '{}' " \
+                              "AND ST_Intersects(polygon.way, stadtteil.way);".format(filter_dict[type_filter],
+                                                                                    osm_id, filter_dict[type_filter],
+                                                                                    type_filter)
+                for p in PlanetOsmPolygon.objects.raw(query_polygon):
+                    p.way = transform_coords(p.way)
+                    data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way),
+                                 'amenity': type_filter})'''
+                cur.execute('''SELECT polygon.name, polygon.osm_id, ST_AsText(ST_Centroid(polygon.way)) 
+                              FROM planet_osm_polygon polygon, planet_osm_polygon stadtteil 
+                              WHERE stadtteil.osm_id = {} AND polygon.{} = '{}' 
+                              AND ST_Intersects(polygon.way, stadtteil.way);'''.format(osm_id, filter_dict[type_filter],
+                                                                                        type_filter))
+                for element in cur.fetchall():
+                    data.append({'name': element[0], 'osm_id': element[1],
+                                 'way': str_coords_to_array_coords(transform_coords(element[2])),
+                                 'amenity': type_filter})
+                    data_type_filter.append({'name': element[0], 'osm_id': element[1],
+                                'way': str_coords_to_array_coords(transform_coords(element[2])),
+                                 'amenity': type_filter})
+            session_filter_dict[type_filter] = data_type_filter
+            count_marker = len(data_type_filter)
+            print('Anzahl Marker:', count_marker, 'für', type_filter)
+        print('Anzahl Marker insgesamt: ', len(data))
+        return (data, session_filter_dict)
+
 
     @staticmethod
     def get_landuse_polygons(osm_id_polygon):
         data = list()
         query_landuse = '''SELECT ST_asText(st_multi(st_union(poly.way))) 
                             FROM planet_osm_polygon stadtteil, planet_osm_polygon poly 
-                            WHERE stadtteil.osm_id = {} AND ST_Intersects(poly.way, stadtteil.way) 
+                            WHERE stadtteil.osm_id = {} AND ST_CoveredBy(poly.way, stadtteil.way) 
                             AND (poly.landuse IN ('grass', 'meadow', 'recreation_ground', 'village_green', 'allotments',
                              'brownfield', 'landfill', 'commercial', 'construction', 'greenfield', 'residential') 
                              OR poly.natural IN ('grassland', 'sand', 'beach', 'bare_rock', 'scree', 'shingle', 
                              'coastline'));'''.format(osm_id_polygon)
         conn = connect_to_db(path='mysite/settings.py')
-        cur = conn.cursor()
-        cur.execute(query_landuse)
-        result_landuse = transform_coords(cur.fetchone()[0])
+        #cur = conn.cursor()
+        with conn.cursor() as cur:
+            cur.execute(query_landuse)
+            result_landuse = cur.fetchone()[0]
         return result_landuse
 
-    @staticmethod
-    def get_coords_filter(osm_id_polygon, filter_data):
-        #filter als keys und spaltennamen als values, zwar größerers Umfang des Dictionary aber einfachere Abfrage
-        filter_dict = {'school': 'amenity', 'kindergarten': 'amenity', 'college': 'amenity', 'university': 'amenity',
-                       'pharmacy': 'amenity', 'doctors': 'amenity', 'hospital': 'amenity', 'clinic': 'amenity',
-                       'dentist': 'amenity', 'nursing_home': 'amenity', 'veterinary': 'amenity',
-                       'social_facility': 'amenity', 'bank': 'amenity', 'atm': 'amenity', 'place_of_worship': 'amenity',
-                       'theatre': 'amenity', 'nightclub': 'amenity', 'cinema': 'amenity', 'bus_station': 'amenity',
-                       'restaurant': 'amenity', 'bus_stop': 'highway', 'station': 'railway',
-                       'subway_entrance': 'railway',
-                       'tram_stop': 'railway', 'terminal': 'aeroway', 'dog_park': 'leisure',
-                       'fitness_centre': 'leisure',
-                       'park': 'leisure', 'playground': 'leisure', 'attraction': 'tourism', 'museum': 'tourism',
-                       'recreation_ground': 'landuse', 'mall': 'shop', 'supermarket': 'shop', 'chemist': 'shop'}
+    def union_osm_data(cur, query_circle_point, query_circle_polygon):
+        # vereint die polygone/umkreise um die osm_daten die in planet_osm_point und planet_osm_polygon enthalten sind
+        query_union_points_and_polygons = '''SELECT st_astext(st_multi(ST_Union(
+                                                                ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3),
+                                                                ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3))));'''
+        cur.execute(query_circle_point)
+        result_circle_point = cur.fetchone()[0]
+        cur.execute(query_circle_polygon)
+        result_circle_polygon = cur.fetchone()[0]
+        #print(result_circle_polygon, result_circle_point)
+        if result_circle_point is not None and result_circle_polygon is not None:
+            cur.execute(query_union_points_and_polygons, [result_circle_point, result_circle_polygon])
+            result_circle = cur.fetchone()[0]
+            return result_circle
+        elif result_circle_point is not None:
+            return result_circle_point
+        elif result_circle_polygon is not None:
+            return result_circle_polygon
+        else:
+            print('kein punkt oder polygon gefunden')
+            return []
 
+
+    @staticmethod
+    def get_query_circle_osm_data(radius, tablename, marker_list):
+        # variable anpassung der query für zeichnung von umkreisen.
+        # kann sowohl mit planet_osm_polygon als auch planet_osm_point genutzt werden
+        query_circle = '''SELECT st_astext(st_multi(st_union(st_buffer(osm_point.way, {})))) AS intersection  
+                                    FROM {} osm_point WHERE osm_point.osm_id IN {};'''.format(radius*1.6, tablename, marker_list)
+        return query_circle
+
+    @staticmethod
+    def get_circles_filter(cur, filter_data, marker_list):
+        '''berechnet kreise mit angegebenen minimalen und maximalen abständen für angegebene filter innerhalb des 
+        über die osm_id übergebenen polygons. 
+        Nutzung von cursor.execute anstelle von model.raw, da bei intersects/union/difference kein primarykey vorhanden'''
+
+        #filterstring splitten in werte (radius, filtername)
         type_filter = filter_data[0].strip()
         radius = filter_data[1].strip().split(',')
         if radius == 'marker':
@@ -422,95 +504,85 @@ class PlanetOsmPoint(models.Model):
             outer_radius = 10000
         else:
             outer_radius = int(radius[1])
-        # innere kreise als multiploygone mergen
-        query_inner_circle = '''SELECT st_astext(st_multi(st_union(st_buffer(point.way, {})))) AS intersection  
-                                            FROM planet_osm_point point, planet_osm_polygon stadtteil 
-                                            WHERE stadtteil.osm_id={} AND point.{}='{}' 
-                                            AND st_intersects(point.way, stadtteil.way);'''.format(inner_radius,
-                                                                                                   osm_id_polygon,
-                                                                                                   filter_dict[type_filter],
-                                                                                                   type_filter)
-        query_outer_circle = '''SELECT st_astext(st_multi(st_union(st_buffer(point.way, {})))) AS intersection 
-                                                    FROM planet_osm_point point, planet_osm_polygon stadtteil 
-                                                    WHERE stadtteil.osm_id={} AND point.{}='{}' 
-                                                    AND st_intersects(point.way, stadtteil.way);'''.format(outer_radius,
-                                                                                                           osm_id_polygon,
-                                                                                                           filter_dict[type_filter],
-                                                                                                           type_filter)
-        query_landuse = '''SELECT ST_asText(st_multi(st_union(poly.way))) 
-                                    FROM planet_osm_polygon stadtteil, planet_osm_polygon poly 
-                                    WHERE stadtteil.osm_id = {} AND ST_Intersects(poly.way, stadtteil.way) 
-                                    AND (poly.landuse IN ('grass', 'meadow', 'recreation_ground', 'village_green', 'allotments',
-                                     'brownfield', 'landfill', 'commercial', 'construction', 'greenfield', 'residential') 
-                                     OR poly.natural IN ('grassland', 'sand', 'beach', 'bare_rock', 'scree', 'shingle', 
-                                     'coastline'));'''.format(osm_id_polygon)
-        query_intersection_landuse_outer_circle = '''SELECT st_astext(ST_Intersection(
-                                                        ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3),
-                                                        ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3)));'''
+
+        query_inner_circle_point = PlanetOsmPoint.get_query_circle_osm_data(inner_radius, 'planet_osm_point', marker_list)
+        query_outer_circle_point = PlanetOsmPoint.get_query_circle_osm_data(outer_radius, 'planet_osm_point', marker_list)
+        query_inner_circle_polygon = PlanetOsmPoint.get_query_circle_osm_data(inner_radius, 'planet_osm_polygon', marker_list)
+        query_outer_circle_polygon = PlanetOsmPoint.get_query_circle_osm_data(outer_radius, 'planet_osm_polygon', marker_list)
 
         query_difference_inner_outer = '''SELECT st_astext(ST_difference(
                                                             ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3), 
                                                             ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3)));'''
-        conn = connect_to_db(path='mysite/settings.py')
-        cur = conn.cursor()
-
-        # landuse auskommentiert, da verarbeitungszeit zu lange
         if inner_radius == 0:
             # wenn minimaler Abstand = 0, nur äußeren Kreis zeichnen und keine Differenz bilden
-            cur.execute(query_outer_circle)
-            result_outer_circle = cur.fetchone()[0]
-            # cur.execute(query_landuse)
-            # result_landuse = cur.fetchone()[0]
-            # cur.execute(query_intersection_landuse_outer_circle, [result_outer_circle, result_landuse])
-            # result_outer_circle = cur.fetchone()[0]
-            return transform_coords(result_outer_circle)
+            result_outer_circle = PlanetOsmPoint.union_osm_data(cur, query_outer_circle_point, query_outer_circle_polygon)
+            return result_outer_circle
         else:
             # wenn minimaler Abstand > 0, Differenz zwischen innerem Kreis und äußerem bilden
-            cur.execute(query_inner_circle)
-            result_inner_circle = cur.fetchone()[0]
-            cur.execute(query_outer_circle)
-            result_outer_circle = cur.fetchone()[0]
-            # cur.execute(query_landuse)
-            # result_landuse = cur.fetchone()[0]
-            # cur.execute(query_intersection_landuse_outer_circle, [result_outer_circle, result_landuse])
-            # result_outer_circle = cur.fetchone()[0]
+            result_inner_circle = PlanetOsmPoint.union_osm_data(cur, query_inner_circle_point, query_inner_circle_polygon)
+            result_outer_circle = PlanetOsmPoint.union_osm_data(cur, query_outer_circle_point, query_outer_circle_polygon)
             cur.execute(query_difference_inner_outer, [result_outer_circle, result_inner_circle])
             result_difference = cur.fetchone()[0]
-            return transform_coords(result_difference)
+            return result_difference
 
 
     @staticmethod
-    def get_filter_intersection(osm_id_polygon, filter_value):
-        print(osm_id_polygon, filter_value)
+    def get_filter_intersection(osm_id_polygon, filter_value, session_filter_dict):
+        '''schnittmengen zwischen übergebenen filtern berechnen. 
+        gibt polygone zurück an denen alle filter sich schneiden und die fläche bewohnbar ist '''
         if filter_value == 'landuse':
             coords_landuse = PlanetOsmPoint.get_landuse_polygons(osm_id_polygon)
             if coords_landuse != 'GEOMETRYCOLLECTION EMPTY':
-                data = [{'way':str_coords_to_array_coords(coords_landuse)}]
-                return data
+                data = [{'way':str_coords_to_array_coords(transform_coords(coords_landuse))}]
+                return (data)
             else:
                 return []
-        filter_lines = filter_value.strip(';').split(';') # mit strip(;) wird verhindert, dass der Liste ein leeres Element hinzugefügt wird
 
-        query_intersection = '''SELECT st_astext(ST_Intersection(ST_CollectionExtract(ST_MakeValid(
-                                                                                        st_geomfromtext(%s)), 3), ST_CollectionExtract(ST_MakeValid(
-                                                                                        st_geomfromtext(%s)), 3)));'''
+        # Daten für Marker berechnen, falls sie vorher schon über "Filter anzeigen" berechnet wurden,
+        #  werden die Daten nur aus der Session geholt
+        output_get_marker = PlanetOsmPoint.get_marker(osm_id_polygon, filter_value, session_filter_dict)
+
+        filter_lines = filter_value.strip(';').split(';') # mit strip(;) wird verhindert, dass der Liste ein leeres Element hinzugefügt wird
+        query_intersection = '''SELECT st_astext(st_multi(ST_Intersection(ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3),
+                                                                ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3))));'''
         conn = connect_to_db(path='mysite/settings.py')
-        cur = conn.cursor()
-        for filter_nr, filter in enumerate(filter_lines):
-            filter_data = filter.strip().split(':')
-            coords_filter = PlanetOsmPoint.get_coords_filter(osm_id_polygon, filter_data)
-            if coords_filter != 'GEOMETRYCOLLECTION EMPTY':
-                if filter_nr == 0:
-                    result_intersection = coords_filter
+        #cur = conn.cursor()
+        with conn.cursor() as cur:
+            #von allen angegebenen filter die schnittmengen miteinader berechnen
+            # in dem alle Umkreise der filter berechnet und anschließend intersected werden
+            for filter_nr, filter in enumerate(filter_lines):
+                filter_data = filter.strip().split(':')
+                #für jeden Filter die passenden osmids in session suchen und diese für umkreissuche nutzen
+                list_marker = tuple([element['osm_id'] for element in output_get_marker[0] if element['amenity']==filter_data[0]])
+                coords_filter = PlanetOsmPoint.get_circles_filter(cur, filter_data, list_marker)
+                if coords_filter != 'GEOMETRYCOLLECTION EMPTY':
+                    if filter_nr == 0:
+                        result_intersection = coords_filter
+                    else:
+                        cur.execute(query_intersection, [result_intersection, coords_filter])
+                        result_intersection = cur.fetchone()[0]
                 else:
-                    cur.execute(query_intersection, [result_intersection, coords_filter])
-                    result_intersection = cur.fetchone()[0]
-            else:
-                #wenn ein Filter kein Ergebnis liefert, kompletter Abbruch der Suche
-                return []
-        if result_intersection:
-            data = [{'way': str_coords_to_array_coords(result_intersection)}]
-            return data
+                    #wenn ein Filter kein Ergebnis liefert, kompletter Abbruch der Suche
+                    print('nichts gefunden')
+                    return []
+
+            #intersection mit landuse, um geeignete wohnfläche zu finden
+            query_landuse = '''SELECT ST_asText(st_multi(st_union(poly.way))) 
+                                FROM planet_osm_polygon stadtteil, planet_osm_polygon poly 
+                                WHERE stadtteil.osm_id = {} AND ST_CoveredBy(poly.way, stadtteil.way) 
+                                AND (poly.landuse IN ('grass', 'meadow', 'recreation_ground', 'village_green', 'allotments',
+                                                    'brownfield', 'landfill', 'commercial', 'construction', 'greenfield', 'residential') 
+                                    OR poly.natural IN ('grassland', 'sand', 'beach', 'bare_rock', 'scree', 'shingle', 
+                                                      'coastline'));'''.format(osm_id_polygon)
+            cur.execute(query_landuse)
+            coords_landuse = cur.fetchone()[0]
+            cur.execute(query_intersection, [result_intersection, coords_landuse])
+            result_intersection_landuse = cur.fetchone()[0]
+
+        # wenn ergebnis/polygone vorhanden dann als liste mit dictionary zurückgeben
+        if result_intersection_landuse:
+            data = [{'way': str_coords_to_array_coords(transform_coords(result_intersection_landuse))}]
+            return (data, output_get_marker[1])
         else:
             return []
 
@@ -686,7 +758,7 @@ class PlanetOsmPolygon(models.Model):
         wahl = []
         for element in results:
             print(element.name+"  |   "+str(element.admin_level))
-            if element.admin_level ==10: #nur stadtteile von köln in opendata, deswegen keine berücksichgigung anderer adminlevel
+            '''if element.admin_level ==10: #nur stadtteile von köln in opendata, deswegen keine berücksichgigung anderer adminlevel
                 beschaeftigte = Beschaeftigte.get_arbeitslosenquote(element.name)
                 mietpreis = DurchschnittlicheMietpreise.get_mietpreise(element.name)
                 alter = Durchschnittsalter.get_durchschnittsalter(element.name)
@@ -701,8 +773,8 @@ class PlanetOsmPolygon(models.Model):
                 data.append({'name': element.name, 'osm_id':element.osm_id, 'admin_level': element.admin_level,
                          'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': {
                          'beschaeftigte': beschaeftigte, 'mietpreis': mietpreis, 'alter': alter, 'wahl': wahl}})
-            else:
-                data.append({'name': element.name, 'osm_id': element.osm_id, 'admin_level': element.admin_level,
+            else:'''
+            data.append({'name': element.name, 'osm_id': element.osm_id, 'admin_level': element.admin_level,
                              'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': 'undefined'})
         return data
 
