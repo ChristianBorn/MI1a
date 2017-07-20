@@ -463,6 +463,12 @@ body {
 	background: #BABABA;
 }
 
+legend{
+    display: block;
+    padding-left: 2px;
+    padding-right: 2px;
+    border: 1px, solid #000000;
+}
 .dropdown-menu{
     width: 200%;
     padding-top: 5px;
