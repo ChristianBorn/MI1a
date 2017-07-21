@@ -93,12 +93,11 @@ def search_filter(request):
         osm_id = request.session['polygons'][0]['osm_id']
         session_filter_dict = request.session['polygons'][0]['filter']
         intersections = PlanetOsmPoint.get_filter_intersection(osm_id, filter_value, session_filter_dict)
-        request.session['polygons'][0]['filter'] = intersections[1]
-        request.session.modified = True
-        if intersections[0] is not None:
+        if intersections:
+            request.session['polygons'][0]['filter'] = intersections[1]
+            request.session.modified = True
             return JsonResponse(intersections[0], safe=False)
-    print('none')
-    return render(request, 'search/index.html', {'results': "Suche mit leerem Filterfeld ausgeführt."})
+    return JsonResponse([], safe=False)
 
 
 def search_marker(request):
@@ -108,8 +107,8 @@ def search_marker(request):
         osm_id = request.session['polygons'][0]['osm_id']
         session_filter_dict = request.session['polygons'][0]['filter']
         marker = PlanetOsmPoint.get_marker(osm_id, filter_value, session_filter_dict)
-        request.session['polygons'][0]['filter'] = marker[1]
-        request.session.modified = True
-        if marker[0] is not None:
+        if marker:
+            request.session['polygons'][0]['filter'] = marker[1]
+            request.session.modified = True
             return JsonResponse(marker[0], safe=False)
-    return render(request, 'search/index.html', {'results': "Suche mit leerem Filterfeld ausgeführt."})
+    return JsonResponse([], safe=False)

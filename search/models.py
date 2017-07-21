@@ -56,11 +56,11 @@ def str_coords_to_array_coords(result):
     coords = rows[rows.index('"coordinates":') + len('"coordinates":'):-1]
     list_coords = ast.literal_eval(coords)
     for poly_list_nr, poly_list in enumerate(list_coords):
-        if type(poly_list) == list:
+        if isinstance(poly_list,list):
             for poly_nr, poly in enumerate(poly_list):
-                if type(poly) == list:
+                if isinstance(poly, list):
                     for pair_nr, coord_pair in enumerate(poly):
-                        if type(coord_pair) == list:
+                        if isinstance(coord_pair, list):
                             for coord_nr, coord in enumerate(coord_pair):
                                 list_coords[poly_list_nr][poly_nr][pair_nr][coord_nr] = str(coord)
                         else:
@@ -430,6 +430,8 @@ class PlanetOsmPoint(models.Model):
                     data_type_filter.append({'name': element[0], 'osm_id': element[1],
                                 'way': str_coords_to_array_coords(transform_coords(element[2])),
                                  'amenity': type_filter})
+                if not data_type_filter:
+                    return (type_filter, session_filter_dict)
             session_filter_dict[type_filter] = data_type_filter
             count_marker = len(data_type_filter)
             print('Anzahl Marker:', count_marker, 'für', type_filter)
@@ -463,7 +465,7 @@ class PlanetOsmPoint(models.Model):
         result_circle_point = cur.fetchone()[0]
         cur.execute(query_circle_polygon)
         result_circle_polygon = cur.fetchone()[0]
-        #print(result_circle_polygon, result_circle_point)
+        print(result_circle_polygon, result_circle_point)
         if result_circle_point is not None and result_circle_polygon is not None:
             cur.execute(query_union_points_and_polygons, [result_circle_point, result_circle_polygon])
             result_circle = cur.fetchone()[0]
@@ -532,7 +534,7 @@ class PlanetOsmPoint(models.Model):
         gibt polygone zurück an denen alle filter sich schneiden und die fläche bewohnbar ist '''
         if filter_value == 'landuse':
             coords_landuse = PlanetOsmPoint.get_landuse_polygons(osm_id_polygon)
-            if coords_landuse != 'GEOMETRYCOLLECTION EMPTY':
+            if coords_landuse != 'GEOMETRYCOLLECTION EMPTY' or coords_landuse != 'MULTIPOLYGON EMPTY':
                 data = [{'way':str_coords_to_array_coords(transform_coords(coords_landuse))}]
                 return (data)
             else:
@@ -541,6 +543,8 @@ class PlanetOsmPoint(models.Model):
         # Daten für Marker berechnen, falls sie vorher schon über "Filter anzeigen" berechnet wurden,
         #  werden die Daten nur aus der Session geholt
         output_get_marker = PlanetOsmPoint.get_marker(osm_id_polygon, filter_value, session_filter_dict)
+        if isinstance(output_get_marker[0], str):
+            return output_get_marker
 
         filter_lines = filter_value.strip(';').split(';') # mit strip(;) wird verhindert, dass der Liste ein leeres Element hinzugefügt wird
         query_intersection = '''SELECT st_astext(st_multi(ST_Intersection(ST_CollectionExtract(ST_MakeValid(st_geomfromtext(%s)), 3),
@@ -554,8 +558,13 @@ class PlanetOsmPoint(models.Model):
                 filter_data = filter.strip().split(':')
                 #für jeden Filter die passenden osmids in session suchen und diese für umkreissuche nutzen
                 list_marker = tuple([element['osm_id'] for element in output_get_marker[0] if element['amenity']==filter_data[0]])
+                if not list_marker:
+                    print('kein marker gefunden')
+                    return []
+                elif len(list_marker) == 1:
+                    list_marker = '('+str(list_marker[0])+')'
                 coords_filter = PlanetOsmPoint.get_circles_filter(cur, filter_data, list_marker)
-                if coords_filter != 'GEOMETRYCOLLECTION EMPTY':
+                if coords_filter != 'GEOMETRYCOLLECTION EMPTY' or coords_filter != 'MULTIPOLYGON EMPTY':
                     if filter_nr == 0:
                         result_intersection = coords_filter
                     else:
@@ -563,7 +572,6 @@ class PlanetOsmPoint(models.Model):
                         result_intersection = cur.fetchone()[0]
                 else:
                     #wenn ein Filter kein Ergebnis liefert, kompletter Abbruch der Suche
-                    print('nichts gefunden')
                     return []
 
             #intersection mit landuse, um geeignete wohnfläche zu finden
@@ -580,8 +588,10 @@ class PlanetOsmPoint(models.Model):
             result_intersection_landuse = cur.fetchone()[0]
 
         # wenn ergebnis/polygone vorhanden dann als liste mit dictionary zurückgeben
-        if result_intersection_landuse:
+        print(result_intersection_landuse)
+        if result_intersection_landuse != 'MULTIPOLYGON EMPTY':
             data = [{'way': str_coords_to_array_coords(transform_coords(result_intersection_landuse))}]
+            print(data)
             return (data, output_get_marker[1])
         else:
             return []

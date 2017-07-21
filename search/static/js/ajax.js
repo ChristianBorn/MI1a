@@ -7,13 +7,13 @@ $(document).ready(
         L.tileLayer(
             //local
 
-            /*'static/leaflet/tiles/{z}/{x}/{y}.png',
+            'static/leaflet/tiles/{z}/{x}/{y}.png',
             {
             minZoom: 9,
             maxZoom: 16
-            }*/
+            }
 
-
+            /*
             //old via mapbox
             'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
             {
@@ -24,7 +24,7 @@ $(document).ready(
             //id: 'mapbox.mapbox-traffic-v1',
             id: 'mapbox.satellite',
             accessToken: 'pk.eyJ1IjoicnN0b2RkZW4iLCJhIjoiY2ozdmt0ZDN3MDAydDR1cG1ybXduYjFsZiJ9.1SgNsXjR5DBwU6uEWTZF1A'
-            }
+            }*/
         ).addTo(map);
         L.control.scale().addTo(map);
         //var marker = L.marker([50.938, 6.95]).addTo(map);
@@ -158,10 +158,14 @@ function getCityFilter  (filter) {
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
                 console.log(data.length);
-                if (data.length == 0) {
-                    alert("Bitte mindestens einen und maximal 3 Filter auswählen! Es wurden keine Treffer gefunden.");
+                if (typeof data === 'string') {
+                    alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
+                }
+                else if (data.length == 0) {
+                    alert("Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen");
                 }
                 else {
+                    console.log(data)
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var polygon = L.polygon(latlngs, {color: getColor(getFilter())}).addTo(map);
@@ -198,8 +202,12 @@ function getCityFilterMarker  (filter) {
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
                 console.log(data.length);
-                if (data.length == 0) {
-                    alert("Bitte mindestens einen Filter auswählen! Es wurden keine Treffer gefunden.");
+                console.log(typeof data);
+                if (typeof data === 'string') {
+                    alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
+                }
+                else if (data.length === 0) {
+                    alert("Es wurde kein Filter in dem ausgewählten Bereich gefunden.")
                 }
                 else {
                     //var markerClusters = L.markerClusterGroup({ chunkedLoading: true });

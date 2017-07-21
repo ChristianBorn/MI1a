@@ -237,7 +237,7 @@ function getFilterText() {
         return text
     }
     else {
-        alert("Bitte mindestens einen und maximal 3 Filter auswählen!");
+        alert("Bitte mindestens einen Filter auswählen!");
     }
 }
 
