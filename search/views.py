@@ -76,6 +76,7 @@ def search_cityPolygon(request):
         #print(request.session['polygons'][0]['admin_level'])
         print("Polygone in Session ",len(request.session['polygons']))
         return JsonResponse(city_polygons, safe=False)
+    return JsonResponse([], safe=False)
 
 
 def index(request):

@@ -52,24 +52,9 @@ def str_coords_to_array_coords(result):
     with conn.cursor() as cur:
         sql_string = '''SELECT ST_asgeojson(St_GeomFromText(%s))'''
         cur.execute(sql_string, [result])
-        rows = cur.fetchone()[0].replace(',', ', ')
+        rows = cur.fetchone()[0]
     coords = rows[rows.index('"coordinates":') + len('"coordinates":'):-1]
     list_coords = ast.literal_eval(coords)
-    for poly_list_nr, poly_list in enumerate(list_coords):
-        if isinstance(poly_list,list):
-            for poly_nr, poly in enumerate(poly_list):
-                if isinstance(poly, list):
-                    for pair_nr, coord_pair in enumerate(poly):
-                        if isinstance(coord_pair, list):
-                            for coord_nr, coord in enumerate(coord_pair):
-                                list_coords[poly_list_nr][poly_nr][pair_nr][coord_nr] = str(coord)
-                        else:
-                            list_coords[poly_list_nr][poly_nr][pair_nr] = str(coord_pair)
-                else:
-                    list_coords[poly_list_nr][poly_nr] = str(poly)
-        else:
-            list_coords[poly_list_nr] = str(poly_list)
-    #print(list_coords)
     return list_coords
 
 
@@ -184,6 +169,24 @@ class Laermpegel(models.Model):
             data.append({'dezibel': element.dezibel, 'rings': str_coords_to_array_coords(element.rings),
                          'path': str_coords_to_array_coords(element.path)})
         return data
+
+    '''@staticmethod
+    def get_learmpegel():
+        results = []
+        for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel::float, "
+                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS rings,"
+                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS path "
+                                             "FROM laermpegel l;"):
+
+            results.append(lpegel)
+        data = []
+        print(len(results))
+        for element in results:
+            data.append({'dezibel': element.dezibel, 'rings': str_coords_to_array_coords(element.rings),
+                         'path': str_coords_to_array_coords(element.path)})
+        print(len(data))
+        return data'''
+
 
     class Meta:
         managed = False
@@ -465,7 +468,6 @@ class PlanetOsmPoint(models.Model):
         result_circle_point = cur.fetchone()[0]
         cur.execute(query_circle_polygon)
         result_circle_polygon = cur.fetchone()[0]
-        print(result_circle_polygon, result_circle_point)
         if result_circle_point is not None and result_circle_polygon is not None:
             cur.execute(query_union_points_and_polygons, [result_circle_point, result_circle_polygon])
             result_circle = cur.fetchone()[0]
@@ -588,10 +590,8 @@ class PlanetOsmPoint(models.Model):
             result_intersection_landuse = cur.fetchone()[0]
 
         # wenn ergebnis/polygone vorhanden dann als liste mit dictionary zurückgeben
-        print(result_intersection_landuse)
         if result_intersection_landuse != 'MULTIPOLYGON EMPTY':
             data = [{'way': str_coords_to_array_coords(transform_coords(result_intersection_landuse))}]
-            print(data)
             return (data, output_get_marker[1])
         else:
             return []
