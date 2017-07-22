@@ -101,8 +101,9 @@ function getCityPoly (cityName, osmId=false ) {
                 $('#stadtauswahl').text('');
                 if (data.length == 0) {
                     alert("Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.");
+                    return;
                 }
-                else if (data.length == 1) {
+                if (data.length == 1) {
                 $('#stadtauswahl').html('<a href="#" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
                 }
                 else {
@@ -111,7 +112,7 @@ function getCityPoly (cityName, osmId=false ) {
                         if (i != 0) {
                             sortList.push('<a href="#" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
                         }
-                        //console.log(String(sortList[0]).slice(94,-4));
+                        //console.log("bla");
                         var latlngs = data[i].way;
                         var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly', opacity: 0.99});
                         var tooltip = L.tooltip({
@@ -135,12 +136,13 @@ function getCityPoly (cityName, osmId=false ) {
                             map.fitBounds(polygon.getBounds());
                         }
                     }
-                }
                 sortList.sort(alphanum);
                 $('#stadtauswahl').append(sortList.join(''));
                 $('html, body').animate({
                     scrollTop:$('#mapid').offset().top*0.7
                     },'slow');
+                }
+
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert("Error: " + errorThrown
