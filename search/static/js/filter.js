@@ -177,18 +177,24 @@ function checkMinMax() {
 function addFilter() {
     if (getFilterProof() == ""){    //verhindert dass etwas in die Filterzeile geschrieben wird, wenn kein Filter angeklickt wurde
         document.getElementById("markedFilter").value += "";
+
     }
     else if (!isInteger()) {
         alert("Bitte keine Kommazahlen eintragen!");
-        document.getElementbyId("markedFilter").value += "";
+        document.getElementById("markedFilter").value += "";
+        for (var i = 0; i < used_filters.length; i++){
+                if (getFilter() == used_filters[i]){
+                    used_filters.splice(i, 1)
+                 }
+            }
     }
     else {
         if (checkMin() >= checkMax() && checkMinMax()){  // kontrolliert ob der minimale Wert des Radius wirklick klein er als der größere Umkreis-Wert ist
             alert("Die Minimale Entfernung muss größer als die Maximale entfernung sein!")
             document.getElementById("markedFilter").value += "";
-            for (var i = 0; i < used_filters.length; i++){
+            for (var i = 0; i < used_filters.length; i++){  // diese Schleife kann genutzt werden wenn ein Filter wieder aus dem Array used_filters[] gelöscht werden soll.
                 if (getFilter() == used_filters[i]){
-                    used_filters.splice(i, i+1)
+                    used_filters.splice(i, 1)
                  }
             }
         }
@@ -426,8 +432,8 @@ function removeFilterFromTextarea(filter_name) {
     console.log(res);
     for (var i=0; i < res.length; i++){
         if (res[i].startsWith(filter_name)){
-            console.log(res[i]);
-            res.splice(i, i+1)
+            console.log("Zu löschendes Element: " + res[i] + ", " + res);
+            res.splice(i, 1);
         }
     }
     console.log(res);
@@ -438,7 +444,7 @@ function removeFilterFromTextarea(filter_name) {
 
     for (var i = 0; i < used_filters.length; i++){
         if (filter_name == used_filters[i]){
-            used_filters.splice(i, i+1)
+            used_filters.splice(i, 1)
         }
     }
 
