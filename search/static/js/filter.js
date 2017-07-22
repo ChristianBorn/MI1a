@@ -305,6 +305,14 @@ function showFilter() {
     document.getElementById("filter_output_div").style.visibility="visible";
 }
 
+function hideFilter() {
+    document.getElementById("filter_output_div").style.visibility="hidden";
+}
+
+function hideIntersections() {
+    document.getElementById("use_filter_div").style.visibility="hidden";
+}
+
 function getFilterName(x) {
     var result = "";
 
@@ -374,6 +382,35 @@ function createFilterButton(name, filter, radiusCase){
     button.onclick = function() {
         document.getElementById(newID).remove();
         removeFilterFromTextarea(name);
+        filter = checkExistingFilter();
+        //check if there is no filter left
+        if (filter == "noFilter") {
+            hideFilter(),
+            hideIntersections();
+        }
+        //check if there is no filter with radius left
+        if (filter == "noIntersection") {
+            hideIntersections();
+        }
+    }
+}
+
+function checkExistingFilter() {
+    var result = "";
+    var intersection = false;
+    var textarea_text = document.getElementById("markedFilter").value;
+    var filter = textarea_text.split(";");
+    for (var i=0; i < filter.length-1; i++) {
+        hasNumber = /\d/.test(filter);
+        if (hasNumber) {
+            intersection = true;
+        }
+    }
+    if (textarea_text == "") {
+        return result = "noFilter";
+    }
+    else if (textarea_text != "" && !intersection) {
+        return result = "noIntersection";
     }
 }
 
