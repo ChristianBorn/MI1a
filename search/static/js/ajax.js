@@ -112,7 +112,6 @@ function getCityPoly (cityName, osmId=false ) {
                         if (i != 0) {
                             sortList.push('<a href="#" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
                         }
-                        //console.log("bla");
                         var latlngs = data[i].way;
                         var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly', opacity: 0.99});
                         var tooltip = L.tooltip({
@@ -136,6 +135,8 @@ function getCityPoly (cityName, osmId=false ) {
                             map.fitBounds(polygon.getBounds());
                         }
                     }
+                changeAuswahlName();
+                showAuswahl();
                 sortList.sort(alphanum);
                 $('#stadtauswahl').append(sortList.join(''));
                 $('html, body').animate({

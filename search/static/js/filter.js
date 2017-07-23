@@ -274,11 +274,9 @@ function searchOnClicks(){
     if (city == "failed") {
         return;
     }
-    getCityPoly(getCityName());
-    changeAuswahlName();
-    showAuswahl();
-}
+    getCityPoly(getCityName(), osmId=false);
 
+}
 function showAuswahl() {
     document.getElementById("stadtbezirk_auswahl").style.visibility="visible";
 
