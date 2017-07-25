@@ -293,11 +293,11 @@ function showAuswahl() {
     document.getElementById("add-filter_div").style.display="block";
     document.getElementById("input_marked_filter_div").style.display="block";
 
-    document.getElementById("beschaeftigte_div").style.visibility="visible";
+    //document.getElementById("beschaeftigte_div").style.visibility="visible";
     document.getElementById("laermpegel_div").style.visibility="visible";
-    document.getElementById("landtagswahl_div").style.visibility="visible";
+    //document.getElementById("landtagswahl_div").style.visibility="visible";
     document.getElementById("lkw_verbot_div").style.visibility="visible";
-    document.getElementById("landuse_div").style.visibility="visible";
+    //document.getElementById("landuse_div").style.visibility="visible";
 }
 
 function showFilterIntersections() {
