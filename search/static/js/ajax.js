@@ -106,43 +106,48 @@ function getCityPoly (cityName, osmId=false ) {
                 if (data.length == 1) {
                 $('#stadtauswahl').html('<a href="#" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
                 }
-                else {
-                    changeAuswahlName(data[0].name);
-                    for (i = 0; i < data.length; i++) {
-                        if (i != 0) {
-                            sortList.push('<a href="#" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
-                        }
-                        var latlngs = data[i].way;
-                        var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly', opacity: 0.99});
-                        var tooltip = L.tooltip({
-                            sticky: true,
-                            direction: 'top'
-                        })
-                            .setContent(jsUcfirst(data[i].name));
-                        polygon.bindTooltip(tooltip);
-                        if (data[i].admin_level == '10' && data[i].open_data != 'undefined') {
-                            var tooltip_text = 'Stadtteil: ' + data[i].name + '</br>Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + '</br>Durchschnittsmietpreis: ' + data[i].open_data.mietpreis[0]['mietpreis'] + ' €' + '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + '</br>Durchschnittsalter: ' + data[i].open_data.alter[0]['durchschnittsalter'] + '</br>Landtagswahlergebnis: ' + '</br>-SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] + '</br>-CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + '</br>-Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + '</br>-FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + '</br>-Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + '</br>-AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] + '</br>-NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + '</br>-Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'];
-                            var popup = L.popup({closeOnClick: true, className: 'map-popup'}).setContent(tooltip_text);
-                            polygon.bindPopup(popup);
-                        }
-                        /*else {
-                         polygon.on("click", function (event) {
-                         map.fitBounds(polygon.getBounds());
-                         });
-                         }*/
-                        polygon.addTo(map);
-                        if (i == 0) {
-                            map.fitBounds(polygon.getBounds());
-                        }
+                changeAuswahlName(data[0].name);
+                for (i = 0; i < data.length; i++) {
+                    if (i != 0) {
+                        sortList.push('<a href="#" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
                     }
-                changeAuswahlName();
-                showAuswahl();
-                sortList.sort(alphanum);
-                $('#stadtauswahl').append(sortList.join(''));
-                $('html, body').animate({
-                    scrollTop:$('#mapid').offset().top*0.7
-                    },'slow');
+                    var latlngs = data[i].way;
+                    var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly', opacity: 0.99});
+                    var tooltip = L.tooltip({
+                        sticky: true,
+                        direction: 'top'
+                    })
+                        .setContent(jsUcfirst(data[i].name));
+                    polygon.bindTooltip(tooltip);
+                    if (data[i].admin_level == '10' && data[i].open_data != 'undefined') {
+                        //console.log(data[i].open_data);
+                        var tooltip_text = 'Stadtteil: ' + data[i].name + '</br>Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ' %' + '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + ' %' + '</br>Durchschnittsmietpreis: ' + data[i].open_data.mietpreis[0]['mietpreis'] + ' €' + '</br>Durchschnittsalter: ' + data[i].open_data.durchschnittsalter[0]['durchschnittsalter'] + ' Jahre' + '</br>Landtagswahlergebnis: ' + '</br>-SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] +' %'+ '</br>-CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + ' %' + '</br>-Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + ' %' + '</br>-FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + ' %' + '</br>-Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + ' %' + '</br>-AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] +' %'+ '</br>-NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' + '</br>-Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'] + ' %';
+                        var popup = L.popup({closeOnClick: true, className: 'map-popup'}).setContent(tooltip_text);
+                        polygon.bindPopup(popup);
+                    }
+                    /*else if (data[i].admin_level != '10') {
+                     polygon.on("click", function (event) {
+                     map.fitBounds(polygon.getBounds());
+                     });
+                     }*/
+                     else if (data[i].admin_level == '10' && data[i].open_data == 'undefined'){
+                        var tooltip_text = 'Für diesen Stadtteil sind keine OpenData verfügbar.' ;
+                        var popup = L.popup({closeOnClick: true, className: 'map-popup'}).setContent(tooltip_text);
+                        polygon.bindPopup(popup);
+                    }
+
+                    polygon.addTo(map);
+                    if (i == 0) {
+                        map.fitBounds(polygon.getBounds());
+                    }
                 }
+            //changeAuswahlName();
+            showAuswahl();
+            sortList.sort(alphanum);
+            $('#stadtauswahl').append(sortList.join(''));
+            $('html, body').animate({
+                scrollTop:$('#mapid').offset().top*0.7
+                },'slow');
 
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -175,7 +180,7 @@ function getCityFilter  (filter) {
                     alert("Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen");
                 }
                 else {
-                    console.log(data)
+                    console.log(data);
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var polygon = L.polygon(latlngs, {color: getColor(getFilter())}).addTo(map);
@@ -212,7 +217,7 @@ function getCityFilterMarker  (filter) {
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
                 console.log(data.length);
-                console.log(typeof data);
+                //console.log(typeof data);
                 if (typeof data === 'string') {
                     alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
                 }

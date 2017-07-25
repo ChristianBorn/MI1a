@@ -67,11 +67,26 @@ def search_cityPolygon(request):
         city_polygons = PlanetOsmPolygon.get_city_polygon(city, osmId)
         # Setzt die Liste der Polygone in der Session zurück, sodass immer nur die letzte Anfrage in der Session ist
         request.session['polygons'] = []
-        for elem in city_polygons:
+        for elem_nr, elem in enumerate(city_polygons):
             request.session['polygons'].append({'osm_id': elem['osm_id'],
                                                 'name': elem['name'],
                                                 'admin_level': elem['admin_level'],
-                                                'way': elem['way'], 'filter': {}})
+                                                'way': elem['way'], 'filter': {}, 'open_data': {}})
+            if elem['admin_level'] == 10:# and not request.session['polygons'][elem_nr]['open_data']:
+                landtag = Landtagswahl.get_parteiverteilung_in_stadtteil(elem['name'])
+                beschaeftigte = Beschaeftigte.get_arbeitslosenquote(elem['name'])
+                durchschnittsalter = Durchschnittsalter.get_durchschnittsalter(elem['name'])
+                mietpreise = DurchschnittlicheMietpreise.get_mietpreise(elem['name'])
+                if landtag and beschaeftigte and durchschnittsalter and mietpreise:
+                    open_data_dict = {'wahl': landtag, 'beschaeftigte': beschaeftigte,
+                                      'durchschnittsalter': durchschnittsalter,
+                                      'mietpreis': mietpreise}
+                else:
+                    #print(landtag , beschaeftigte , durchschnittsalter , mietpreise)
+                    open_data_dict = 'undefined'
+                #print(open_data_dict)
+                city_polygons[elem_nr]['open_data'] = open_data_dict
+                request.session['polygons'][elem_nr]['open_data'] = open_data_dict
         request.session.modified = True
         #print(request.session['polygons'][0]['admin_level'])
         print("Polygone in Session ",len(request.session['polygons']))

@@ -98,10 +98,8 @@ class DurchschnittlicheMietpreise(models.Model):
     def get_mietpreise(stdteil):
         results = []
         for ele in DurchschnittlicheMietpreise.objects.raw\
-                    ("SELECT m.id, m.stadtteil, m.mietpreis::float from durchschnittliche_mietpreise m, planet_osm_polygon p "
-                     "WHERE p.boundary = 'administrative' AND p.admin_level::integer >= 9 "
-                     "AND m.stadtteil = p.name "
-                    "AND m.stadtteil = %s", [stdteil]):
+                    ("SELECT m.id, m.stadtteil, m.mietpreis::float from durchschnittliche_mietpreise m WHERE"
+                    " m.stadtteil = %s", [stdteil]):
             results.append(ele)
         data = []
         for element in results:
@@ -785,7 +783,7 @@ class PlanetOsmPolygon(models.Model):
                          'beschaeftigte': beschaeftigte, 'mietpreis': mietpreis, 'alter': alter, 'wahl': wahl}})
             else:'''
             data.append({'name': element.name, 'osm_id': element.osm_id, 'admin_level': element.admin_level,
-                             'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': 'undefined'})
+                             'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data':{}})
         return data
 
 
