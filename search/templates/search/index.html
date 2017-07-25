@@ -85,7 +85,8 @@
                 <div class="search-field">
                     <form method="post" action="">{% csrf_token %}
                             <div class="form-group">
-                                <input type="text" style="width:1000px; height:50px" placeholder="Stadt, Stadteil oder PLZ" class="form-control" name="suchanfrage" id = "town" value=""/> <!-- Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes -->
+                                <!--<input type="text" style="width:1000px; height:50px" placeholder="Stadt, Stadteil oder PLZ" class="form-control" name="suchanfrage" id = "town" value="" onkeydown="if(event.keyCode == 13) searchOnClicks();"/> &lt;!&ndash; Die folgende Zeile ermöglicht über das Attribut "name" den Zugriff auf den Inhalt des Textfeldes &ndash;&gt;-->
+                                <input type="text" style="width:1000px; height:50px" placeholder="Stadt, Stadteil oder PLZ" class="form-control" name="suchanfrage" id = "town" value="" onkeydown="enterpressalert(event, this)"/>
                             </div>
                     </form>
                 </div>

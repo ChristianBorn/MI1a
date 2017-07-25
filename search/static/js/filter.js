@@ -449,11 +449,10 @@ function removeFilterFromTextarea(filter_name) {
 }
 
 
-/*function enterpressalert(e, textarea){
-var code = (e.keyCode ? e.keyCode : e.which);
-if(code == 13) { //Enter keycode
-    getCityPoly(getCityName());
-    changeAuswahlName();
-    showAuswahl();
+function enterpressalert(e, textarea){
+    var code = (e.keyCode ? e.keyCode : e.which);
+    if(code == 13) { //Enter keycode
+        e.preventDefault();
+        searchOnClicks();
+    }
 }
-}*/
