@@ -683,7 +683,7 @@ class PlanetOsmPolygon(models.Model):
             new_admin_level = 9
         elif results[0].admin_level == '9':
             new_admin_level = 10
-        print ("new "+str(new_admin_level))
+        print("new "+str(new_admin_level))
         if 5 < int(new_admin_level) <= 10:
             for p in PlanetOsmPolygon.objects.raw("SELECT osm_id, name, admin_level, "
                                                       "ST_asText(way) AS way  "

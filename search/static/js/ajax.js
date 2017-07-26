@@ -6,14 +6,12 @@ $(document).ready(
         map = L.map('mapid').setView([50.938, 6.95], 12);
         L.tileLayer(
             //local
+            //'/static/leaflet/tiles/{z}/{x}/{y}.png',
+            //{
+            //minZoom: 9,
+            //maxZoom: 16
+            //}
 
-            'static/leaflet/tiles/{z}/{x}/{y}.png',
-            {
-            minZoom: 9,
-            maxZoom: 16
-            }
-
-            /*
             //old via mapbox
             'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
             {
@@ -24,7 +22,7 @@ $(document).ready(
             //id: 'mapbox.mapbox-traffic-v1',
             id: 'mapbox.satellite',
             accessToken: 'pk.eyJ1IjoicnN0b2RkZW4iLCJhIjoiY2ozdmt0ZDN3MDAydDR1cG1ybXduYjFsZiJ9.1SgNsXjR5DBwU6uEWTZF1A'
-            }*/
+            }
         ).addTo(map);
         L.control.scale().addTo(map);
         //var marker = L.marker([50.938, 6.95]).addTo(map);
@@ -42,7 +40,7 @@ function getColor(x) {
     var color = "";
 
     if (x == "bus_stop" || x == "bus_station" || x == "subway_entrance" || x == "tram_stop" || x == "terminal"){ color = "purple"; }
-    else if (x == "park" || x == "recreation_ground" || x == "dog_park" || x == "playground"){ color = "green"; }
+    else if (x == "park" || x == "recrea    tion_ground" || x == "dog_park" || x == "playground"){ color = "green"; }
     else if (x == "fitness_centre" || x == "cinema" || x == "theatre" || x == "nightclub" || x == "restaurant"){ color = "cadetblue"; }
     else if (x == "kindergarten" || x == "school" || x == "college" || x == "university") { color = "darkred"; }
     else if (x == "doctors" || x == "clinic" || x == "dentist" || x == "hospital" || x == "social_facility" || x == "nursing_home" || x == "veterinary"){ color = "blue"; }
@@ -85,8 +83,8 @@ function alphanum(a, b) {
   return aa.length - bb.length;
 }
 function deselect () {
-    $('.cityPoly.selected').addClass('deselected');
-    $('.cityPoly.selected').removeClass('selected');
+    $('.selected').addClass('deselected');
+    $('.selected').removeClass('selected');
 }
 function getCityPoly (cityName, osmId=false ) {
     $.ajax(
@@ -186,9 +184,10 @@ function getCityFilter  (filter) {
                 }
                 else {
                     console.log(data);
+                    deselect();
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
-                        var polygon = L.polygon(latlngs, {color: getColor(getFilter())}).addTo(map);
+                        var polygon = L.polygon(latlngs, {color: getColor(getFilter()), className: 'intersection selected'}).addTo(map).bringToBack();
                     }
                 }
             },
