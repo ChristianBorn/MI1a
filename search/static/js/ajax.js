@@ -84,6 +84,10 @@ function alphanum(a, b) {
   }
   return aa.length - bb.length;
 }
+function deselect () {
+    $('.cityPoly.selected').addClass('deselected');
+    $('.cityPoly.selected').removeClass('selected');
+}
 function getCityPoly (cityName, osmId=false ) {
     $.ajax(
         './search/cityPolygon',
@@ -104,15 +108,16 @@ function getCityPoly (cityName, osmId=false ) {
                     return;
                 }
                 if (data.length == 1) {
-                $('#stadtauswahl').html('<a href="#" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
+                $('#stadtauswahl').html('<a href="javascript:void(0)" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
                 }
                 changeAuswahlName(data[0].name);
+                deselect();
                 for (i = 0; i < data.length; i++) {
                     if (i != 0) {
-                        sortList.push('<a href="#" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
+                        sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
                     }
                     var latlngs = data[i].way;
-                    var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly', opacity: 0.99});
+                    var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly selected'});
                     var tooltip = L.tooltip({
                         sticky: true,
                         direction: 'top'

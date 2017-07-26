@@ -624,7 +624,17 @@
 	}
 .cityPoly:hover, .cityPoly:focus {
     fill: #337ab7;
+    transition: fill-opacity 0.2s;
+    fill-opacity: 0.4;
 }
 .cityPoly:active {
     fill: #286090;
+}
+.selected {
+    transition: fill-opacity 0.2s;
+    fill-opacity: 0.4;
+}
+.deselected {
+	transition: fill-opacity 0.2s;
+    fill-opacity: 0;
 }

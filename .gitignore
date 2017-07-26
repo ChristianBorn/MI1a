@@ -92,3 +92,4 @@ Thumbs.db
 *.swp
 *.bak
 mysite/settings.py
+settings.py
