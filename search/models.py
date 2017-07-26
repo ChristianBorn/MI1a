@@ -748,7 +748,7 @@ class PlanetOsmPolygon(models.Model):
                                                   "GROUP BY city.osm_id, city.name, city.admin_level, way "
                                                   "ORDER BY city.admin_level::integer ASC", [city_var]):
                 results.append(p)
-                print (p.name)
+                print(p.name)
             if len(results) > 0:
                 results = copy.deepcopy([results[0]])
                 PlanetOsmPolygon.insert_stadtteile_to_results(results)

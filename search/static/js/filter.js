@@ -274,7 +274,9 @@ function searchOnClicks(){
     if (city == "failed") {
         return;
     }
+    clearMap(map);
     getCityPoly(getCityName(), osmId=false);
+
 
 }
 function showAuswahl() {
