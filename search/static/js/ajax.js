@@ -98,6 +98,23 @@ function clearMap(m) {
         }
     }
 }
+function clearFilters(m) {
+    for(i in m._layers) {
+        if(m._layers[i].options.className != undefined) {
+            if(m._layers[i].options.className.startsWith('intersection')) {
+                m.removeLayer(m._layers[i]);
+            }
+        }
+        else if(m._layers[i]._icon != undefined || m._layers[i].options.iconCreateFunction != undefined) {
+            try {
+                m.removeLayer(m._layers[i]);
+            }
+            catch(e) {
+                console.log("problem with " + e + m._layers[i]);
+            }
+        }
+    }
+}
 function getCityPoly (cityName, osmId=false ) {
     $.ajax(
         './search/cityPolygon',
@@ -202,6 +219,7 @@ function getCityFilter  (filter) {
                 else {
                     console.log(data);
                     deselect();
+                    clearFilters(map);
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var polygon = L.polygon(latlngs, {color: getColor(getFilter()), className: 'intersection selected'}).addTo(map).bringToBack();
@@ -249,12 +267,13 @@ function getCityFilterMarker  (filter) {
                     //alert("Es wurde kein Filter in dem ausgewählten Bereich gefunden.")
                 }
                 else {
+                    clearFilters(map);
                     //var markerClusters = L.markerClusterGroup({ chunkedLoading: true });
                     var markerClusters = L.markerClusterGroup();
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var markerStyle = L.AwesomeMarkers.icon({icon: getCityFilterMarkerIcon(data[i].amenity), markerColor: getCityFilterMarkerColor(data[i].amenity), prefix:'fa'});
-                        var marker = L.marker(latlngs, {icon: markerStyle});
+                        var marker = L.marker(latlngs, {icon: markerStyle, className: 'marker'});
                         var amenity = getAmenity(data[i].amenity)
                         var name = data[i].name
                         var marker_text = ""
