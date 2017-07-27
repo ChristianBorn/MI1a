@@ -276,9 +276,8 @@ function searchOnClicks(){
     }
     clearMap(map);
     getCityPoly(getCityName(), osmId=false);
-
-
 }
+
 function showAuswahl() {
     document.getElementById("stadtbezirk_auswahl").style.visibility="visible";
 
@@ -294,12 +293,21 @@ function showAuswahl() {
     document.getElementById("max_div").style.display="block";
     document.getElementById("add-filter_div").style.display="block";
     document.getElementById("input_marked_filter_div").style.display="block";
+}
 
-    //document.getElementById("beschaeftigte_div").style.visibility="visible";
-    document.getElementById("laermpegel_div").style.visibility="visible";
-    //document.getElementById("landtagswahl_div").style.visibility="visible";
+function showOpenData() {
+    document.getElementById("opendata_div").style.visibility="visible";
+    $(function() {
+        $('#opendata_toggle').bootstrapToggle("off");
+    })
     document.getElementById("lkw_verbot_div").style.visibility="visible";
-    //document.getElementById("landuse_div").style.visibility="visible";
+    $(function() {
+        $('#lkw_verbot').bootstrapToggle("off");
+    })
+    document.getElementById("laermpegel_div").style.visibility="visible";
+    $(function() {
+        $('#laermpegel').bootstrapToggle("off");
+    })
 }
 
 function showFilterIntersections() {
@@ -317,6 +325,26 @@ function hideFilter() {
 
 function hideIntersections() {
     document.getElementById("use_filter_div").style.visibility="hidden";
+}
+
+function togglePegel() {
+    var toggle = document.getElementById("laermpegel").checked;
+    if (toggle) {
+        getOpenData('pegel');
+    }
+    /*else {
+        //clear laermpegel
+    }*/
+}
+
+function toggleLKW() {
+    var toggle = document.getElementById("lkw_verbot").checked;
+    if (toggle) {
+        getOpenData('lkw_verbot');
+    }
+    /*else {
+        //clear lkw_verbto
+    }*/
 }
 
 function getFilterName(x) {
