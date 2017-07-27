@@ -114,7 +114,8 @@ function getCityPoly (cityName, osmId=false ) {
                 var sortList = []
                 $('#stadtauswahl').text('');
                 if (data.length == 0) {
-                    alert("Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.");
+                    swal("Suche erfolglos", "Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.", "error");
+                    //alert("Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.");
                     return;
                 }
                 if (data.length == 1) {
@@ -167,10 +168,11 @@ function getCityPoly (cityName, osmId=false ) {
 
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert("Error: " + errorThrown
+                swal("Error", "Error: " + errorThrown + "\nStatus: " + textStatus + "\njqXHR: " + JSON.stringify(jqXHR), "error")
+                /*alert("Error: " + errorThrown
                     + "\nStatus: " + textStatus
                     + "\njqXHR: " + JSON.stringify(jqXHR)
-                );
+                );*/
             },
             complete: function (jqXHR, textStatus) {}
         }
@@ -190,10 +192,12 @@ function getCityFilter  (filter) {
             success: function (data, textStatus, jqXHR) {
                 console.log(data.length);
                 if (typeof data === 'string') {
-                    alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
+                    swal("Suche erfolglos", "Es wurde kein "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.", "error");
+                    //alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
                 }
                 else if (data.length == 0) {
-                    alert("Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen");
+                    sawl("Suche erfolglos", "Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen", "error")
+                    //alert("Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen");
                 }
                 else {
                     console.log(data);
@@ -211,10 +215,11 @@ function getCityFilter  (filter) {
                 map.fitBounds(polygon.getBounds())
             },*/
             error: function (jqXHR, textStatus, errorThrown) {
-                alert("Error: " + errorThrown
+                swal("Error", "Error: " + errorThrown + "\nStatus: " + textStatus + "\njqXHR: " + JSON.stringify(jqXHR), "error")
+                /*alert("Error: " + errorThrown
                     + "\nStatus: " + textStatus
                     + "\njqXHR: " + JSON.stringify(jqXHR)
-                );
+                );*/
             },
             complete: function (jqXHR, textStatus) {}
         }
@@ -236,10 +241,12 @@ function getCityFilterMarker  (filter) {
                 console.log(data.length);
                 //console.log(typeof data);
                 if (typeof data === 'string') {
-                    alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
+                    swal("Suche erfolglos", "Es wurde kein "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.", "error")
+                    //alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
                 }
                 else if (data.length === 0) {
-                    alert("Es wurde kein Filter in dem ausgewählten Bereich gefunden.")
+                    sawl("Suche erfolglos", "Es wurde kein Filter in dem ausgewählten Bereich gefunden.", "error")
+                    //alert("Es wurde kein Filter in dem ausgewählten Bereich gefunden.")
                 }
                 else {
                     //var markerClusters = L.markerClusterGroup({ chunkedLoading: true });
@@ -272,10 +279,11 @@ function getCityFilterMarker  (filter) {
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert("Error: " + errorThrown
+                swal("Error", "Error: " + errorThrown + "\nStatus: " + textStatus + "\njqXHR: " + JSON.stringify(jqXHR), "error")
+                /*alert("Error: " + errorThrown
                     + "\nStatus: " + textStatus
                     + "\njqXHR: " + JSON.stringify(jqXHR)
-                );
+                );*/
             },
             complete: function (jqXHR, textStatus) {}
         }
@@ -331,10 +339,11 @@ function getOpenData  (type_data) {
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert("Error: " + errorThrown
+                swal("Error", "Error: " + errorThrown + "\nStatus: " + textStatus + "\njqXHR: " + JSON.stringify(jqXHR), "error")
+                /*alert("Error: " + errorThrown
                     + "\nStatus: " + textStatus
                     + "\njqXHR: " + JSON.stringify(jqXHR)
-                );
+                );*/
             },
             complete: function (jqXHR, textStatus) {}
         }

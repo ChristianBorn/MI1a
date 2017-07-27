@@ -71,11 +71,13 @@ function getFilterProof(){
             }
         }
         catch (err) {
-                alert("Achtung: " + err);
+                swal("Achtung", err, "error");
+                //alert("Achtung: " + err);
                 }
     }
     else if(x == "") {
-        alert("Achtung: Bitte einen Filter auswählen!");
+        swal("Kein Filter", "Biite einen Filter auswählen!", "error");
+        //alert("Achtung: Bitte einen Filter auswählen!");
     }
     used_filters.push(x);
     console.log(used_filters);
@@ -91,7 +93,8 @@ function getMin(){
         return umkreis;
     }
     else {
-        alert("Bitte die Entfernung in Ziffern angeben!");
+        swal("Keine minimale Entfernung", "Biite die minimale Entfernung in Ziffern angeben!", "error");
+        //alert("Bitte die Entfernung in Ziffern angeben!");
     }
 }
 
@@ -102,7 +105,8 @@ function getMax(){
         return umkreis;
     }
     else {
-        alert("Bitte die Entfernung in Ziffern angeben!");
+        swal("Keine maximale Entfernung", "Biite die Entfernung in Ziffern angeben!", "error");
+        //alert("Bitte die Entfernung in Ziffern angeben!");
     }
 
 }
@@ -180,7 +184,8 @@ function addFilter() {
 
     }
     else if (!isInteger()) {
-        alert("Bitte keine Kommazahlen eintragen!");
+        swal("Fehlerhafter Eintrag", "Bitte keine Kommazahlen eintragen!", "error");
+        //alert("Bitte keine Kommazahlen eintragen!");
         document.getElementById("markedFilter").value += "";
         for (var i = 0; i < used_filters.length; i++){
                 if (getFilter() == used_filters[i]){
@@ -190,7 +195,8 @@ function addFilter() {
     }
     else {
         if (checkMin() >= checkMax() && checkMinMax()){  // kontrolliert ob der minimale Wert des Radius wirklick klein er als der größere Umkreis-Wert ist
-            alert("Die Minimale Entfernung muss größer als die Maximale entfernung sein!")
+            swal("Fehlerhafter Eintrag", "Die Minimale Entfernung muss größer als die maximale Entfernung sein!", "error");
+            //alert("Die Minimale Entfernung muss größer als die Maximale entfernung sein!")
             document.getElementById("markedFilter").value += "";
             for (var i = 0; i < used_filters.length; i++){  // diese Schleife kann genutzt werden wenn ein Filter wieder aus dem Array used_filters[] gelöscht werden soll.
                 if (getFilter() == used_filters[i]){
@@ -229,7 +235,7 @@ function getCityName() {
     var city = document.getElementById('town').value;
     console.log(city);
     if (city == "") {
-        alert("Bitte etwas in das Suchfeld eintragen!")
+        swal("Leere Suche", "Bitte etwas in das Suchfeld eintragen!", "error");
         return failed;
     }
     else {
@@ -243,7 +249,8 @@ function getFilterText() {
         return text
     }
     else {
-        alert("Bitte mindestens einen Filter auswählen!");
+        swal("Keine Filter", "Bitte mindestens einen Filter auswählen!", "error");
+        //alert("Bitte mindestens einen Filter auswählen!");
     }
 }
 
