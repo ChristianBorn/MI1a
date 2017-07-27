@@ -196,7 +196,7 @@ function getCityFilter  (filter) {
                     //alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
                 }
                 else if (data.length == 0) {
-                    sawl("Suche erfolglos", "Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen", "error")
+                    swal("Suche erfolglos", "Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen", "error")
                     //alert("Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen");
                 }
                 else {
@@ -245,7 +245,7 @@ function getCityFilterMarker  (filter) {
                     //alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
                 }
                 else if (data.length === 0) {
-                    sawl("Suche erfolglos", "Es wurde kein Filter in dem ausgewählten Bereich gefunden.", "error")
+                    swal("Suche erfolglos", "Es wurde kein Filter in dem ausgewählten Bereich gefunden.", "error")
                     //alert("Es wurde kein Filter in dem ausgewählten Bereich gefunden.")
                 }
                 else {
