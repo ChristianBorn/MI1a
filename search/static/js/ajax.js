@@ -3,8 +3,7 @@ var csrftoken;
 $(document).ready(
     function init_map() {
         csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-        map = L.map('mapid').setView([50.938, 6.95], 12);
-        L.tileLayer(
+        var tiles = L.tileLayer(
             //local
             '/static/leaflet/tiles/{z}/{x}/{y}.png',
             {
@@ -12,8 +11,8 @@ $(document).ready(
             maxZoom: 16
             }
 
-            //old via mapbox
-            /*'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
+            /*//old via mapbox
+            'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
             {
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
             maxZoom: 18,
@@ -23,7 +22,30 @@ $(document).ready(
             id: 'mapbox.satellite',
             accessToken: 'pk.eyJ1IjoicnN0b2RkZW4iLCJhIjoiY2ozdmt0ZDN3MDAydDR1cG1ybXduYjFsZiJ9.1SgNsXjR5DBwU6uEWTZF1A'
             }*/
-        ).addTo(map);
+        );
+
+        /*var lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
+        var pegel_layer = L.layerGroup(getOpenData('pegel'));
+        var open_data_layer = L.layerGroup([L.marker([50.938, 6.95]), L.marker([50.939, 6.96])]);*/
+        map = L.map('mapid',
+            {center: [50.938, 6.95], zoom: 12});
+
+        /*var overlayMaps = {
+            'OpenData': open_data_layer,
+            'LKW': lkw_verbot_layer,
+            'Pegel': pegel_layer
+        };
+
+        //Button zum Ein- und Ausschalten der Opendata außerhalb der Karte anzeigen
+        var layerControl = L.control.layers(null, overlayMaps, {collapsed: false});
+        layerControl.addTo(map);
+        layerControl._container.remove();
+        document.getElementById('divMapInfo').appendChild(layerControl.onAdd(map));*/
+
+        //tiles zur map hinzufügen
+        tiles.addTo(map);
+
+        //Maßstab zur map hinzufügen
         L.control.scale().addTo(map);
         //var marker = L.marker([50.938, 6.95]).addTo(map);
         //var poly = L.polygon([[[50.9690877834368,7.00925780777239],[50.9682048669575,7.00911972076204],[50.9673558646356,7.00871076633736],[50.9665734058739,7.00804666038754],[50.9658875641941,7.00715292413179],[50.9653247009086,7.00606390335322],[50.9649064513392,7.00482144850962],[50.9646488926526,7.00347330644385],[50.9645619254045,7.00207128549944],[50.9646488926526,7.00066926455503],[50.9649064513392,6.99932112248925],[50.9653247009086,6.99807866764565],[50.9658875641941,6.99698964686708],[50.9665734058739,6.99609591061134],[50.9673558646356,6.99543180466152],[50.9682048669575,6.99502285023683],[50.9690877834368,6.99488476322648],[50.9699706831334,6.99502285023683],[50.9708196376624,6.99543180466152],[50.9716020248969,6.99609591061134],[50.9722877822047,6.99698964686708],[50.9728505611183,6.99807866764565],[50.9732687391606,6.99932112248925],[50.9735262500543,7.00066926455503],[50.9736132005197,7.00207128549944],[50.9735262500543,7.00347330644385],[50.9732687391606,7.00482144850962],[50.9728505611183,7.00606390335322],[50.9722877822047,7.00715292413179],[50.9716020248969,7.00804666038754],[50.9708196376624,7.00871076633736],[50.9699706831334,7.00911972076204],[50.9690877834368,7.00925780777239]],[[50.9690877834368,7.02363085231831],[50.9655736869431,7.02289622789339],[50.9622988310278,7.02074241805917],[50.959486464264,7.0173162013965],[50.9573283439166,7.01285106890887],[50.9559716414413,7.00765131199632],[50.9555088864332,7.00207128549944],[50.9559716414413,6.99649125900256],[50.9573283439166,6.99129150209],[50.959486464264,6.98682636960237],[50.9622988310278,6.98340015293971],[50.9655736869431,6.98124634310549],[50.9690877834368,6.98051171868057],[50.9726016140884,6.98124634310549],[50.9758757437098,6.98340015293971],[50.9786871183376,6.98682636960237],[50.9808442465492,6.99129150209],[50.9822002227305,6.99649125900256],[50.9826627118967,7.00207128549944],[50.9822002227305,7.00765131199632],[50.9808442465492,7.01285106890887],[50.9786871183376,7.0173162013965],[50.9758757437098,7.02074241805917],[50.9726016140884,7.02289622789339],[50.9690877834368,7.02363085231831]]]).addTo(map);
@@ -40,7 +62,7 @@ function getColor(x) {
     var color = "";
 
     if (x == "bus_stop" || x == "bus_station" || x == "subway_entrance" || x == "tram_stop" || x == "terminal"){ color = "purple"; }
-    else if (x == "park" || x == "recrea    tion_ground" || x == "dog_park" || x == "playground"){ color = "green"; }
+    else if (x == "park" || x == "recreation_ground" || x == "dog_park" || x == "playground"){ color = "green"; }
     else if (x == "fitness_centre" || x == "cinema" || x == "theatre" || x == "nightclub" || x == "restaurant"){ color = "cadetblue"; }
     else if (x == "kindergarten" || x == "school" || x == "college" || x == "university") { color = "darkred"; }
     else if (x == "doctors" || x == "clinic" || x == "dentist" || x == "hospital" || x == "social_facility" || x == "nursing_home" || x == "veterinary"){ color = "blue"; }
@@ -128,6 +150,29 @@ function getCityPoly (cityName, osmId=false ) {
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
+                // wenn vorhanden dann alte elemente löschen, damit nicht mehrfach entstehen
+                if (typeof layerControl !== 'undefined') {
+                    layerControl._container.remove();
+                }
+
+                //Berechnen der Werte der Ein-und Auszublendenden OpenData
+                lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
+                pegel_layer = L.layerGroup(getOpenData('pegel'));
+                open_data_layer = L.layerGroup(getOpenData('opendata'));
+
+                var overlayMaps = {
+                    'OpenData': open_data_layer,
+                    'LKW': lkw_verbot_layer,
+                    'Pegel': pegel_layer
+                };
+
+                //Button zum Ein- und Ausschalten der Opendata außerhalb der Karte anzeigen
+                layerControl = L.control.layers(null, overlayMaps, {collapsed: false});
+                layerControl.addTo(map);
+                layerControl._container.remove();
+                document.getElementById('divMapInfo').appendChild(layerControl.onAdd(map));
+
+                // hierarchische Suche ohne Erfolg
                 var sortList = []
                 $('#stadtauswahl').text('');
                 if (data.length == 0) {
@@ -135,9 +180,13 @@ function getCityPoly (cityName, osmId=false ) {
                     //alert("Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.");
                     return;
                 }
+
+                // Suchfeldsuche ohne Erfolg
                 if (data.length == 1) {
                 $('#stadtauswahl').html('<a href="javascript:void(0)" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
                 }
+
+                // erfolgreiche Suche im Suchfeld
                 changeAuswahlName(data[0].name);
                 deselect();
                 for (i = 0; i < data.length; i++) {
@@ -152,28 +201,15 @@ function getCityPoly (cityName, osmId=false ) {
                     })
                         .setContent(jsUcfirst(data[i].name));
                     polygon.bindTooltip(tooltip);
-                    if (data[i].admin_level == '10' && data[i].open_data != 'undefined') {
-                        //console.log(data[i].open_data);
-                        var tooltip_text = 'Stadtteil: ' + data[i].name + '</br>Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ' %' + '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + ' %' + '</br>Durchschnittsmietpreis: ' + data[i].open_data.mietpreis[0]['mietpreis'] + ' €' + '</br>Durchschnittsalter: ' + data[i].open_data.durchschnittsalter[0]['durchschnittsalter'] + ' Jahre' + '</br>Landtagswahlergebnis: ' + '</br>-SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] +' %'+ '</br>-CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + ' %' + '</br>-Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + ' %' + '</br>-FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + ' %' + '</br>-Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + ' %' + '</br>-AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] +' %'+ '</br>-NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' + '</br>-Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'] + ' %';
-                        var popup = L.popup({closeOnClick: true, className: 'map-popup'}).setContent(tooltip_text);
-                        polygon.bindPopup(popup);
-                    }
-                    /*else if (data[i].admin_level != '10') {
-                     polygon.on("click", function (event) {
-                     map.fitBounds(polygon.getBounds());
-                     });
-                     }*/
-                     else if (data[i].admin_level == '10' && data[i].open_data == 'undefined'){
-                        var tooltip_text = 'Für diesen Stadtteil sind keine OpenData verfügbar.' ;
-                        var popup = L.popup({closeOnClick: true, className: 'map-popup'}).setContent(tooltip_text);
-                        polygon.bindPopup(popup);
-                    }
-
                     polygon.addTo(map);
+
+                    //reinzoomen bei ersten Element (mit höchstem admin_level)
                     if (i == 0) {
                         map.fitBounds(polygon.getBounds());
                     }
                 }
+
+            // erfolgreiche hierarchische Suche und befüllen des DropDownMenüs
             //changeAuswahlName();
             showAuswahl();
             showOpenData();
@@ -203,7 +239,7 @@ function getCityFilter  (filter) {
             dataType: "json",
             data: {
                 csrfmiddlewaretoken: csrftoken,
-                filter_value: filter,
+                filter_value: filter
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
@@ -226,12 +262,6 @@ function getCityFilter  (filter) {
                     }
                 }
             },
-            /*success: function (data, textStatus, jqXHR) {
-                console.log(data);
-                var latlongs = makePoints(data[0].way);
-                var polygon = L.polygon(latlongs, {color: 'red'}).addTo(map);
-                map.fitBounds(polygon.getBounds())
-            },*/
             error: function (jqXHR, textStatus, errorThrown) {
                 swal("Error", "Error: " + errorThrown + "\nStatus: " + textStatus + "\njqXHR: " + JSON.stringify(jqXHR), "error")
                 /*alert("Error: " + errorThrown
@@ -252,7 +282,7 @@ function getCityFilterMarker  (filter) {
             dataType: "json",
             data: {
                 csrfmiddlewaretoken: csrftoken,
-                filter_value: filter,
+                filter_value: filter
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
@@ -274,9 +304,9 @@ function getCityFilterMarker  (filter) {
                         var latlngs = data[i].way;
                         var markerStyle = L.AwesomeMarkers.icon({icon: getCityFilterMarkerIcon(data[i].amenity), markerColor: getCityFilterMarkerColor(data[i].amenity), prefix:'fa'});
                         var marker = L.marker(latlngs, {icon: markerStyle, className: 'marker'});
-                        var amenity = getAmenity(data[i].amenity)
-                        var name = data[i].name
-                        var marker_text = ""
+                        var amenity = getAmenity(data[i].amenity);
+                        var name = data[i].name;
+                        var marker_text = "";
 
                         if (name != null) {
                             marker_text = "Name: "+name+"; Art: "+amenity;
@@ -318,42 +348,79 @@ function getOpenData  (type_data) {
             dataType: "json",
             data: {
                 csrfmiddlewaretoken: csrftoken,
-                table_name: type_data,
+                table_name: type_data
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
                 if (type_data === 'lkw_verbot') {
-                    console.log('Zeichne Polygone für LKW-Verbot', data.length);
+                    lkw_verbot_layer.clearLayers();
+                    console.log('Zeichne Polygone für LKW-Verbot:', data.length);
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].rings;
                         var polygon = L.polygon(latlngs, {color: 'black'});
-                        var tooltip = L.tooltip({sticky: true, direction: 'top'}).setContent(jsUcfirst("LKW-Verbotszone"))
+                        var tooltip = L.tooltip({
+                            sticky: true,
+                            direction: 'top'
+                        }).setContent(jsUcfirst("LKW-Verbotszone"));
                         polygon.bindTooltip(tooltip);
-                        var popup = L.popup({closeOnClick: true, className: 'map-popup'});
-                        polygon.bindPopup(popup);
-                        polygon.addTo(map);
+                        //var popup = L.popup({closeOnClick: true, className: 'map-popup'});
+                        //polygon.bindPopup(popup);
+                        polygon.addTo(lkw_verbot_layer);
                     }
                 }
-                else if (type_data === 'pegel'){
+                else if (type_data === 'pegel') {
+                    pegel_layer.clearLayers();
                     console.log('Zeichne Polygone für Lärmpegel:', data.length);
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].rings;
-                        if (data.dezibel === '55') {var color = '#99c4d8';}
-                        else if (data.dezibel === '70') {var color = '#0047ab';}
-                        else {var color = '#093253';}
+                        if (data.dezibel === '55') {
+                            var color = '#99c4d8';
+                        }
+                        else if (data.dezibel === '70') {
+                            var color = '#0047ab';
+                        }
+                        else {
+                            var color = '#093253';
+                        }
 
                         var polygon = L.polygon(latlngs, {color: color});
-                        var tooltip = L.tooltip({sticky: true, direction: 'top'}).setContent(jsUcfirst("Lärmpegel: "+data[i].dezibel))
+                        var tooltip = L.tooltip({
+                            sticky: true,
+                            direction: 'top'
+                        }).setContent(jsUcfirst("Lärmpegel: " + data[i].dezibel));
                         polygon.bindTooltip(tooltip);
                         var popup = L.popup({closeOnClick: true, className: 'map-popup'});
                         polygon.bindPopup(popup);
-                        polygon.addTo(map);
+                        polygon.addTo(pegel_layer);
                     }
                 }
 
                 else {
+                    open_data_layer.clearLayers();
                     for (i = 0; i < data.length; i++) {
-                        console.log(data[i])
+                        var latlngs = data[i].way;
+                        var polygon = L.polygon(latlngs, {className: 'deselected'});
+                        var tooltip = L.tooltip({sticky: true, direction: 'top'}).setContent(jsUcfirst(data[i].name));
+                        polygon.bindTooltip(tooltip);
+
+                        if (data[i].admin_level == '10' && data[i].open_data != 'undefined') {
+                            //console.log(data[i].open_data);
+                            var tooltip_text = 'Stadtteil: ' + data[i].name + '</br>Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ' %' + '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + ' %' + '</br>Durchschnittsmietpreis: ' + data[i].open_data.mietpreis[0]['mietpreis'] + ' €' + '</br>Durchschnittsalter: ' + data[i].open_data.durchschnittsalter[0]['durchschnittsalter'] + ' Jahre' + '</br>Landtagswahlergebnis: ' + '</br>-SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] + ' %' + '</br>-CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + ' %' + '</br>-Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + ' %' + '</br>-FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + ' %' + '</br>-Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + ' %' + '</br>-AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] + ' %' + '</br>-NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' + '</br>-Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'] + ' %';
+                            var popup = L.popup({
+                                closeOnClick: true,
+                                className: 'map-popup'
+                            }).setContent(tooltip_text);
+                            polygon.bindPopup(popup);
+                        }
+                        else {
+                            var tooltip_text = 'Für dieses Polygon sind keine OpenData verfügbar.';
+                            var popup = L.popup({
+                                closeOnClick: true,
+                                className: 'map-popup'
+                            }).setContent(tooltip_text);
+                            polygon.bindPopup(popup);
+                        }
+                        polygon.addTo(open_data_layer);
                     }
                 }
             },

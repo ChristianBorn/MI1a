@@ -146,44 +146,50 @@ class Laermpegel(models.Model):
     rings = models.TextField(blank=True, null=True)  # This field type is a guess.
     path = models.TextField(blank=True, null=True)  # This field type is a guess.
 
+    '''@staticmethod
+# parameter: punkt als geoJSON,
+#            distanz in metern
+def get_learmpegel(stadtteil):
+    results = []
+    for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel::float, "
+                                         "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS rings,"
+                                         "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS path "
+                                         "FROM laermpegel l, planet_osm_polygon p "
+                                         "WHERE p.boundary = 'administrative' and p.admin_level::integer =10 AND  "
+                                         "p.name = %s "
+                                         "AND ST_INTERSECTS(ST_SetSRID(l.rings,4326)::geography, "
+                                         "ST_Transform(p.way,4326)::geography)", [stadtteil]):
+
+        results.append(lpegel)
+    data = []
+    for element in results:
+        data.append({'dezibel': element.dezibel, 'rings': str_coords_to_array_coords(element.rings),
+                     'path': str_coords_to_array_coords(element.path)})
+    return data'''
 
     @staticmethod
-    # parameter: punkt als geoJSON,
-    #            distanz in metern
-    def get_learmpegel(stadtteil):
-        results = []
-        for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel::float, "
-                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS rings,"
-                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS path "
-                                             "FROM laermpegel l, planet_osm_polygon p "
-                                             "WHERE p.boundary = 'administrative' and p.admin_level::integer =10 AND  "
-                                             "p.name = %s "
-                                             "AND ST_INTERSECTS(ST_SetSRID(l.rings,4326)::geography, "
-                                             "ST_Transform(p.way,4326)::geography)", [stadtteil]):
-
-            results.append(lpegel)
-        data = []
-        for element in results:
-            data.append({'dezibel': element.dezibel, 'rings': str_coords_to_array_coords(element.rings),
-                         'path': str_coords_to_array_coords(element.path)})
-        return data
-
-    '''@staticmethod
     def get_learmpegel():
         results = []
-        for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel::float, "
-                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS rings,"
-                                             "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS path "
-                                             "FROM laermpegel l;"):
 
-            results.append(lpegel)
-        data = []
-        print(len(results))
-        for element in results:
-            data.append({'dezibel': element.dezibel, 'rings': str_coords_to_array_coords(element.rings),
-                         'path': str_coords_to_array_coords(element.path)})
-        print(len(data))
-        return data'''
+        conn = connect_to_db(path='mysite/settings.py')
+        # cur = conn.cursor()
+        with conn.cursor() as cur:
+            cur.execute('''SELECT DISTINCT l.dezibel FROM laermpegel l;''')
+            for element in cur.fetchall():
+                cur.execute('''SELECT ST_asText(st_multi(st_union(st_flipcoordinates(ST_setSRID(rings,4326))))) FROM laermpegel WHERE dezibel = {};'''.format(element[0]))
+                results.append({'dezibel': element[0], 'rings': str_coords_to_array_coords(cur.fetchone())})
+                #cur.execute('''SELECT ST_asText(st_multi(st_union(st_flipcoordinates(ST_setSRID(path,4326))))) FROM laermpegel WHERE dezibel = {};'''.format(element[0]))
+                #results.append({'dezibel': element, 'rings': str_coords_to_array_coords(cur.fetchone())})
+
+            #results.append(lpegel)
+        #data = []
+        #print('models',len(results))
+        return results
+        #for element in results:
+        #    data.append({'dezibel': element.dezibel, 'rings': str_coords_to_array_coords(element.rings),
+        #                 'path': str_coords_to_array_coords(element.path)})
+        #print(len(data))
+        #return data
 
 
     class Meta:
@@ -766,24 +772,8 @@ class PlanetOsmPolygon(models.Model):
         wahl = []
         for element in results:
             print(element.name+"  |   "+str(element.admin_level))
-            '''if element.admin_level ==10: #nur stadtteile von köln in opendata, deswegen keine berücksichgigung anderer adminlevel
-                beschaeftigte = Beschaeftigte.get_arbeitslosenquote(element.name)
-                mietpreis = DurchschnittlicheMietpreise.get_mietpreise(element.name)
-                alter = Durchschnittsalter.get_durchschnittsalter(element.name)
-                wahl = Landtagswahl.get_parteiverteilung_in_stadtteil(element.name)
-                if beschaeftigte != [] and mietpreis != [] and alter != [] and wahl != []:
-                    open_data = True
-                else:
-                    open_data = False
-            else:
-                open_data = False
-            if open_data:
-                data.append({'name': element.name, 'osm_id':element.osm_id, 'admin_level': element.admin_level,
-                         'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': {
-                         'beschaeftigte': beschaeftigte, 'mietpreis': mietpreis, 'alter': alter, 'wahl': wahl}})
-            else:'''
             data.append({'name': element.name, 'osm_id': element.osm_id, 'admin_level': element.admin_level,
-                             'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data':{}})
+                             'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': 'undefined'})
         return data
 
 

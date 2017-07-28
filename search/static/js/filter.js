@@ -76,7 +76,7 @@ function getFilterProof(){
                 }
     }
     else if(x == "") {
-        swal("Kein Filter", "Biite einen Filter auswählen!", "error");
+        swal("Kein Filter", "Bitte einen Filter auswählen!", "error");
         //alert("Achtung: Bitte einen Filter auswählen!");
     }
     used_filters.push(x);
@@ -93,7 +93,7 @@ function getMin(){
         return umkreis;
     }
     else {
-        swal("Keine minimale Entfernung", "Biite die minimale Entfernung in Ziffern angeben!", "error");
+        swal("Keine minimale Entfernung", "Bitte die minimale Entfernung in Ziffern angeben!", "error");
         //alert("Bitte die Entfernung in Ziffern angeben!");
     }
 }
@@ -105,7 +105,7 @@ function getMax(){
         return umkreis;
     }
     else {
-        swal("Keine maximale Entfernung", "Biite die Entfernung in Ziffern angeben!", "error");
+        swal("Keine maximale Entfernung", "Bitte die Entfernung in Ziffern angeben!", "error");
         //alert("Bitte die Entfernung in Ziffern angeben!");
     }
 

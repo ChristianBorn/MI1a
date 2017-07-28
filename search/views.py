@@ -9,37 +9,38 @@ from search.models import *
 #   Ab dem 2. Element = Anfragespezifische Werte, die benötigt werden, z.B. Punkt+Distanz o. ein Stadtteil Name
 def opendata_von_stadtteil(request):
     column_name = request.POST.get('table_name').lower()
-    stadtteil = request.session['polygons'][0]['name']
+    stadtteile = request.session['polygons']
     #punkt = request.session['polygons'][0]['way']
     #punkt = 'POINT(6.97364225377671 50.9457393529467)'
     print(column_name)
-    print(stadtteil)
+    #print(stadtteile)
 
-    # Landtag benötigt nur ein Stadtteil. werte[1] würde Stadtteil Namen enthalten
-    if column_name == 'landtag':
-        landtag = Landtagswahl.get_parteiverteilung_in_stadtteil(stadtteil)
-        return JsonResponse(landtag, safe=False)
+    if column_name == 'lkw_verbot':
+        lkw_verbot = LkwVerbotszonen.get_verbotszone()
+        return JsonResponse(lkw_verbot, safe=False)
 
     # Laempegel benötigt (aktuell noch) einen Punkt & einen Umkreis. Änderung möglich.
     elif column_name == 'pegel':
-        laermpegel = Laermpegel.get_learmpegel(stadtteil)
+        laermpegel = Laermpegel.get_learmpegel()
+        #print('views',len(laermpegel))
         return JsonResponse(laermpegel, safe=False)
 
-    elif column_name == 'beschaeftigte':
-        beschaeftigte = Beschaeftigte.get_arbeitslosenquote(stadtteil)
-        return JsonResponse(beschaeftigte, safe=False)
-
-    elif column_name == 'durchschnittsalter':
-        durchschnittsalter = Durchschnittsalter.get_durchschnittsalter(stadtteil)
-        return JsonResponse(durchschnittsalter, safe=False)
-
-    elif column_name == 'mietpreise':
-        mietpreise = DurchschnittlicheMietpreise.get_mietpreise(stadtteil)
-        return JsonResponse(mietpreise, safe=False)
-
-    elif column_name == 'lkw_verbot':
-        lkw_verbot = LkwVerbotszonen.get_verbotszone()
-        return JsonResponse(lkw_verbot, safe=False)
+    # alle anderen OpenData zusammen berechnen, da gemeinsam als Tooltip angezeigt werden
+    else:
+        for polygon_nr, polygon in enumerate(stadtteile):
+            if polygon['admin_level'] == 10 and polygon['open_data']=='undefined':
+                beschaeftigte = Beschaeftigte.get_arbeitslosenquote(polygon['name'])
+                durchschnittsalter = Durchschnittsalter.get_durchschnittsalter(polygon['name'])
+                mietpreise = DurchschnittlicheMietpreise.get_mietpreise(polygon['name'])
+                landtag = Landtagswahl.get_parteiverteilung_in_stadtteil(polygon['name'])
+                if landtag and beschaeftigte and durchschnittsalter and mietpreise:
+                    open_data_dict = {'wahl': landtag, 'beschaeftigte': beschaeftigte,
+                                      'durchschnittsalter': durchschnittsalter,
+                                      'mietpreis': mietpreise}
+                    request.session['polygons'][polygon_nr]['open_data'] = open_data_dict
+        request.session.modified = True
+        #print('views',request.session['polygons'])
+        return JsonResponse(request.session['polygons'], safe=False)
 
 
 def search_cityPolygon(request):
@@ -50,19 +51,6 @@ def search_cityPolygon(request):
     else:
         osmId = False
 
-    #Beispiel für Verwendung & Ausgabe der OpenData
-    '''
-    punkt_in_koeln = 'POINT(6.97364225377671 50.9457393529467)'
-    print("Landtagswahl: \t ",Landtagswahl.get_parteiverteilung_in_stadtteil('Altstadt/Nord'))
-    print("Beschäftigte : \t ",Beschaeftigte.get_arbeitslosenquote('Altstadt-Nord'))
-    print("Durchschnittsalter: \t ",Durchschnittsalter.get_durchschnittsalter('Altstadt-Nord'))
-    print("Mietpreise : \t ",DurchschnittlicheMietpreise.get_mietpreise('Altstadt-Nord'))
-    print("LKW Verbotszonen: \t ",LkwVerbotszonen.get_verbotszone(punkt_in_koeln, 5000)[0])
-    print("Lärmpegels: \t ",Laermpegel.get_learmpegel(punkt_in_koeln, 3900))
-
-    # Suche nach Polygon mit der osm_id
-    #print(PlanetOsmPolygon.get_city_polygon('-62578', True)[0])
-    '''
     if city is not None:
         city_polygons = PlanetOsmPolygon.get_city_polygon(city, osmId)
         # Setzt die Liste der Polygone in der Session zurück, sodass immer nur die letzte Anfrage in der Session ist
@@ -71,24 +59,8 @@ def search_cityPolygon(request):
             request.session['polygons'].append({'osm_id': elem['osm_id'],
                                                 'name': elem['name'],
                                                 'admin_level': elem['admin_level'],
-                                                'way': elem['way'], 'filter': {}, 'open_data': {}})
-            if elem['admin_level'] == 10:# and not request.session['polygons'][elem_nr]['open_data']:
-                landtag = Landtagswahl.get_parteiverteilung_in_stadtteil(elem['name'])
-                beschaeftigte = Beschaeftigte.get_arbeitslosenquote(elem['name'])
-                durchschnittsalter = Durchschnittsalter.get_durchschnittsalter(elem['name'])
-                mietpreise = DurchschnittlicheMietpreise.get_mietpreise(elem['name'])
-                if landtag and beschaeftigte and durchschnittsalter and mietpreise:
-                    open_data_dict = {'wahl': landtag, 'beschaeftigte': beschaeftigte,
-                                      'durchschnittsalter': durchschnittsalter,
-                                      'mietpreis': mietpreise}
-                else:
-                    #print(landtag , beschaeftigte , durchschnittsalter , mietpreise)
-                    open_data_dict = 'undefined'
-                #print(open_data_dict)
-                city_polygons[elem_nr]['open_data'] = open_data_dict
-                request.session['polygons'][elem_nr]['open_data'] = open_data_dict
+                                                'way': elem['way'], 'filter': {}, 'open_data': 'undefined'})
         request.session.modified = True
-        #print(request.session['polygons'][0]['admin_level'])
         print("Polygone in Session ",len(request.session['polygons']))
         return JsonResponse(city_polygons, safe=False)
     return JsonResponse([], safe=False)
