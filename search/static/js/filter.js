@@ -150,17 +150,21 @@ function checkRadius() {
 }
 
 function checkMin() {
+    var exists = false;
     var min = parseInt(document.getElementById("min").value);
     if (!isNaN(min)){
-       return min;
+       exists = true;
     }
+    return exists;
 }
 
 function checkMax() {
+    var exists = false;
     var max = parseInt(document.getElementById("max").value);
     if (!isNaN(max)) {
-        return max;
+        exists = true;
     }
+    return exists;
 }
 
 function checkMinMax() {
@@ -194,8 +198,8 @@ function addFilter() {
             }
     }
     else {
-        if (checkMin() >= checkMax() && checkMinMax()){  // kontrolliert ob der minimale Wert des Radius wirklick klein er als der größere Umkreis-Wert ist
-            swal("Fehlerhafter Eintrag", "Die Minimale Entfernung muss größer als die maximale Entfernung sein!", "error");
+        if (getMin() >= getMax() && checkMinMax()){  // kontrolliert ob der minimale Wert des Radius wirklick klein er als der größere Umkreis-Wert ist
+            swal("Fehlerhafter Eintrag", "Die Maximale Entfernung muss größer als die minimale Entfernung sein!", "error");
             //alert("Die Minimale Entfernung muss größer als die Maximale entfernung sein!")
             document.getElementById("markedFilter").value += "";
             for (var i = 0; i < used_filters.length; i++){  // diese Schleife kann genutzt werden wenn ein Filter wieder aus dem Array used_filters[] gelöscht werden soll.
@@ -493,3 +497,9 @@ function enterpressalert(e, textarea){
         searchOnClicks();
     }
 }
+
+/*
+function test() {
+    showAuswahl();
+    showOpenData();
+}*/
