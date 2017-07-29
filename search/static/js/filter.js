@@ -358,6 +358,11 @@ function toggleLKW() {
     }*/
 }
 
+function disableFilter(filterID) {
+    document.getElementById(filterID).disabled = true;
+    document.getElementById(filterID).style.opacity="0,6";
+}
+
 function getFilterName(x) {
     var result = "";
 
