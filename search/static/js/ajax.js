@@ -1,4 +1,6 @@
 var map;
+var markerClusters;
+var intersectLayer;
 var csrftoken;
 $(document).ready(
     function init_map() {
@@ -174,8 +176,8 @@ function getCityPoly (cityName, osmId=false ) {
                 //Button zum Ein- und Ausschalten der Opendata außerhalb der Karte anzeigen
                 layerControl = L.control.layers(null, overlayMaps, {collapsed: false});
                 layerControl.addTo(map);
-                layerControl._container.remove();
-                document.getElementById('divMapInfo').appendChild(layerControl.onAdd(map));
+                //layerControl._container.remove();
+                //document.getElementById('divMapInfo').appendChild(layerControl.onAdd(map));
 
                 // hierarchische Suche ohne Erfolg
                 var sortList = []
@@ -217,7 +219,10 @@ function getCityPoly (cityName, osmId=false ) {
                         direction: 'top'
                     })
                         .setContent(jsUcfirst(data[i].name));
-                    polygon.bindTooltip(tooltip);
+                    /*polygon.bindTooltip(tooltip);
+                    polygon.on('click', function () {
+                            map.fitBounds(this.getBounds());
+                            });*/
                     polygon.addTo(map);
 
                     //reinzoomen bei ersten Element (mit höchstem admin_level)
@@ -286,9 +291,6 @@ function getCityFilterMarker  (filter, intersection=false) {
                             map.removeLayer(intersectLayer);
                         }
                     }
-
-
-
 
                     //var markerClusters = L.markerClusterGroup({ chunkedLoading: false });
                     for (i = 0; i < data.length; i++) {
@@ -561,4 +563,33 @@ function getCityFilterMarkerIcon (x) {
     else {icon = "question";}
 
     return icon;
+}
+
+function save_results() {
+    html2canvas(document.body, {
+        onrendered: function (canvas) {
+            var img = canvas.toDataURL('image/png');
+            var doc = new jsPDF('l');
+            doc.addImage(img, 'JPEG', 20, 20);
+            doc.save('Easy_Living_Output.pdf');
+        }
+    });
+
+    /*var doc = new jsPDF();
+    doc.text('Easy Living', 5, 5);
+    doc.text('Ausdruck für den Bereich: '+document.getElementById('stadtbezirk_auswahl').innerHTML, 5,15);
+    doc.text('Ausgewählte Filter: '+document.getElementById('input_marked_filter_div').innerHTML, 5, 25);
+    doc.text('Folgende Objekte wurden für den Filter ... gefunden:', 5, 35); // als forschliefe über alle Filter
+    doc.text('Es wurden x ideale Flächen gefunden. Siehe Karte.', 5, 45);*/
+
+    /*leafletImage(map, function(err, canvas) {
+        var dimensions = map.getSize();
+        img.width = dimensions.x;
+        img.height = dimensions.y;
+        img.scr = canvas.toDataURL('image/jpg');
+        doc.addImage(img.scr, 'JPEG', 15, 40, 180, 160);
+    });*/
+    //var image = document.getElementById('mapid').innerHTML;
+
+    //doc.save('Easy_Living_Output.pdf');
 }
