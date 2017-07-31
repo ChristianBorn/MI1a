@@ -45,6 +45,10 @@ $(document).ready(
         //tiles zur map hinzufügen
         tiles.addTo(map);
 
+        // globales definieren von layern damit diese funktionsübergreifend gelöscht werden können
+        markerClusters = L.markerClusterGroup();
+        intersectLayer = L.layerGroup();
+
         //Maßstab zur map hinzufügen
         L.control.scale().addTo(map);
         //var marker = L.marker([50.938, 6.95]).addTo(map);
@@ -112,6 +116,7 @@ function clearMap(m) {
     for(i in m._layers) {
         if(m._layers[i]._path != undefined || m._layers[i]._icon != undefined) {
             try {
+                //m._layers[i].clearLayers();
                 m.removeLayer(m._layers[i]);
             }
             catch(e) {
@@ -157,13 +162,13 @@ function getCityPoly (cityName, osmId=false ) {
 
                 //Berechnen der Werte der Ein-und Auszublendenden OpenData
                 lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
-                pegel_layer = L.layerGroup(getOpenData('pegel'));
+                //pegel_layer = L.layerGroup(getOpenData('pegel'));
                 open_data_layer = L.layerGroup(getOpenData('opendata'));
 
                 var overlayMaps = {
                     'OpenData': open_data_layer,
                     'LKW': lkw_verbot_layer,
-                    'Pegel': pegel_layer
+                    //'Pegel': pegel_layer
                 };
 
                 //Button zum Ein- und Ausschalten der Opendata außerhalb der Karte anzeigen
@@ -189,6 +194,18 @@ function getCityPoly (cityName, osmId=false ) {
                 // erfolgreiche Suche im Suchfeld
                 changeAuswahlName(data[0].name);
                 deselect();
+
+                //löschen der alten Filter
+                // @todo: löschen aller Filter bei anderen Stadtteilen/Städten
+                if (map.hasLayer(markerClusters)) {
+                    markerClusters.clearLayers();
+                    map.removeLayer(markerClusters);
+                }
+                if (map.hasLayer(intersectLayer)) {
+                    intersectLayer.clearLayers();
+                    map.removeLayer(intersectLayer);
+                }
+
                 for (i = 0; i < data.length; i++) {
                     if (i != 0) {
                         sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
@@ -231,50 +248,8 @@ function getCityPoly (cityName, osmId=false ) {
         }
     );
 }
-function getCityFilter  (filter) {
-    $.ajax(
-        './search/cityFilterIntersects',
-        {
-            cache: false,
-            dataType: "json",
-            data: {
-                csrfmiddlewaretoken: csrftoken,
-                filter_value: filter
-            },
-            method: 'POST',
-            success: function (data, textStatus, jqXHR) {
-                console.log(data.length);
-                if (typeof data === 'string') {
-                    swal("Suche erfolglos", "Es wurde kein "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.", "error");
-                    //alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
-                }
-                else if (data.length == 0) {
-                    swal("Suche erfolglos", "Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen", "error")
-                    //alert("Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen");
-                }
-                else {
-                    console.log(data);
-                    deselect();
-                    clearFilters(map);
-                    for (i = 0; i < data.length; i++) {
-                        var latlngs = data[i].way;
-                        var polygon = L.polygon(latlngs, {color: getColor(getFilter()), className: 'intersection selected'}).addTo(map).bringToBack();
-                    }
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                swal("Error", "Error: " + errorThrown + "\nStatus: " + textStatus + "\njqXHR: " + JSON.stringify(jqXHR), "error")
-                /*alert("Error: " + errorThrown
-                    + "\nStatus: " + textStatus
-                    + "\njqXHR: " + JSON.stringify(jqXHR)
-                );*/
-            },
-            complete: function (jqXHR, textStatus) {}
-        }
-    );
-}
 
-function getCityFilterMarker  (filter) {
+function getCityFilterMarker  (filter, intersection=false) {
     $.ajax(
         './search/cityFilterMarker',
         {
@@ -297,9 +272,25 @@ function getCityFilterMarker  (filter) {
                     //alert("Es wurde kein Filter in dem ausgewählten Bereich gefunden.")
                 }
                 else {
-                    clearFilters(map);
-                    //var markerClusters = L.markerClusterGroup({ chunkedLoading: true });
-                    var markerClusters = L.markerClusterGroup();
+                    // löschen der alten Filter
+                    //clearFilters(map);
+                    if (map.hasLayer(markerClusters)) {
+                        markerClusters.clearLayers();
+                        map.removeLayer(markerClusters);
+                    }
+                    // intersections an dieser Stelle löschen nur wenn false, da sonst durch ansynchronen Aufruf
+                    // zum falschen Zeitpunkt gelöscht wird
+                    if (intersection == false) {
+                        if (map.hasLayer(intersectLayer)) {
+                            intersectLayer.clearLayers();
+                            map.removeLayer(intersectLayer);
+                        }
+                    }
+
+
+
+
+                    //var markerClusters = L.markerClusterGroup({ chunkedLoading: false });
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var markerStyle = L.AwesomeMarkers.icon({icon: getCityFilterMarkerIcon(data[i].amenity), markerColor: getCityFilterMarkerColor(data[i].amenity), prefix:'fa'});
@@ -325,6 +316,60 @@ function getCityFilterMarker  (filter) {
                         markerClusters.addLayer( marker );
                     }
                     map.addLayer( markerClusters );
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                swal("Error", "Error: " + errorThrown + "\nStatus: " + textStatus + "\njqXHR: " + JSON.stringify(jqXHR), "error")
+                /*alert("Error: " + errorThrown
+                    + "\nStatus: " + textStatus
+                    + "\njqXHR: " + JSON.stringify(jqXHR)
+                );*/
+            },
+            complete: function (jqXHR, textStatus) {}
+        }
+    );
+}
+
+
+function getCityFilter  (filter) {
+    $.ajax(
+        './search/cityFilterIntersects',
+        {
+            cache: false,
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: csrftoken,
+                filter_value: filter
+            },
+            method: 'POST',
+            success: function (data, textStatus, jqXHR) {
+                console.log(data.length);
+                if (typeof data === 'string') {
+                    swal("Suche erfolglos", "Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.", "error");
+                    //alert("Es wurde kein(e) "+getAmenity(data)+" in dem ausgewählten Bereich gefunden. Bitte "+getAmenity(data)+" aus den Filtern entfernen.");
+                }
+                else if (data.length == 0) {
+                    swal("Suche erfolglos", "Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen", "error")
+                    //alert("Es wurde keine passende Fläche gefunden, die Filter überschneiden sich nicht. Bitte die Entfernungen ändern oder andere Filter wählen");
+                }
+                else {
+                    deselect();
+
+                    //löschen der alten Schnittmengen. Einzeln aufgerufen da sonst falscher Zeitpunkt des Löschens
+                    // aufgrund asynchronen Aufrufs
+                    //clearFilters(map);
+                    if (map.hasLayer(intersectLayer)) {
+                        intersectLayer.clearLayers();
+                        map.removeLayer(intersectLayer);
+                    }
+
+                    getCityFilterMarker(filter, true);
+                    for (i = 0; i < data.length; i++) {
+                        var latlngs = data[i].way;
+                        var polygon = L.polygon(latlngs, {color: getColor(getFilter()), className: 'intersection selected'});//.addTo(map);//.bringToBack();
+                        polygon.addTo(intersectLayer).bringToBack();
+                    }
+                    map.addLayer(intersectLayer);
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
