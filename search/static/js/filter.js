@@ -92,10 +92,6 @@ function getMin(){
     if (!isNaN(umkreis)) {
         return umkreis;
     }
-    else {
-        swal("Keine minimale Entfernung", "Bitte die minimale Entfernung in Ziffern angeben!", "error");
-        //alert("Bitte die Entfernung in Ziffern angeben!");
-    }
 }
 
 function getMax(){
@@ -104,11 +100,6 @@ function getMax(){
     if (!isNaN(umkreis)) {
         return umkreis;
     }
-    else {
-        swal("Keine maximale Entfernung", "Bitte die Entfernung in Ziffern angeben!", "error");
-        //alert("Bitte die Entfernung in Ziffern angeben!");
-    }
-
 }
 
 function isInteger() {
@@ -304,6 +295,11 @@ function showAuswahl() {
     document.getElementById("max_div").style.display="block";
     document.getElementById("add-filter_div").style.display="block";
     document.getElementById("input_marked_filter_div").style.display="block";
+
+    document.getElementById("transparent_div").style.visibility="visible";
+    $(function() {
+        $('#transparent').bootstrapToggle("off");
+    })
 }
 
 function showOpenData() {
