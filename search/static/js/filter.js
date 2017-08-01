@@ -319,7 +319,6 @@ function showOpenData() {
     $(function() {
         $('#laermpegel').bootstrapToggle("off");
     })
-    document.getElementById("export_div").style.visibility="visible";
 }
 
 function showFilterIntersections() {

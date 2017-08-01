@@ -53,8 +53,16 @@ $(document).ready(
 
         //Maßstab zur map hinzufügen
         L.control.scale().addTo(map);
-        //var marker = L.marker([50.938, 6.95]).addTo(map);
-        //var poly = L.polygon([[[50.9690877834368,7.00925780777239],[50.9682048669575,7.00911972076204],[50.9673558646356,7.00871076633736],[50.9665734058739,7.00804666038754],[50.9658875641941,7.00715292413179],[50.9653247009086,7.00606390335322],[50.9649064513392,7.00482144850962],[50.9646488926526,7.00347330644385],[50.9645619254045,7.00207128549944],[50.9646488926526,7.00066926455503],[50.9649064513392,6.99932112248925],[50.9653247009086,6.99807866764565],[50.9658875641941,6.99698964686708],[50.9665734058739,6.99609591061134],[50.9673558646356,6.99543180466152],[50.9682048669575,6.99502285023683],[50.9690877834368,6.99488476322648],[50.9699706831334,6.99502285023683],[50.9708196376624,6.99543180466152],[50.9716020248969,6.99609591061134],[50.9722877822047,6.99698964686708],[50.9728505611183,6.99807866764565],[50.9732687391606,6.99932112248925],[50.9735262500543,7.00066926455503],[50.9736132005197,7.00207128549944],[50.9735262500543,7.00347330644385],[50.9732687391606,7.00482144850962],[50.9728505611183,7.00606390335322],[50.9722877822047,7.00715292413179],[50.9716020248969,7.00804666038754],[50.9708196376624,7.00871076633736],[50.9699706831334,7.00911972076204],[50.9690877834368,7.00925780777239]],[[50.9690877834368,7.02363085231831],[50.9655736869431,7.02289622789339],[50.9622988310278,7.02074241805917],[50.959486464264,7.0173162013965],[50.9573283439166,7.01285106890887],[50.9559716414413,7.00765131199632],[50.9555088864332,7.00207128549944],[50.9559716414413,6.99649125900256],[50.9573283439166,6.99129150209],[50.959486464264,6.98682636960237],[50.9622988310278,6.98340015293971],[50.9655736869431,6.98124634310549],[50.9690877834368,6.98051171868057],[50.9726016140884,6.98124634310549],[50.9758757437098,6.98340015293971],[50.9786871183376,6.98682636960237],[50.9808442465492,6.99129150209],[50.9822002227305,6.99649125900256],[50.9826627118967,7.00207128549944],[50.9822002227305,7.00765131199632],[50.9808442465492,7.01285106890887],[50.9786871183376,7.0173162013965],[50.9758757437098,7.02074241805917],[50.9726016140884,7.02289622789339],[50.9690877834368,7.02363085231831]]]).addTo(map);
+
+        //Speicherbutton auf Karte hinzufügen
+        var printer = L.easyPrint({
+      		tileLayer: tiles,
+      		sizeModes: ['A4Landscape', 'A4Portrait'],
+      		filename: 'Easy_Living_Map',
+      		exportOnly: true,
+      		hideControlContainer: true
+		}).addTo(map);
+
     return map;}
 );
 /**
@@ -219,10 +227,10 @@ function getCityPoly (cityName, osmId=false ) {
                         direction: 'top'
                     })
                         .setContent(jsUcfirst(data[i].name));
-                    /*polygon.bindTooltip(tooltip);
+                    polygon.bindTooltip(tooltip);
                     polygon.on('click', function () {
                             map.fitBounds(this.getBounds());
-                            });*/
+                            });
                     polygon.addTo(map);
 
                     //reinzoomen bei ersten Element (mit höchstem admin_level)
@@ -563,33 +571,4 @@ function getCityFilterMarkerIcon (x) {
     else {icon = "question";}
 
     return icon;
-}
-
-function save_results() {
-    html2canvas(document.body, {
-        onrendered: function (canvas) {
-            var img = canvas.toDataURL('image/png');
-            var doc = new jsPDF('l');
-            doc.addImage(img, 'JPEG', 20, 20);
-            doc.save('Easy_Living_Output.pdf');
-        }
-    });
-
-    /*var doc = new jsPDF();
-    doc.text('Easy Living', 5, 5);
-    doc.text('Ausdruck für den Bereich: '+document.getElementById('stadtbezirk_auswahl').innerHTML, 5,15);
-    doc.text('Ausgewählte Filter: '+document.getElementById('input_marked_filter_div').innerHTML, 5, 25);
-    doc.text('Folgende Objekte wurden für den Filter ... gefunden:', 5, 35); // als forschliefe über alle Filter
-    doc.text('Es wurden x ideale Flächen gefunden. Siehe Karte.', 5, 45);*/
-
-    /*leafletImage(map, function(err, canvas) {
-        var dimensions = map.getSize();
-        img.width = dimensions.x;
-        img.height = dimensions.y;
-        img.scr = canvas.toDataURL('image/jpg');
-        doc.addImage(img.scr, 'JPEG', 15, 40, 180, 160);
-    });*/
-    //var image = document.getElementById('mapid').innerHTML;
-
-    //doc.save('Easy_Living_Output.pdf');
 }
