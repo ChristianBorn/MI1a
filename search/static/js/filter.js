@@ -298,7 +298,7 @@ function showAuswahl() {
 
     document.getElementById("transparent_div").style.visibility="visible";
     $(function() {
-        $('#transparent').bootstrapToggle("off");
+        $('#transparent').bootstrapToggle();
     })
 }
 
@@ -352,6 +352,13 @@ function toggleLKW() {
     /*else {
         //clear lkw_verbto
     }*/
+}
+
+function toggleTransparency() {
+    var toggle = document.getElementById("transparent").checked;
+    if (toggle) {
+        setTransparency();
+    }
 }
 
 function disableFilter(filterID) {

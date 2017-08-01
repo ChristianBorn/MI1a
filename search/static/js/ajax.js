@@ -152,6 +152,22 @@ function clearFilters(m) {
         }
     }
 }
+$(function() {
+    $('#transparent').change(function() {
+      if ($('.transparent').length == 0) {
+        $('.leaflet-interactive').addClass('transparent');
+      }
+      else {
+        $('.transparent').removeClass('transparent');
+      }
+      console.log($('.transparent').length);
+      
+    })
+  })
+function setTransparency() {
+    console.log($('.transparent').length);
+    $('.leaflet-interactive').addClass('transparent');
+}
 function getCityPoly (cityName, osmId=false ) {
     $.ajax(
         './search/cityPolygon',
@@ -188,7 +204,7 @@ function getCityPoly (cityName, osmId=false ) {
                 //document.getElementById('divMapInfo').appendChild(layerControl.onAdd(map));
 
                 // hierarchische Suche ohne Erfolg
-                var sortList = []
+                
                 $('#stadtauswahl').text('');
                 if (data.length == 0) {
                     swal("Suche erfolglos", "Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.", "error");
@@ -198,11 +214,10 @@ function getCityPoly (cityName, osmId=false ) {
                 if (data.length == 1) {
                 $('#stadtauswahl').html('<a href="javascript:void(0)" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
                 }
-
+                var sortList = []
                 // erfolgreiche Suche im Suchfeld
                 changeAuswahlName(data[0].name);
                 deselect();
-
                 //löschen der alten Filter
                 // @todo: löschen aller Filter bei anderen Stadtteilen/Städten
                 if (map.hasLayer(markerClusters)) {
@@ -213,13 +228,23 @@ function getCityPoly (cityName, osmId=false ) {
                     intersectLayer.clearLayers();
                     map.removeLayer(intersectLayer);
                 }
-
+                // Check, ob der Transparenz-Button Aktiv ist
+                var transparencyActive = false;
+                if ($('.transparent').length > 0){
+                    console.log('transparent');
+                    transparencyActive = true;
+                }
+                console.log(transparencyActive);
                 for (i = 0; i < data.length; i++) {
                     if (i != 0) {
                         sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
                     }
                     var latlngs = data[i].way;
                     var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly selected'});
+                    // Falls der Transparenz-Button aktiv ist, wird den neuen Polygonen die Transparenz-Klasse mitgegeben
+                    if (transparencyActive == true) {
+                        polygon.setStyle({className: 'cityPoly selected transparent'});
+                    }
                     var tooltip = L.tooltip({
                         sticky: true,
                         direction: 'top'

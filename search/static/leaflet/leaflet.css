@@ -638,3 +638,7 @@
 	transition: fill-opacity 0.2s;
     fill-opacity: 0;
 }
+.transparent {
+	transition: fill-opacity 0.2s;
+    fill-opacity: 0 !important;
+}
