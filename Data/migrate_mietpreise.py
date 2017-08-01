@@ -13,7 +13,7 @@ def get_mietpreise(conn):
     cur.execute("""CREATE TABLE "durchschnittliche_mietpreise"
         (id SERIAL PRIMARY KEY, 
         stadtteil VARCHAR, 
-        mietpreis DECIMAL)""")
+        mietpreis VARCHAR)""")
     for row in read_input.itertuples():
         #print('-Inserting row: \n--'+str(row[1:]))
         input_values = [row[1]]

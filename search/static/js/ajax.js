@@ -192,11 +192,9 @@ function getCityPoly (cityName, osmId=false ) {
                 $('#stadtauswahl').text('');
                 if (data.length == 0) {
                     swal("Suche erfolglos", "Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.", "error");
-                    //alert("Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.");
                     return;
                 }
-
-                // Suchfeldsuche ohne Erfolg
+                // Wenn nur ein Ergebnis in Ergebnismenge
                 if (data.length == 1) {
                 $('#stadtauswahl').html('<a href="javascript:void(0)" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
                 }
@@ -460,7 +458,13 @@ function getOpenData  (type_data) {
 
                         if (data[i].admin_level == '10' && data[i].open_data != 'undefined') {
                             //console.log(data[i].open_data);
-                            var tooltip_text = 'Stadtteil: ' + data[i].name + '</br>Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ' %' + '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + ' %' + '</br>Durchschnittsmietpreis: ' + data[i].open_data.mietpreis[0]['mietpreis'] + ' €' + '</br>Durchschnittsalter: ' + data[i].open_data.durchschnittsalter[0]['durchschnittsalter'] + ' Jahre' + '</br>Landtagswahlergebnis: ' + '</br>-SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] + ' %' + '</br>-CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + ' %' + '</br>-Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + ' %' + '</br>-FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + ' %' + '</br>-Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + ' %' + '</br>-AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] + ' %' + '</br>-NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' + '</br>-Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'] + ' %';
+                            if (data[i].open_data.mietpreis[0]['mietpreis'] != 'unbekannt') {
+                                var miete = data[i].open_data.mietpreis[0]['mietpreis'] + ' €'
+                            }
+                            else {
+                                var miete = data[i].open_data.mietpreis[0]['mietpreis']
+                            }
+                            var tooltip_text = 'Stadtteil: ' + data[i].name + '</br>Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ' %' + '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + ' %' + '</br>Durchschnittsmietpreis: ' + miete + '</br>Durchschnittsalter: ' + data[i].open_data.durchschnittsalter[0]['durchschnittsalter'] + ' Jahre' + '</br>Landtagswahlergebnis: ' + '</br>-SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] + ' %' + '</br>-CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + ' %' + '</br>-Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + ' %' + '</br>-FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + ' %' + '</br>-Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + ' %' + '</br>-AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] + ' %' + '</br>-NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' + '</br>-Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'] + ' %';
                             var popup = L.popup({
                                 closeOnClick: true,
                                 className: 'map-popup'

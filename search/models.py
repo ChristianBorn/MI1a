@@ -91,14 +91,14 @@ class Beschaeftigte(models.Model):
 
 class DurchschnittlicheMietpreise(models.Model):
     stadtteil = models.TextField(blank=True, null=True)
-    mietpreis = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    mietpreis = models.TextField(blank=True, null=True)
 
     @staticmethod
     # parameter: Stadtteil als String. zB. 'Altstadt-Nord'
     def get_mietpreise(stdteil):
         results = []
         for ele in DurchschnittlicheMietpreise.objects.raw\
-                    ("SELECT m.id, m.stadtteil, m.mietpreis::float from durchschnittliche_mietpreise m WHERE"
+                    ("SELECT m.id, m.stadtteil, m.mietpreis from durchschnittliche_mietpreise m WHERE"
                     " m.stadtteil = %s", [stdteil]):
             results.append(ele)
         data = []
