@@ -21,7 +21,8 @@ def opendata_von_stadtteil(request):
 
     # Laempegel benötigt (aktuell noch) einen Punkt & einen Umkreis. Änderung möglich.
     elif column_name == 'pegel':
-        laermpegel = Laermpegel.get_learmpegel()
+        #laermpegel = Laermpegel.get_learmpegel()
+        laermpegel = []
         #print('views',len(laermpegel))
         return JsonResponse(laermpegel, safe=False)
 
@@ -39,7 +40,7 @@ def opendata_von_stadtteil(request):
                                       'mietpreis': mietpreise}
                     request.session['polygons'][polygon_nr]['open_data'] = open_data_dict
         request.session.modified = True
-        #print('views',request.session['polygons'])
+        print(len(request.session['polygons']))
         return JsonResponse(request.session['polygons'], safe=False)
 
 
@@ -59,7 +60,9 @@ def search_cityPolygon(request):
             request.session['polygons'].append({'osm_id': elem['osm_id'],
                                                 'name': elem['name'],
                                                 'admin_level': elem['admin_level'],
-                                                'way': elem['way'], 'filter': {}, 'open_data': 'undefined'})
+                                                'way': elem['way'], 'filter': {}, 'open_data': 'undefined',
+                                               'parent_osm': elem['parent_osm'], 'parent_name': elem['parent_name'],
+                                                'affil_city_name': elem['affil_city_name']})
         request.session.modified = True
         print("Polygone in Session ",len(request.session['polygons']))
         return JsonResponse(city_polygons, safe=False)

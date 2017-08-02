@@ -35,7 +35,6 @@ def connect_to_db(path='../mysite/settings.py'):
 
 def transform_coords(result):
     conn = connect_to_db(path='mysite/settings.py')
-    #cur = conn.cursor()
     with conn.cursor() as cur:
         sql_string = '''SELECT ST_asText(ST_flipcoordinates(ST_Transform(ST_SetSRID(St_GeomFromText(%s),3857),4326)))'''
         cur.execute(sql_string, [result])
@@ -689,7 +688,6 @@ class PlanetOsmPolygon(models.Model):
             new_admin_level = 9
         elif results[0].admin_level == '9':
             new_admin_level = 10
-        print("new "+str(new_admin_level))
         if 5 < int(new_admin_level) <= 10:
             for p in PlanetOsmPolygon.objects.raw("SELECT osm_id, name, admin_level, "
                                                       "ST_asText(way) AS way  "
@@ -709,8 +707,8 @@ class PlanetOsmPolygon(models.Model):
         plz = re.findall(r"[0-9]{4,5}", str(city_var))
         if not osm_id:
             if len(plz) == 1:
-                for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, postcode.postal_code, "
-                                                      "ST_asText(ST_INTERSECTION(city.way, postcode.way)) AS cway FROM "
+                for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, postcode.postal_code,"
+                                                        "ST_asText(city.way) AS cway FROM "
                                                       "planet_osm_polygon city JOIN planet_osm_polygon postcode ON "
                                                       "ST_INTERSECTS(city.way, postcode.way) "
                                                         "AND NOT ST_Touches(city.way, postcode.way)"
@@ -766,15 +764,59 @@ class PlanetOsmPolygon(models.Model):
             element.admin_level = int(element.admin_level)
         results = sorted(results, key=lambda x: int(x.admin_level))  # Sortiere Liste anhand des 2. Elements
         data = []
-        beschaeftigte = []
-        mietpreis = []
-        alter = []
-        wahl = []
         for element in results:
-            print(element.name+"  |   "+str(element.admin_level))
+            parent_osm, parent_name = PlanetOsmPolygon.get_osm_of_next_higher_place(element.osm_id, False)
+
+            #name / osm_id der zugehörigen Stadt (ggf. auch Landkreis).
+            affil_city_osm, affil_city_name = PlanetOsmPolygon.get_osm_of_next_higher_place(element.osm_id,True)
             data.append({'name': element.name, 'osm_id': element.osm_id, 'admin_level': element.admin_level,
-                             'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': 'undefined'})
+                         'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': 'undefined',
+                         'parent_osm': parent_osm,
+                         'parent_name': parent_name,
+                         'affil_city_name': affil_city_name,
+                         'affil_city_osm': affil_city_osm})
+        print ("Gesuchter Ort    |     Name d. nächsthäheren Ortes    |     osm_id des Ortes     |     Name der zugehörigen Stadt    |     +osm_id der Stadt")
+        for d in data:
+            print(d['name'] + "    |    " + str(d['parent_name']) + "    |    " + str(
+                d['parent_osm']) + "    |    " + str(d['affil_city_name']) + "    |    " + str(
+                d['affil_city_osm']))
         return data
+
+        # gibt osm_id und Name der nächsten übergeordneten Ortschaft eines Ortes zurück. Falls kein Fund, Leer-String
+        # Parameter:
+        #   osm_id: osm_id des Ortes, dessen übergeordneter Ort gesucht werden soll.
+        #       Beispiel: Stadttel -> Stadtbezirk; Stadtbezirk -> Stadt
+        #
+        #   city_only: bei True wird zugehörige Stadt gesucht. bei False, der nächsthöhere Ort, nach admin_level
+        #       True: Oberbilk -> Düsseldorf        False: Oberbilk -> Stadtbezirk
+    @staticmethod
+    def get_osm_of_next_higher_place(osm_id, city_only):
+        conn = connect_to_db(path='mysite/settings.py')
+        with conn.cursor() as cur:
+            if not city_only:
+                sql_string = "SELECT poly.osm_id, poly.name, poly.admin_level FROM " \
+                             "(SELECT osm_id, name, admin_level,way FROM planet_osm_polygon ) as poly," \
+                             "(SELECT osm_id,admin_level,way FROM planet_osm_polygon WHERE osm_id = %s) as poly_way " \
+                             "WHERE poly.admin_level::INTEGER < poly_way.admin_level::INTEGER " \
+                             "AND poly.admin_level = ANY ('{6,8,9,10}') " \
+                             "AND st_contains(poly.way, poly_way.way) " \
+                             "GROUP BY poly.osm_id, poly.name, poly.admin_level " \
+                             "ORDER BY poly.admin_level::INTEGER DESC LIMIT 1"
+            else:
+                sql_string = "SELECT poly.osm_id, poly.name, poly.admin_level FROM " \
+                             "(SELECT osm_id, name, admin_level,way FROM planet_osm_polygon ) as poly," \
+                             "(SELECT osm_id,admin_level,way FROM planet_osm_polygon WHERE osm_id = %s) as poly_way " \
+                             "WHERE poly.admin_level::INTEGER < poly_way.admin_level::INTEGER " \
+                             "AND poly.admin_level = ANY ('{6,8}') " \
+                             "AND st_contains(poly.way, poly_way.way) " \
+                             "GROUP BY poly.osm_id, poly.name, poly.admin_level " \
+                             "ORDER BY poly.admin_level::INTEGER DESC LIMIT 1"
+            cur.execute(sql_string, [osm_id])
+            rows = cur.fetchone()
+            if rows is not None:
+                return rows[0], rows[1]
+            else:
+                return 0,''
 
 
     @staticmethod
