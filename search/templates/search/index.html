@@ -249,20 +249,22 @@
             </div>
 
             <!--Buttom um Schnittmengen anzuzeigen-->
-            <div class="col-md-3" id="use_filter_div" style="margin-top:10px;visibility:hidden">
+            <div class="col-md-4" id="use_filter_div" style="margin-top:10px;visibility:hidden">
                 <button id="use_filter" style="width: 300px" type="button"  name="use_filter" class="btn btn-default" onclick="getCityFilter(getFilterText())">Schnittmengen anzeigen</button>
             </div>
 
-            <!--Stadbezirk/-teil Auswahl-->
-            <div class="col-md-4" style="margin-top:10px">
-                <div class="dropdown pull-right">
+            <!--Stadtebene höher-->
+            <div class="col-md-2" style="margin-top:10px;visibility:hidden" id="stadtebene_hoch_div">
+                <button id="stadtebene_hoch" type="button" style="width: 200px;" name="stadtebene_hcoh" class="btn btn-default">Stadtebene höher</button>
+            </div>
+
+            <!--Stadtbezirk/-teil Auswahl-->
+            <div class="col-md-2" style="margin-top:10px">
+                <div class="dropdown">
                     <button id="stadtbezirk_auswahl" type="button" style="visibility:hidden;" class="btn btn-default" data-toggle="dropdown">Auswahl<span class="caret"></span></button>
                     <ul class="dropdown-menu" id="stadtauswahl">
                     </ul>
                 </div>
-            </div>
-
-            <div class="col-md-1">
             </div>
 
             <!--Test Legende-->
@@ -286,7 +288,7 @@
         <div id="divMapInfo">
         <div class="col-md-2" id="opendata_div" style="margin-top: 10px;visibility:hidden">
             <div class="toggle">
-                <input id="opendata_toggle" type="checkbox" checked data-toggle="toggle" data-width="215px" data-on="Open Data" data-onstyle="success" data-off="Open Data">
+                <input id="opendata_toggle" type="checkbox" data-toggle="toggle" data-width="215px" data-on="Open Data" data-onstyle="success" data-off="Open Data">
             </div>
         </div>
 
@@ -300,7 +302,7 @@
 
         <div class="col-md-2" id="laermpegel_div" style="margin-top: 10px;visibility:hidden">
             <div class="toggle">
-                <input id="laermpegel" type="checkbox" checked data-toggle="toggle" data-width="215px" data-on="Lärmpegel Köln" data-onstyle="success" data-off="Lärmpegel Köln" onchange="togglePegel()">
+                <input id="laermpegel" type="checkbox" data-toggle="toggle" data-width="215px" data-on="Lärmpegel Köln" data-onstyle="success" data-off="Lärmpegel Köln" onchange="togglePegel()">
             </div>
         </div>
 
@@ -314,7 +316,7 @@
 
         <div class="col-md-2" id="lkw_verbot_div" style="margin-top: 10px;visibility:hidden">
             <div class="toggle">
-                <input id="lkw_verbot" type="checkbox" checked data-toggle="toggle" data-width="215px" data-on="LKW-Verbotszonen" data-onstyle="success" data-off="LKW-Verbotszonen" onchange="toggleLKW()">
+                <input id="lkw_verbot" type="checkbox" data-toggle="toggle" data-width="215px" data-on="LKW-Verbotszonen" data-onstyle="success" data-off="LKW-Verbotszonen" onchange="toggleLKW()">
             </div>
         </div>
 

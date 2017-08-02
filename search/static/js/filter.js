@@ -268,6 +268,10 @@ function changeAuswahlName(cityName = getCityName()){
     console.log("Auswahlname geändert!");
 }
 
+function changeStadtebeneName (city) {
+    document.getElementById("stadtebene_hoch").innerHTML= city;
+}
+
 /**
  * Fasst alle Methoden zusammen die beim Betätigen des Such-Buttons ausgelöst werden sollen.
  */
@@ -277,6 +281,7 @@ function searchOnClicks(){
         return;
     }
     clearMap(map);
+    enableAllFilter();
     getCityPoly(getCityName(), osmId=false);
 }
 
@@ -294,27 +299,19 @@ function showAuswahl() {
     document.getElementById("min_div").style.display="block";
     document.getElementById("max_div").style.display="block";
     document.getElementById("add-filter_div").style.display="block";
+    document.getElementById("stadtebene_hoch_div").style.visibility="visible";
     document.getElementById("input_marked_filter_div").style.display="block";
 
     document.getElementById("transparent_div").style.visibility="visible";
-    $(function() {
-        $('#transparent').bootstrapToggle();
-    })
 }
 
 function showOpenData() {
     document.getElementById("opendata_div").style.visibility="visible";
-    $(function() {
+ /*   $(function() {
         $('#opendata_toggle').bootstrapToggle("off");
-    })
+    })*/
     document.getElementById("lkw_verbot_div").style.visibility="visible";
-    $(function() {
-        $('#lkw_verbot').bootstrapToggle("off");
-    })
     document.getElementById("laermpegel_div").style.visibility="visible";
-    $(function() {
-        $('#laermpegel').bootstrapToggle("off");
-    })
 }
 
 function showFilterIntersections() {
@@ -363,7 +360,14 @@ function toggleTransparency() {
 
 function disableFilter(filterID) {
     document.getElementById(filterID).disabled = true;
-    document.getElementById(filterID).style.opacity="0,6";
+    document.getElementById(filterID).style.opacity="0.6";
+}
+
+function enableAllFilter() {
+    for (var i=1; i < 34; i++) {
+        document.getElementById(i).disabled = false;
+        document.getElementById(i).style.opacity="1.0";
+    }
 }
 
 function getFilterName(x) {
@@ -506,8 +510,6 @@ function enterpressalert(e, textarea){
     }
 }
 
-/*
-function test() {
-    showAuswahl();
-    showOpenData();
+/*function test() {
+    changeStadtebeneName("test");
 }*/
