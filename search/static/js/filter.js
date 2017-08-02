@@ -282,6 +282,14 @@ function searchOnClicks(){
     }
     clearMap(map);
     enableAllFilter();
+    if (map.hasLayer(markerClusters)) {
+                    markerClusters.clearLayers();
+                    map.removeLayer(markerClusters);
+                }
+                if (map.hasLayer(intersectLayer)) {
+                    intersectLayer.clearLayers();
+                    map.removeLayer(intersectLayer);
+                }
     getCityPoly(getCityName(), osmId=false);
 }
 

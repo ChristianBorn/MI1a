@@ -220,14 +220,7 @@ function getCityPoly (cityName, osmId=false ) {
                 deselect();
                 //löschen der alten Filter
                 // @todo: löschen aller Filter bei anderen Stadtteilen/Städten
-                if (map.hasLayer(markerClusters)) {
-                    markerClusters.clearLayers();
-                    map.removeLayer(markerClusters);
-                }
-                if (map.hasLayer(intersectLayer)) {
-                    intersectLayer.clearLayers();
-                    map.removeLayer(intersectLayer);
-                }
+                
                 // Check, ob der Transparenz-Button Aktiv ist
                 var transparencyActive = false;
                 if ($('.transparent').length > 0){
