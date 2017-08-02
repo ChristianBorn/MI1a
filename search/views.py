@@ -40,7 +40,7 @@ def opendata_von_stadtteil(request):
                                       'mietpreis': mietpreise}
                     request.session['polygons'][polygon_nr]['open_data'] = open_data_dict
         request.session.modified = True
-        print(len(request.session['polygons']))
+        #print(len(request.session['polygons']))
         return JsonResponse(request.session['polygons'], safe=False)
 
 

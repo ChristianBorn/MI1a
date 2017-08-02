@@ -775,7 +775,9 @@ class PlanetOsmPolygon(models.Model):
                          'parent_name': parent_name,
                          'affil_city_name': affil_city_name,
                          'affil_city_osm': affil_city_osm})
-        print ("Gesuchter Ort    |     Name d. nächsthäheren Ortes    |     osm_id des Ortes     |     Name der zugehörigen Stadt    |     +osm_id der Stadt")
+        print("Gesuchter Ort    |     Name d. nächsthäheren Ortes    |     osm_id des Ortes     |     Name der zugehörigen Stadt    |     +osm_id der Stadt")
+        print("key in dictionary|     parent_name    |     parent_osm     |     affil_city_name     |     +affil_city_osm")
+
         for d in data:
             print(d['name'] + "    |    " + str(d['parent_name']) + "    |    " + str(
                 d['parent_osm']) + "    |    " + str(d['affil_city_name']) + "    |    " + str(
