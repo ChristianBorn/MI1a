@@ -489,7 +489,20 @@ function getOpenData  (type_data) {
                             else {
                                 var miete = data[i].open_data.mietpreis[0]['mietpreis']
                             }
-                            var tooltip_text = 'Stadtteil: ' + data[i].name + '</br>Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ' %' + '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + ' %' + '</br>Durchschnittsmietpreis: ' + miete + '</br>Durchschnittsalter: ' + data[i].open_data.durchschnittsalter[0]['durchschnittsalter'] + ' Jahre' + '</br>Landtagswahlergebnis: ' + '</br>-SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] + ' %' + '</br>-CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + ' %' + '</br>-Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + ' %' + '</br>-FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + ' %' + '</br>-Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + ' %' + '</br>-AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] + ' %' + '</br>-NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' + '</br>-Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'] + ' %';
+                            var tooltip_text = '<div style="text-align:center; font-weight: bold;">' + data[i].name + '</div>' +
+                                                'Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ' %' + 
+                                                '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + ' %' + 
+                                                '</br>Durchschnittsmietpreis: ' + miete + 
+                                                '</br>Durchschnittsalter: ' + data[i].open_data.durchschnittsalter[0]['durchschnittsalter'] + ' Jahre' + 
+                                                '</br></br>Landtagswahlergebnis: ' + 
+                                                    '</br><div class="partyMarker" style="background-color: #e3000f;"></div>SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] + ' %' + 
+                                                    '</br><div class="partyMarker" style="background-color: black;"></div>CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + ' %' + 
+                                                    '</br><div class="partyMarker" style="background-color: #46962B;"></div>Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + ' %' + 
+                                                    '</br><div class="partyMarker" style="background-color: #ffed00;"></div>FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + ' %' + 
+                                                    '</br><div class="partyMarker" style="background-color: #DF0404;"></div>Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + ' %' + 
+                                                    '</br><div class="partyMarker" style="background-color: #009EE0;"></div>AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] + ' %' + 
+                                                    '</br><div class="partyMarker" style="background-color: brown;"></div>NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' + 
+                                                    '</br><div class="partyMarker" style="background-color: #f80;"></div>Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'] + ' %';
                             var popup = L.popup({
                                 closeOnClick: true,
                                 className: 'map-popup'
