@@ -12,7 +12,7 @@ def opendata_von_stadtteil(request):
     stadtteile = request.session['polygons']
     #punkt = request.session['polygons'][0]['way']
     #punkt = 'POINT(6.97364225377671 50.9457393529467)'
-    print(column_name)
+    #print(column_name)
     #print(stadtteile)
 
     if column_name == 'lkw_verbot':

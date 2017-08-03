@@ -1,6 +1,10 @@
 var map;
 var markerClusters;
 var intersectLayer;
+var stadtteilLayer;
+var lkw_verbot_layer;
+var open_data_layer;
+var pegel_layer;
 var csrftoken;
 $(document).ready(
     function init_map() {
@@ -11,9 +15,9 @@ $(document).ready(
             {
             minZoom: 9,
             maxZoom: 16
-            }
-
-            /*//old via mapbox
+            });
+        var satellite_tiles = L.tileLayer(
+            //old via mapbox
             'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
             {
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -23,33 +27,29 @@ $(document).ready(
             //id: 'mapbox.mapbox-traffic-v1',
             id: 'mapbox.satellite',
             accessToken: 'pk.eyJ1IjoicnN0b2RkZW4iLCJhIjoiY2ozdmt0ZDN3MDAydDR1cG1ybXduYjFsZiJ9.1SgNsXjR5DBwU6uEWTZF1A'
-            }*/
-        );
+            });
 
         /*var lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
         var pegel_layer = L.layerGroup(getOpenData('pegel'));
         var open_data_layer = L.layerGroup([L.marker([50.938, 6.95]), L.marker([50.939, 6.96])]);*/
-        map = L.map('mapid',
-            {center: [50.938, 6.95], zoom: 12});
-
-        /*var overlayMaps = {
-            'OpenData': open_data_layer,
-            'LKW': lkw_verbot_layer,
-            'Pegel': pegel_layer
+        var baseMaps = {
+            'Karte': tiles,
+            'Satellite': satellite_tiles
         };
-
-        //Button zum Ein- und Ausschalten der Opendata außerhalb der Karte anzeigen
-        var layerControl = L.control.layers(null, overlayMaps, {collapsed: false});
-        layerControl.addTo(map);
-        layerControl._container.remove();
-        document.getElementById('divMapInfo').appendChild(layerControl.onAdd(map));*/
+        map = L.map('mapid', {
+            center: [50.938, 6.95],
+            zoom: 12,
+            layers: [satellite_tiles]
+        });
 
         //tiles zur map hinzufügen
         tiles.addTo(map);
+        L.control.layers(baseMaps).addTo(map);
 
-        // globales definieren von layern damit diese funktionsübergreifend gelöscht werden können
+        //definieren von layern für Marker und Filter
         markerClusters = L.markerClusterGroup();
-        intersectLayer = L.layerGroup();
+        intersectLayer = L.featureGroup();
+        stadtteilLayer = L.featureGroup();
 
         //Maßstab zur map hinzufügen
         L.control.scale().addTo(map);
@@ -122,7 +122,7 @@ function deselect () {
     $('.selected').addClass('deselected');
     $('.selected').removeClass('selected');
 }
-function clearMap(m) {
+/*function clearMap(m) {
     for(i in m._layers) {
         if(m._layers[i]._path != undefined || m._layers[i]._icon != undefined) {
             try {
@@ -134,8 +134,24 @@ function clearMap(m) {
             }
         }
     }
+}*/
+
+function clearMap(map) {
+    map.eachLayer(function(layer) {
+        if( !(layer instanceof L.TileLayer) && (layer._path != undefined || layer._icon != undefined) ) {
+            //console.log(layer.name);
+            try {
+                map.removeLayer(layer);
+                //layer.clearLayers();
+            }
+            catch(e) {
+                console.log("problem with " + e);
+            }
+        }
+    });
 }
-function clearFilters(m) {
+
+/*function clearFilters(m) {
     for(i in m._layers) {
         if(m._layers[i].options.className != undefined) {
             if(m._layers[i].options.className.startsWith('intersection')) {
@@ -151,7 +167,7 @@ function clearFilters(m) {
             }
         }
     }
-}
+}*/
 $(function() {
     $('#transparent').change(function() {
       if ($('.transparent').length == 0) {
@@ -161,7 +177,6 @@ $(function() {
         $('.transparent').removeClass('transparent');
       }
       console.log($('.transparent').length);
-      
     })
   })
 function setTransparency() {
@@ -181,30 +196,15 @@ function getCityPoly (cityName, osmId=false ) {
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
-                // wenn vorhanden dann alte elemente löschen, damit nicht mehrfach entstehen
-                if (typeof layerControl !== 'undefined') {
-                    layerControl._container.remove();
-                }
-
+                deleteLayer(map, open_data_layer);
+                //deleteLayer(map, pegel_layer);
                 //Berechnen der Werte der Ein-und Auszublendenden OpenData
                 lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
-                //pegel_layer = L.layerGroup(getOpenData('pegel'));
+                pegel_layer = L.layerGroup();//L.layerGroup(getOpenData('pegel'));
                 open_data_layer = L.layerGroup(getOpenData('opendata'));
 
-                var overlayMaps = {
-                    'OpenData': open_data_layer,
-                    'LKW': lkw_verbot_layer,
-                    //'Pegel': pegel_layer
-                };
-
-                //Button zum Ein- und Ausschalten der Opendata außerhalb der Karte anzeigen
-                layerControl = L.control.layers(null, overlayMaps, {collapsed: false});
-                layerControl.addTo(map);
-                //layerControl._container.remove();
-                //document.getElementById('divMapInfo').appendChild(layerControl.onAdd(map));
-
                 // hierarchische Suche ohne Erfolg
-                
+
                 $('#stadtauswahl').text('');
                 if (data.length == 0) {
                     swal("Suche erfolglos", "Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.", "error");
@@ -218,9 +218,7 @@ function getCityPoly (cityName, osmId=false ) {
                 // erfolgreiche Suche im Suchfeld
                 changeAuswahlName(data[0].name);
                 deselect();
-                //löschen der alten Filter
-                // @todo: löschen aller Filter bei anderen Stadtteilen/Städten
-                
+
                 // Check, ob der Transparenz-Button Aktiv ist
                 var transparencyActive = false;
                 if ($('.transparent').length > 0){
@@ -245,25 +243,29 @@ function getCityPoly (cityName, osmId=false ) {
                         .setContent(jsUcfirst(data[i].name));
                     polygon.bindTooltip(tooltip);
                     polygon.on('click', function () {
-                            map.fitBounds(this.getBounds());
-                            });
-                    polygon.addTo(map);
+                        //getCityPoly(data[i].osm_id,true);
+                        map.fitBounds(this.getBounds());
+                    });
+                    polygon.addTo(stadtteilLayer);
 
-                    //reinzoomen bei ersten Element (mit höchstem admin_level)
+                    /*//reinzoomen bei ersten Element (mit höchstem admin_level)
                     if (i == 0) {
                         map.fitBounds(polygon.getBounds());
-                    }
+                    }*/
                 }
 
-            // erfolgreiche hierarchische Suche und befüllen des DropDownMenüs
-            //changeAuswahlName();
-            showAuswahl();
-            showOpenData();
-            sortList.sort(alphanum);
-            $('#stadtauswahl').append(sortList.join(''));
-            $('html, body').animate({
-                scrollTop:$('#mapid').offset().top*0.7
-                },'slow');
+                stadtteilLayer.addTo(map);
+                map.fitBounds(stadtteilLayer.getBounds());
+
+                // erfolgreiche hierarchische Suche und befüllen des DropDownMenüs
+                //changeAuswahlName();
+                showAuswahl();
+                showOpenData();
+                sortList.sort(alphanum);
+                $('#stadtauswahl').append(sortList.join(''));
+                $('html, body').animate({
+                    scrollTop:$('#mapid').offset().top*0.7
+                    },'slow');
 
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -303,17 +305,11 @@ function getCityFilterMarker  (filter, intersection=false) {
                 else {
                     // löschen der alten Filter
                     //clearFilters(map);
-                    if (map.hasLayer(markerClusters)) {
-                        markerClusters.clearLayers();
-                        map.removeLayer(markerClusters);
-                    }
+                    deleteLayer(map, markerClusters);
                     // intersections an dieser Stelle löschen nur wenn false, da sonst durch ansynchronen Aufruf
                     // zum falschen Zeitpunkt gelöscht wird
                     if (intersection == false) {
-                        if (map.hasLayer(intersectLayer)) {
-                            intersectLayer.clearLayers();
-                            map.removeLayer(intersectLayer);
-                        }
+                        deleteLayer(map, intersectLayer);
                     }
 
                     //var markerClusters = L.markerClusterGroup({ chunkedLoading: false });
@@ -384,18 +380,16 @@ function getCityFilter  (filter) {
                     //löschen der alten Schnittmengen. Einzeln aufgerufen da sonst falscher Zeitpunkt des Löschens
                     // aufgrund asynchronen Aufrufs
                     //clearFilters(map);
-                    if (map.hasLayer(intersectLayer)) {
-                        intersectLayer.clearLayers();
-                        map.removeLayer(intersectLayer);
-                    }
+                    deleteLayer(map, intersectLayer);
 
                     getCityFilterMarker(filter, true);
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
-                        var polygon = L.polygon(latlngs, {color: getColor(getFilter()), className: 'intersection selected'});//.addTo(map);//.bringToBack();
-                        polygon.addTo(intersectLayer).bringToBack();
+                        var polygon = L.polygon(latlngs, {color: getColor(getFilter()), className: 'intersection selected'});
+                        polygon.addTo(intersectLayer);
                     }
                     map.addLayer(intersectLayer);
+                    intersectLayer.bringToBack();
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -467,7 +461,14 @@ function getOpenData  (type_data) {
                 }
 
                 else {
-                    open_data_layer.clearLayers();
+                    //löschen der alten OpenDataanzeige, da sonst überzeichnet wird
+                    //open_data_layer.clearLayers();
+                    deleteLayer(map, open_data_layer);
+                    $(function() {
+                        $('#opendata_toggle').bootstrapToggle("off");
+                    });
+                    //document.getElementById('opendata_toggle').disabled = false;
+                    var anzahl_fehlende_open_data = 0;
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var polygon = L.polygon(latlngs, {className: 'deselected'});
@@ -483,18 +484,18 @@ function getOpenData  (type_data) {
                                 var miete = data[i].open_data.mietpreis[0]['mietpreis']
                             }
                             var tooltip_text = '<div style="text-align:center; font-weight: bold;">' + data[i].name + '</div>' +
-                                                'Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ' %' + 
-                                                '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + ' %' + 
-                                                '</br>Durchschnittsmietpreis: ' + miete + 
-                                                '</br>Durchschnittsalter: ' + data[i].open_data.durchschnittsalter[0]['durchschnittsalter'] + ' Jahre' + 
-                                                '</br></br>Landtagswahlergebnis: ' + 
-                                                    '</br><div class="partyMarker" style="background-color: #e3000f;"></div>SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] + ' %' + 
-                                                    '</br><div class="partyMarker" style="background-color: black;"></div>CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + ' %' + 
-                                                    '</br><div class="partyMarker" style="background-color: #46962B;"></div>Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + ' %' + 
-                                                    '</br><div class="partyMarker" style="background-color: #ffed00;"></div>FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + ' %' + 
-                                                    '</br><div class="partyMarker" style="background-color: #DF0404;"></div>Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + ' %' + 
-                                                    '</br><div class="partyMarker" style="background-color: #009EE0;"></div>AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] + ' %' + 
-                                                    '</br><div class="partyMarker" style="background-color: brown;"></div>NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' + 
+                                                'Jugendarbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['jugendarbeitslosenquote'] + ' %' +
+                                                '</br>Arbeitslosenquote: ' + data[i].open_data.beschaeftigte[0]['arbeitslosenquote'] + ' %' +
+                                                '</br>Durchschnittsmietpreis: ' + miete +
+                                                '</br>Durchschnittsalter: ' + data[i].open_data.durchschnittsalter[0]['durchschnittsalter'] + ' Jahre' +
+                                                '</br></br>Landtagswahlergebnis: ' +
+                                                    '</br><div class="partyMarker" style="background-color: #e3000f;"></div>SPD: ' + data[i].open_data.wahl[0]['gesamt_spd'] + ' %' +
+                                                    '</br><div class="partyMarker" style="background-color: black;"></div>CDU: ' + data[i].open_data.wahl[0]['gesamt_cdu'] + ' %' +
+                                                    '</br><div class="partyMarker" style="background-color: #46962B;"></div>Grüne: ' + data[i].open_data.wahl[0]['gesamt_gruene'] + ' %' +
+                                                    '</br><div class="partyMarker" style="background-color: #ffed00;"></div>FDP: ' + data[i].open_data.wahl[0]['gesamt_fdp'] + ' %' +
+                                                    '</br><div class="partyMarker" style="background-color: #DF0404;"></div>Die Linke: ' + data[i].open_data.wahl[0]['gesamt_die_linke'] + ' %' +
+                                                    '</br><div class="partyMarker" style="background-color: #009EE0;"></div>AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] + ' %' +
+                                                    '</br><div class="partyMarker" style="background-color: brown;"></div>NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' +
                                                     '</br><div class="partyMarker" style="background-color: #f80;"></div>Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'] + ' %';
                             var popup = L.popup({
                                 closeOnClick: true,
@@ -503,14 +504,20 @@ function getOpenData  (type_data) {
                             polygon.bindPopup(popup);
                         }
                         else {
-                            var tooltip_text = 'Für dieses Polygon sind keine OpenData verfügbar.';
+                            var tooltip_text = 'Für diesen Suchbereich sind keine OpenData verfügbar.';
                             var popup = L.popup({
                                 closeOnClick: true,
                                 className: 'map-popup'
                             }).setContent(tooltip_text);
                             polygon.bindPopup(popup);
+                            anzahl_fehlende_open_data += 1;
                         }
                         polygon.addTo(open_data_layer);
+
+                        // wenn zu keinem polygon OpenData vorhanden sind, Funktion des Schalters ausgrauen
+                        /*if (anzahl_fehlende_open_data === data.length) {
+                            document.getElementById('opendata_toggle').disabled = true;
+                        }*/
                     }
                 }
             },
@@ -606,4 +613,21 @@ function getCityFilterMarkerIcon (x) {
     else {icon = "question";}
 
     return icon;
+}
+
+function showLayer(map, layer, button_id) {
+    if (document.getElementById(button_id).checked) {
+        layer.addTo(map);
+    }
+    else {
+        //layer.clearLayers();
+        map.removeLayer(layer);
+    }
+}
+
+function deleteLayer(map, layer){
+    if (map.hasLayer(layer)) {
+        layer.clearLayers();
+        map.removeLayer(layer);
+    }
 }

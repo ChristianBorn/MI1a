@@ -282,14 +282,10 @@ function searchOnClicks(){
     }
     clearMap(map);
     enableAllFilter();
-    if (map.hasLayer(markerClusters)) {
-                    markerClusters.clearLayers();
-                    map.removeLayer(markerClusters);
-                }
-                if (map.hasLayer(intersectLayer)) {
-                    intersectLayer.clearLayers();
-                    map.removeLayer(intersectLayer);
-                }
+    deleteLayer(map, markerClusters);
+    deleteLayer(map, intersectLayer);
+    deleteLayer(map, stadtteilLayer);
+
     getCityPoly(getCityName(), osmId=false);
 }
 
@@ -311,6 +307,7 @@ function showAuswahl() {
     document.getElementById("input_marked_filter_div").style.display="block";
 
     document.getElementById("transparent_div").style.visibility="visible";
+    document.getElementById("clearmap").style.visibility="visible";
 }
 
 function showOpenData() {
@@ -339,25 +336,6 @@ function hideIntersections() {
     document.getElementById("use_filter_div").style.visibility="hidden";
 }
 
-function togglePegel() {
-    var toggle = document.getElementById("laermpegel").checked;
-    if (toggle) {
-        getOpenData('pegel');
-    }
-    /*else {
-        //clear laermpegel
-    }*/
-}
-
-function toggleLKW() {
-    var toggle = document.getElementById("lkw_verbot").checked;
-    if (toggle) {
-        getOpenData('lkw_verbot');
-    }
-    /*else {
-        //clear lkw_verbto
-    }*/
-}
 
 function toggleTransparency() {
     var toggle = document.getElementById("transparent").checked;

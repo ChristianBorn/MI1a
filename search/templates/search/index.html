@@ -285,10 +285,9 @@
         <div class="col-md-10">
             <div id="mapid" class="mapcanvas"style="border:1px solid #000000; width:98%; height:80%;"></div> <!--style="border:1px solid #000000; width:640px; height:480px;"-->
         </div>
-        <div id="divMapInfo">
         <div class="col-md-2" id="opendata_div" style="margin-top: 10px;visibility:hidden">
             <div class="toggle">
-                <input id="opendata_toggle" type="checkbox" data-toggle="toggle" data-width="215px" data-on="Open Data" data-onstyle="success" data-off="Open Data">
+                <input id="opendata_toggle" type="checkbox" data-toggle="toggle" data-width="215px" data-on="Open Data" data-onstyle="success" data-off="Open Data" onchange="showLayer(map, open_data_layer, 'opendata_toggle')">
             </div>
         </div>
 
@@ -302,7 +301,7 @@
 
         <div class="col-md-2" id="laermpegel_div" style="margin-top: 10px;visibility:hidden">
             <div class="toggle">
-                <input id="laermpegel" type="checkbox" data-toggle="toggle" data-width="215px" data-on="Lärmpegel Köln" data-onstyle="success" data-off="Lärmpegel Köln" onchange="togglePegel()">
+                <input id="laermpegel" type="checkbox" data-toggle="toggle" data-width="215px" data-on="Lärmpegel" data-onstyle="success" data-off="Lärmpegel" onchange="showLayer(map, pegel_layer, 'laermpegel')">
             </div>
         </div>
 
@@ -316,7 +315,7 @@
 
         <div class="col-md-2" id="lkw_verbot_div" style="margin-top: 10px;visibility:hidden">
             <div class="toggle">
-                <input id="lkw_verbot" type="checkbox" data-toggle="toggle" data-width="215px" data-on="LKW-Verbotszonen" data-onstyle="success" data-off="LKW-Verbotszonen" onchange="toggleLKW()">
+                <input id="lkw_verbot" type="checkbox" data-toggle="toggle" data-width="215px" data-on="LKW-Verbotszonen" data-onstyle="success" data-off="LKW-Verbotszonen" onchange="showLayer(map, lkw_verbot_layer, 'lkw_verbot')">
             </div>
         </div>
 
@@ -325,11 +324,15 @@
                 <input id="transparent" type="checkbox" data-toggle="toggle" data-width="215px" data-on="Transparenz ein" data-onstyle="success" data-off="Transparenz aus">
             </div>
         </div>
+
+        <div class="col-md-2" id="clearmap_div" style="margin-top: 10px;visibility:hidden">
+            <div class="toggle">
+                <button id="clearmap" style="width: 215px" class="btn btn-default" onclick="clearMap(map)">Karte zurücksetzen</button>
+            </div>
+        </div>
         <!--<div class="col-md-2" id="landuse_div" style="margin-top:10px;visibility:hidden">
             <button id="landuse" type="button" style="width: 200px" name="landuse" value="" class="btn btn-default" onclick="getCityFilter('landuse')">Anzeige Landuse</button>
         </div>-->
-
-        </div>
 
     <!--Ausgewählte Filter Textfeld-->
     <div class="row" style="margin-left:0px">
