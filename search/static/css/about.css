@@ -1,0 +1,16 @@
+.panel panel-default{
+    background-color:rgba(255, 255, 255, 0.7);
+}
+
+.panel body{
+    background-color:rgba(255, 255, 255, 0.7);
+}
+
+.panel-transparent .panel body{
+        background: rgba(255, 255, 255, 0.4)!important;
+    }
+
+
+img.desaturate {
+	filter: grayscale(100%);
+}

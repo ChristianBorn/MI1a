@@ -75,6 +75,8 @@ def index(request):
     print("flushed session")
     return render(request, 'search/index.html')
 
+def about(request):
+    return render(request, 'search/about.html')
 
 def search_filter(request):
     filter_value = request.POST.get('filter_value')
