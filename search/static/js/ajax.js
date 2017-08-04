@@ -225,7 +225,13 @@ function getCityPoly (cityName, osmId=false ) {
                 console.log(transparencyActive);
                 for (i = 0; i < data.length; i++) {
                     if (i != 0) {
-                        sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
+                        if (data[i].affil_city_name.length != 0) {
+                            var dropdownEntry = data[i].affil_city_name + ' - ' + data[i].name
+                        }
+                        else {
+                            var dropdownEntry = data[i].name
+                        }
+                        sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + dropdownEntry + '</a>');
                     }
                     var latlngs = data[i].way;
                     //var onclickPoly = "onclick("+data[i].osm_id+",true)";
@@ -277,6 +283,7 @@ function getCityPoly (cityName, osmId=false ) {
                 else {
                     document.getElementById("stadtebene_hoch_div").style.visibility="hidden";
                 }
+                console.log(data[0].affil_city_name.length);
                 $('#stadtauswahl').append(sortList.join(''));
                 $('html, body').animate({
                     scrollTop:$('#mapid').offset().top*0.7
