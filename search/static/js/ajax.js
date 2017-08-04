@@ -218,7 +218,7 @@ function getCityPoly (cityName, osmId=false ) {
 
                 // Check, ob der Transparenz-Button Aktiv ist
                 var transparencyActive = false;
-                if ($('.transparent').length > 0){
+                if ($('#transparent').parent().hasClass('btn-success')){
                     console.log('transparent');
                     transparencyActive = true;
                 }
