@@ -211,9 +211,6 @@ function getCityPoly (cityName, osmId=false ) {
                     return;
                 }
                 // Wenn nur ein Ergebnis in Ergebnismenge
-                if (data.length == 1) {
-                $('#stadtauswahl').html('<a href="javascript:void(0)" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
-                }
                 var sortList = []
                 // erfolgreiche Suche im Suchfeld
                 changeAuswahlName(data[0].name);
@@ -231,6 +228,7 @@ function getCityPoly (cityName, osmId=false ) {
                         sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + data[i].name + '</a>');
                     }
                     var latlngs = data[i].way;
+                    //var onclickPoly = "onclick("+data[i].osm_id+",true)";
                     var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly selected'});
                     // Falls der Transparenz-Button aktiv ist, wird den neuen Polygonen die Transparenz-Klasse mitgegeben
                     if (transparencyActive == true) {
@@ -253,15 +251,32 @@ function getCityPoly (cityName, osmId=false ) {
                         map.fitBounds(polygon.getBounds());
                     }*/
                 }
-
                 stadtteilLayer.addTo(map);
-                map.fitBounds(stadtteilLayer.getBounds());
-
+                //Falls ein Stadtteil ausgewählt wurde, wird auf den Stadtteil gezoomt. Auf Stadtbezirke wird nicht gezoomt
+                if (data.length == 1) {
+                    $('#stadtauswahl').html('<a href="javascript:void(0)" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
+                    map.fitBounds(polygon.getBounds());
+                }
+                else {
+                    map.fitBounds(stadtteilLayer.getBounds());
+                }
+                console.log(data.length)
+                console.log(data)
                 // erfolgreiche hierarchische Suche und befüllen des DropDownMenüs
                 //changeAuswahlName();
                 showAuswahl();
                 showOpenData();
                 sortList.sort(alphanum);
+                if (data[0].parent_osm != 0) {
+                    var onclickHigher = "getCityPoly("+data[0].parent_osm+",true)";
+                    changeStadtebeneName(data[0].parent_name);
+                    $("#stadtebene_hoch").attr("onclick",onclickHigher);
+                    document.getElementById("stadtebene_hoch_div").style.visibility="visible";
+                    map.fitBounds(stadtteilLayer.getBounds());
+                }
+                else {
+                    document.getElementById("stadtebene_hoch_div").style.visibility="hidden";
+                }
                 $('#stadtauswahl').append(sortList.join(''));
                 $('html, body').animate({
                     scrollTop:$('#mapid').offset().top*0.7

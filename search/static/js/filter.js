@@ -303,7 +303,7 @@ function showAuswahl() {
     document.getElementById("min_div").style.display="block";
     document.getElementById("max_div").style.display="block";
     document.getElementById("add-filter_div").style.display="block";
-    document.getElementById("stadtebene_hoch_div").style.visibility="visible";
+    //document.getElementById("stadtebene_hoch_div").style.visibility="visible";
     document.getElementById("input_marked_filter_div").style.display="block";
 
     document.getElementById("transparent_div").style.visibility="visible";
