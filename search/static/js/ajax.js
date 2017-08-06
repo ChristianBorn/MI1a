@@ -183,6 +183,10 @@ function setTransparency() {
     console.log($('.transparent').length);
     $('.leaflet-interactive').addClass('transparent');
 }
+function clickPoly (event) {
+    getCityPoly(event.target.options.osmId, true);
+    map.fitBounds(this.getBounds());
+}
 function getCityPoly (cityName, osmId=false ) {
     $.ajax(
         './search/cityPolygon',
@@ -215,18 +219,10 @@ function getCityPoly (cityName, osmId=false ) {
                 // erfolgreiche Suche im Suchfeld
                 changeAuswahlName(data[0].name);
                 deselect();
-
-                // Check, ob der Transparenz-Button Aktiv ist
-                var transparencyActive = false;
-                if ($('#transparent').parent().hasClass('btn-success')){
-                    console.log('transparent');
-                    transparencyActive = true;
-                }
-                console.log(transparencyActive);
                 for (i = 0; i < data.length; i++) {
                     if (i != 0) {
                         if (data[i].affil_city_name.length != 0) {
-                            var dropdownEntry = data[i].affil_city_name + ' - ' + data[i].name
+                            var dropdownEntry = data[i].affil_city_name + ' - ' + data[i].name;
                         }
                         else {
                             var dropdownEntry = data[i].name
@@ -235,9 +231,10 @@ function getCityPoly (cityName, osmId=false ) {
                     }
                     var latlngs = data[i].way;
                     //var onclickPoly = "onclick("+data[i].osm_id+",true)";
-                    var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly selected'});
+                    var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly selected', 'osmId': data[i].osm_id});
                     // Falls der Transparenz-Button aktiv ist, wird den neuen Polygonen die Transparenz-Klasse mitgegeben
-                    if (transparencyActive == true) {
+                    // Check, ob der Transparenz-Button Aktiv ist
+                    if ($('#transparent').parent().hasClass('btn-success')){
                         polygon.setStyle({className: 'cityPoly selected transparent'});
                     }
                     var tooltip = L.tooltip({
@@ -246,27 +243,22 @@ function getCityPoly (cityName, osmId=false ) {
                     })
                         .setContent(jsUcfirst(data[i].name));
                     polygon.bindTooltip(tooltip);
-                    polygon.on('click', function () {
-                        //getCityPoly(data[i].osm_id,true);
-                        map.fitBounds(this.getBounds());
-                    });
+                    polygon.on('click', clickPoly);
                     polygon.addTo(stadtteilLayer);
-
-                    /*//reinzoomen bei ersten Element (mit höchstem admin_level)
-                    if (i == 0) {
+                    // Falls etwas aus dem Dropdown oder Up-Button gewählt wird, wird hierauf gezoomt
+                    if (i == 0 & osmId == true) {
                         map.fitBounds(polygon.getBounds());
-                    }*/
+                    }
                 }
                 stadtteilLayer.addTo(map);
-                //Falls ein Stadtteil ausgewählt wurde, wird auf den Stadtteil gezoomt. Auf Stadtbezirke wird nicht gezoomt
+                //Falls ein Stadtteil ausgewählt wurde, wird auf den Stadtteil gezoomt.
                 if (data.length == 1) {
                     $('#stadtauswahl').html('<a href="javascript:void(0)" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
-                    map.fitBounds(polygon.getBounds());
                 }
-                else {
+                //Im Falle einer Suche wird auf das gesamte Ergebnis gezoomt
+                else if (data.length > 1 & osmId == false) {
                     map.fitBounds(stadtteilLayer.getBounds());
                 }
-                console.log(data.length)
                 console.log(data)
                 // erfolgreiche hierarchische Suche und befüllen des DropDownMenüs
                 //changeAuswahlName();
@@ -278,7 +270,9 @@ function getCityPoly (cityName, osmId=false ) {
                     changeStadtebeneName(data[0].parent_name);
                     $("#stadtebene_hoch").attr("onclick",onclickHigher);
                     document.getElementById("stadtebene_hoch_div").style.visibility="visible";
-                    map.fitBounds(stadtteilLayer.getBounds());
+                    if (data[0].affil_city_name != data[0].name) {
+                            changeAuswahlName(data[0].affil_city_name + ' - ' + data[0].name);
+                    }
                 }
                 else {
                     document.getElementById("stadtebene_hoch_div").style.visibility="hidden";
