@@ -145,50 +145,28 @@ class Laermpegel(models.Model):
     rings = models.TextField(blank=True, null=True)  # This field type is a guess.
     path = models.TextField(blank=True, null=True)  # This field type is a guess.
 
-    '''@staticmethod
-# parameter: punkt als geoJSON,
-#            distanz in metern
-def get_learmpegel(stadtteil):
-    results = []
-    for lpegel in Laermpegel.objects.raw("SELECT l.id, l.dezibel::float, "
-                                         "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS rings,"
-                                         "ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) AS path "
-                                         "FROM laermpegel l, planet_osm_polygon p "
-                                         "WHERE p.boundary = 'administrative' and p.admin_level::integer =10 AND  "
-                                         "p.name = %s "
-                                         "AND ST_INTERSECTS(ST_SetSRID(l.rings,4326)::geography, "
-                                         "ST_Transform(p.way,4326)::geography)", [stadtteil]):
-
-        results.append(lpegel)
-    data = []
-    for element in results:
-        data.append({'dezibel': element.dezibel, 'rings': str_coords_to_array_coords(element.rings),
-                     'path': str_coords_to_array_coords(element.path)})
-    return data'''
-
     @staticmethod
-    def get_learmpegel():
-        results = []
-
+    def get_learmpegel(osm_id, admin_level):
+        results = [[], []]
         conn = connect_to_db(path='mysite/settings.py')
-        # cur = conn.cursor()
         with conn.cursor() as cur:
             cur.execute('''SELECT DISTINCT l.dezibel FROM laermpegel l;''')
             for element in cur.fetchall():
-                cur.execute('''SELECT ST_asText(st_multi(st_union(st_flipcoordinates(ST_setSRID(rings,4326))))) FROM laermpegel WHERE dezibel = {};'''.format(element[0]))
-                results.append({'dezibel': element[0], 'rings': str_coords_to_array_coords(cur.fetchone())})
-                #cur.execute('''SELECT ST_asText(st_multi(st_union(st_flipcoordinates(ST_setSRID(path,4326))))) FROM laermpegel WHERE dezibel = {};'''.format(element[0]))
-                #results.append({'dezibel': element, 'rings': str_coords_to_array_coords(cur.fetchone())})
-
-            #results.append(lpegel)
-        #data = []
-        #print('models',len(results))
+                cur.execute('''SELECT ST_asText(st_flipcoordinates(ST_setSRID(l.rings,4326))) 
+                                FROM laermpegel l, planet_osm_polygon p 
+                                WHERE l.rings IS NOT NULL AND l.dezibel = {} AND p.osm_id = {}
+                                AND ST_INTERSECTS(ST_SetSRID(l.rings,4326)::geography, ST_Transform(p.way,4326)::geography);'''.format(element[0], osm_id))
+                for ring in cur.fetchall():
+                    results[0].append({'dezibel': element[0], 'rings': str_coords_to_array_coords(ring[0])})
+                cur.execute('''SELECT ST_asText(st_flipcoordinates(ST_setSRID(l.path,4326))) 
+                                FROM laermpegel l, planet_osm_polygon p 
+                                WHERE l.path IS NOT NULL AND l.dezibel = {} AND p.osm_id = {}
+                                AND ST_INTERSECTS(ST_SetSRID(l.path,4326)::geography, ST_Transform(p.way,4326)::geography);'''.format(element[0], osm_id))
+                for path in cur.fetchall():
+                    results[1].append({'dezibel': element[0], 'path': str_coords_to_array_coords(path[0])})
+        if results == [[], []]:
+            return 'empty'
         return results
-        #for element in results:
-        #    data.append({'dezibel': element.dezibel, 'rings': str_coords_to_array_coords(element.rings),
-        #                 'path': str_coords_to_array_coords(element.path)})
-        #print(len(data))
-        #return data
 
 
     class Meta:
@@ -210,7 +188,7 @@ class LkwVerbotszonen(models.Model):
     def get_verbotszone():
         results = []
         for lkw_verbot in LkwVerbotszonen.objects.raw("SELECT l.id, l.bereich, ST_asText(st_flipcoordinates(ST_setSRID(rings,4326))) as rings "
-                                             "FROm \"lkw-verbotszonen\" l"):
+                                             "FROM \"lkw-verbotszonen\" l"):
             results.append(lkw_verbot)
         data = []
         for element in results:

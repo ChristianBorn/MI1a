@@ -10,21 +10,24 @@ from search.models import *
 def opendata_von_stadtteil(request):
     column_name = request.POST.get('table_name').lower()
     stadtteile = request.session['polygons']
-    #punkt = request.session['polygons'][0]['way']
-    #punkt = 'POINT(6.97364225377671 50.9457393529467)'
-    #print(column_name)
-    #print(stadtteile)
 
     if column_name == 'lkw_verbot':
         lkw_verbot = LkwVerbotszonen.get_verbotszone()
         return JsonResponse(lkw_verbot, safe=False)
 
-    # Laempegel benötigt (aktuell noch) einen Punkt & einen Umkreis. Änderung möglich.
     elif column_name == 'pegel':
-        #laermpegel = Laermpegel.get_learmpegel()
-        laermpegel = []
-        #print('views',len(laermpegel))
+        admin_level = 9 #anzeige für stadtbezirke und stadtteile
+        #admin_level = 10 #anzeige nur für stadtteile
+        laermpegel = 'undefined'
+        if stadtteile[0]['admin_level'] >= admin_level:
+            if stadtteile[0]['laermpegel'] == 'undefined':
+                laermpegel = Laermpegel.get_learmpegel(stadtteile[0]['osm_id'], stadtteile[0]['admin_level'])
+                request.session['polygons'][0]['laermpegel'] = laermpegel
+            else:
+                laermpegel = stadtteile[0]['laermpegel']
+        request.session.modified = True
         return JsonResponse(laermpegel, safe=False)
+
 
     # alle anderen OpenData zusammen berechnen, da gemeinsam als Tooltip angezeigt werden
     else:
@@ -61,7 +64,8 @@ def search_cityPolygon(request):
                                                 'name': elem['name'],
                                                 'admin_level': elem['admin_level'],
                                                 'way': elem['way'], 'filter': {}, 'open_data': 'undefined',
-                                               'parent_osm': elem['parent_osm'], 'parent_name': elem['parent_name'],
+                                                'laermpegel': 'undefined', 'parent_osm': elem['parent_osm'],
+                                                'parent_name': elem['parent_name'],
                                                 'affil_city_name': elem['affil_city_name']})
         request.session.modified = True
         print("Polygone in Session ",len(request.session['polygons']))

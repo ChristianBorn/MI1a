@@ -201,12 +201,24 @@ function getCityPoly (cityName, osmId=false ) {
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
                 deleteLayer(map, open_data_layer);
-                //deleteLayer(map, pegel_layer);
+                deleteLayer(map, pegel_layer);
                 //Berechnen der Werte der Ein-und Auszublendenden OpenData
                 lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
-                pegel_layer = L.layerGroup();//L.layerGroup(getOpenData('pegel'));
+                //pegel_layer = L.layerGroup(getOpenData('pegel'));
+                pegel_layer = L.layerGroup();
+                if (data[0].admin_level != '10' && data[0].admin_level != '9') {
+                    //document.getElementById('laermpegel').disabled = true;
+                    $('#laermpegel').bootstrapToggle('disable');
+                    $('#opendata_toggle').bootstrapToggle('disable');
+                    //document.getElementById('opendata_toggle').disabled = true;
+                }
+                else {
+                    document.getElementById('laermpegel').disabled = false;
+                    document.getElementById('opendata_toggle').disabled = false;
+                    $('#laermpegel').bootstrapToggle('enable');
+                    $('#opendata_toggle').bootstrapToggle('enable');
+                }
                 open_data_layer = L.layerGroup(getOpenData('opendata'));
-
                 // hierarchische Suche ohne Erfolg
 
                 $('#stadtauswahl').text('');
@@ -254,12 +266,14 @@ function getCityPoly (cityName, osmId=false ) {
                 //Falls ein Stadtteil ausgewählt wurde, wird auf den Stadtteil gezoomt.
                 if (data.length == 1) {
                     $('#stadtauswahl').html('<a href="javascript:void(0)" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
+                    map.fitBounds(polygon.getBounds());
                 }
                 //Im Falle einer Suche wird auf das gesamte Ergebnis gezoomt
                 else if (data.length > 1 & osmId == false) {
                     map.fitBounds(stadtteilLayer.getBounds());
                 }
-                console.log(data)
+                //console.log(data.length)
+                //console.log(data)
                 // erfolgreiche hierarchische Suche und befüllen des DropDownMenüs
                 //changeAuswahlName();
                 showAuswahl();
@@ -434,8 +448,8 @@ function getOpenData  (type_data) {
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
                 if (type_data === 'lkw_verbot') {
-                    lkw_verbot_layer.clearLayers();
-                    console.log('Zeichne Polygone für LKW-Verbot:', data.length);
+                    deleteLayer(map, lkw_verbot_layer);
+                    //console.log('Zeichne Polygone für LKW-Verbot:', data.length);
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].rings;
                         var polygon = L.polygon(latlngs, {color: 'black'});
@@ -450,46 +464,77 @@ function getOpenData  (type_data) {
                     }
                 }
                 else if (type_data === 'pegel') {
-                    pegel_layer.clearLayers();
-                    console.log('Zeichne Polygone für Lärmpegel:', data.length);
-                    for (i = 0; i < data.length; i++) {
-                        var latlngs = data[i].rings;
-                        if (data.dezibel === '55') {
-                            var color = '#99c4d8';
+                    deleteLayer(map, pegel_layer);
+                    //console.log('Zeichne Polygone für Lärmpegel:', data.length);
+                    if (data == 'undefined' || data == 'empty') {
+                        //document.getElementById('laermpegel').disabled = true;
+                        //document.getElementById('laermpegel').style.opacity="1.0";
+                        swal('Für diesen Suchbereich sind keine Lärmpegel verfügbar.', 'error')
+                    }
+                    else {
+                        //zeichnen der rings als polygon
+                        if (data[0].length > 0) {
+                            for (i = 0; i < data[0].length; i++) {
+                                var latlngs = data[0][i].rings;
+                                if (data[0][i].dezibel === '55') {
+                                    var color = '#99c4d8';
+                                }
+                                else if (data[0][i].dezibel === '70') {
+                                    var color = '#0047ab';
+                                }
+                                else {
+                                    var color = '#093253';
+                                }
+                                var polygon = L.polygon(latlngs, {color: color, className: 'deselected'});
+                                var tooltip = L.tooltip({
+                                    sticky: true,
+                                    direction: 'top'
+                                }).setContent(jsUcfirst("Lärmpegel: " + data[0][i].dezibel));
+                                polygon.bindTooltip(tooltip);
+                                /*var popup = L.popup({closeOnClick: true, className: 'map-popup'});
+                                polygon.bindPopup(popup);*/
+                                polygon.addTo(pegel_layer);
+                            }
                         }
-                        else if (data.dezibel === '70') {
-                            var color = '#0047ab';
+                        // zeichnen der path als polylines
+                        if (data[1].length > 0) {
+                            for (i = 0; i < data[1].length; i++) {
+                                var latlngs = data[1][i].path;
+                                if (data[1][i].dezibel === 55) {
+                                    var color = '#99c4d8';
+                                }
+                                else if (data[1][i].dezibel === 70) {
+                                    var color = '#0047ab';
+                                }
+                                else {
+                                    var color = '#093253';
+                                }
+                                var polygon = L.polyline(latlngs, {color: color, className: 'deselected'});
+                                var tooltip = L.tooltip({
+                                    sticky: true,
+                                    direction: 'top'
+                                }).setContent(jsUcfirst("Lärmpegel: " + data[1][i].dezibel));
+                                polygon.bindTooltip(tooltip);
+                                /*var popup = L.popup({closeOnClick: true, className: 'map-popup'});
+                                polygon.bindPopup(popup);*/
+                                polygon.addTo(pegel_layer);
+                            }
                         }
-                        else {
-                            var color = '#093253';
-                        }
-
-                        var polygon = L.polygon(latlngs, {color: color});
-                        var tooltip = L.tooltip({
-                            sticky: true,
-                            direction: 'top'
-                        }).setContent(jsUcfirst("Lärmpegel: " + data[i].dezibel));
-                        polygon.bindTooltip(tooltip);
-                        var popup = L.popup({closeOnClick: true, className: 'map-popup'});
-                        polygon.bindPopup(popup);
-                        polygon.addTo(pegel_layer);
+                        pegel_layer.addTo(map);
                     }
                 }
-
                 else {
                     //löschen der alten OpenDataanzeige, da sonst überzeichnet wird
-                    //open_data_layer.clearLayers();
                     deleteLayer(map, open_data_layer);
                     $(function() {
                         $('#opendata_toggle').bootstrapToggle("off");
                     });
-                    //document.getElementById('opendata_toggle').disabled = false;
                     var anzahl_fehlende_open_data = 0;
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
                         var polygon = L.polygon(latlngs, {className: 'deselected'});
-                        var tooltip = L.tooltip({sticky: true, direction: 'top'}).setContent(jsUcfirst(data[i].name));
-                        polygon.bindTooltip(tooltip);
+                        /*var tooltip = L.tooltip({sticky: true, direction: 'top'}).setContent(jsUcfirst(data[i].name));
+                        polygon.bindTooltip(tooltip);*/
 
                         if (data[i].admin_level == '10' && data[i].open_data != 'undefined') {
                             //console.log(data[i].open_data);
@@ -513,27 +558,27 @@ function getOpenData  (type_data) {
                                                     '</br><div class="partyMarker" style="background-color: #009EE0;"></div>AfD: ' + data[i].open_data.wahl[0]['gesamt_afd'] + ' %' +
                                                     '</br><div class="partyMarker" style="background-color: brown;"></div>NPD: ' + data[i].open_data.wahl[0]['gesamt_npd'] + ' %' +
                                                     '</br><div class="partyMarker" style="background-color: #f80;"></div>Piraten: ' + data[i].open_data.wahl[0]['gesamt_piraten'] + ' %';
-                            var popup = L.popup({
+                            var tooltip = L.tooltip({
                                 closeOnClick: true,
-                                className: 'map-popup'
+                                direction: 'top'
                             }).setContent(tooltip_text);
-                            polygon.bindPopup(popup);
+                            polygon.bindTooltip(tooltip);
                         }
                         else {
                             var tooltip_text = 'Für diesen Suchbereich sind keine OpenData verfügbar.';
-                            var popup = L.popup({
-                                closeOnClick: true,
-                                className: 'map-popup'
+                            var tooltip = L.tooltip({
+                                closeOnClick: true
                             }).setContent(tooltip_text);
-                            polygon.bindPopup(popup);
+                            polygon.bindTooltip(tooltip);
                             anzahl_fehlende_open_data += 1;
                         }
                         polygon.addTo(open_data_layer);
 
                         // wenn zu keinem polygon OpenData vorhanden sind, Funktion des Schalters ausgrauen
-                        /*if (anzahl_fehlende_open_data === data.length) {
-                            document.getElementById('opendata_toggle').disabled = true;
-                        }*/
+                        if (anzahl_fehlende_open_data === data.length) {
+                            //document.getElementById('opendata_toggle').disabled = true;
+                            $('#opendata_toggle').bootstrapToggle('disable');
+                        }
                     }
                 }
             },
@@ -645,5 +690,16 @@ function deleteLayer(map, layer){
     if (map.hasLayer(layer)) {
         layer.clearLayers();
         map.removeLayer(layer);
+    }
+}
+
+function berechneOpenData(button_id, OpenData, layer) {
+    if (document.getElementById(button_id).checked) {
+        getOpenData(OpenData);
+        //showLayer(map, pegel_layer, button_id);
+    }
+    else {
+        //layer.clearLayers();
+        deleteLayer(map, layer);
     }
 }
