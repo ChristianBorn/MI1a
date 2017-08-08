@@ -335,6 +335,24 @@ class PlanetOsmPoint(models.Model):
         return results
 
     @staticmethod
+    def get_osm_data(osm_id):
+        conn = connect_to_db(path='mysite/settings.py')
+        cur = conn.cursor()
+        cur.execute(" SELECT osm_id, key_list, val_list FROM "
+                    "osm_filter_table WHERE osm_id = %s", [osm_id])
+        row = cur.fetchone()
+        if row is not None:
+            #keys = row[1].split(";")
+            vals = row[2].split(";")
+            #filter(None, keys)
+            filter(None, vals)
+            return vals
+        else:
+            return []
+
+
+
+    @staticmethod
     def get_marker(osm_id, filter_value, session_filter_dict):
         '''gibt alle osm_daten der übergebenen Filter als liste mit dictionary zurück, 
         worin punkte, namen, die art des Filters und die Korrdinaten für die einzeichnung der marker gespeichert werden'''

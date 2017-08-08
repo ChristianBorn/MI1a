@@ -60,14 +60,29 @@ def search_cityPolygon(request):
         # Setzt die Liste der Polygone in der Session zurück, sodass immer nur die letzte Anfrage in der Session ist
         request.session['polygons'] = []
         for elem_nr, elem in enumerate(city_polygons):
-            request.session['polygons'].append({'osm_id': elem['osm_id'],
-                                                'name': elem['name'],
-                                                'admin_level': elem['admin_level'],
-                                                'way': elem['way'], 'filter': {}, 'open_data': 'undefined',
-                                                'laermpegel': 'undefined', 'parent_osm': elem['parent_osm'],
-                                                'parent_name': elem['parent_name'],
-                                                'affil_city_name': elem['affil_city_name']})
-        request.session.modified = True
+            # für das oberste Element, ließ aus ob und welche OSM Filter existieren.
+            # Ergäzze Dictionary um weiteren Schlüssel "osm_data_filter" und Liste von OSM Filtern
+            if elem_nr == 0:
+                osm_data_values = PlanetOsmPoint.get_osm_data(elem['osm_id'])
+                print (osm_data_values)
+                request.session['polygons'].append({'osm_id': elem['osm_id'],
+                                                    'name': elem['name'],
+                                                    'admin_level': elem['admin_level'],
+                                                    'way': elem['way'], 'filter': {}, 'open_data': 'undefined',
+                                                    'laermpegel': 'undefined', 'parent_osm': elem['parent_osm'],
+                                                    'parent_name': elem['parent_name'],
+                                                    'affil_city_name': elem['affil_city_name'],
+                                                    'osm_data_filter': osm_data_values})
+            # für alle sonstigen Elemente, reguläre Abhandlung
+            else:
+                request.session['polygons'].append({'osm_id': elem['osm_id'],
+                                                    'name': elem['name'],
+                                                    'admin_level': elem['admin_level'],
+                                                    'way': elem['way'], 'filter': {}, 'open_data': 'undefined',
+                                                    'laermpegel': 'undefined', 'parent_osm': elem['parent_osm'],
+                                                    'parent_name': elem['parent_name'],
+                                                    'affil_city_name': elem['affil_city_name']})
+            request.session.modified = True
         print("Polygone in Session ",len(request.session['polygons']))
         return JsonResponse(city_polygons, safe=False)
     return JsonResponse([], safe=False)
