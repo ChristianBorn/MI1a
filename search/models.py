@@ -364,17 +364,6 @@ class PlanetOsmPoint(models.Model):
                 print('Anzahl Marker:',count_marker, 'für', type_filter)
                 continue
 
-            #marker hinzufügen die als osm_points gespeichert sind
-            '''query_point = "SELECT point.osm_id, point.{} as amenity, ST_AsText(point.way) AS way " \
-                          "FROM planet_osm_point point, planet_osm_polygon stadtteil " \
-                          "WHERE stadtteil.osm_id = {} AND point.{} = '{}' " \
-                          "AND ST_Intersects(point.way, stadtteil.way);".format(filter_dict[type_filter],
-                                                                              osm_id, filter_dict[type_filter],
-                                                                              type_filter)
-            for p in PlanetOsmPoint.objects.raw(query_point):
-                p.way = transform_coords(p.way)
-                data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way),
-                             'amenity': p.amenity})'''
             conn = connect_to_db(path='mysite/settings.py')
             #cur = conn.cursor()
             with conn.cursor() as cur:
@@ -391,17 +380,6 @@ class PlanetOsmPoint(models.Model):
                                  'way': str_coords_to_array_coords(transform_coords(element[2])),
                                  'amenity': type_filter})
 
-                # marker hinzufügen die als osm_polygons gespeichert sind
-                '''query_polygon = "SELECT polygon.osm_id, polygon.{} as amenity, ST_AsText(ST_Centroid(polygon.way)) AS way " \
-                              "FROM planet_osm_polygon polygon, planet_osm_polygon stadtteil " \
-                              "WHERE stadtteil.osm_id = {} AND polygon.{} = '{}' " \
-                              "AND ST_Intersects(polygon.way, stadtteil.way);".format(filter_dict[type_filter],
-                                                                                    osm_id, filter_dict[type_filter],
-                                                                                    type_filter)
-                for p in PlanetOsmPolygon.objects.raw(query_polygon):
-                    p.way = transform_coords(p.way)
-                    data.append({'name': p.name, 'osm_id': p.osm_id, 'way': str_coords_to_array_coords(p.way),
-                                 'amenity': type_filter})'''
                 cur.execute('''SELECT polygon.name, polygon.osm_id, ST_AsText(ST_Centroid(polygon.way)) 
                               FROM planet_osm_polygon polygon, planet_osm_polygon stadtteil 
                               WHERE stadtteil.osm_id = {} AND polygon.{} = '{}' 
@@ -812,6 +790,30 @@ class PlanetOsmPolygon(models.Model):
             p.way = transform_coords(p.way)
             results.append(p)
         return results
+
+    @staticmethod
+    def get_city_by_coords(lat, lng):
+        result = [None,'undefined']
+        conn = connect_to_db(path='mysite/settings.py')
+        with conn.cursor() as cur:
+            sql_string = "SELECT p.osm_id, p.name, p.admin_level " \
+                         "FROM planet_osm_polygon p " \
+                         "WHERE p.boundary = 'administrative' " \
+                         "AND p.admin_level::integer = ANY ('{6,8,9,10}') " \
+                         "AND st_contains(ST_asText(ST_flipcoordinates(ST_Transform(ST_SetSRID(p.way,3857),4326)))," \
+                         "Point(%s, %s)::geometry) " \
+                         "GROUP BY p.osm_id, p.name, p.admin_level ORDER BY p.admin_level::integer DESC LIMIT 1;"
+
+
+            #sort group-by alle felder orderby adminlevel::integer desc und limit 1
+            #get_osm_ aufwärts hierachie
+            cur.execute(sql_string, [lat, lng])
+            rows = cur.fetchone()
+            if rows:
+                osm_id = rows[0]
+                name = rows[1]
+                result = [name, osm_id]
+        return result
 
     # Felder der Klasse PlanetOsmPolygon
     osm_id = models.BigIntegerField(primary_key='osm_id', blank=True)

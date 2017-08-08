@@ -109,3 +109,12 @@ def search_marker(request):
             request.session.modified = True
             return JsonResponse(marker[0], safe=False)
     return JsonResponse([], safe=False)
+
+
+def search_poly(request):
+    lat = request.POST.get('lat_point')
+    lng = request.POST.get('lng_point')
+    #print(lat, lng)
+    tuple_osmid_name = PlanetOsmPolygon.get_city_by_coords(lat,lng)
+    return JsonResponse(tuple_osmid_name, safe=False)
+    #return JsonResponse(, safe=False)

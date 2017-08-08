@@ -39,7 +39,7 @@ $(document).ready(
         map = L.map('mapid', {
             center: [50.938, 6.95],
             zoom: 12,
-            layers: [satellite_tiles]
+            layers: [tiles]
         });
 
         //tiles zur map hinzufügen
@@ -62,6 +62,14 @@ $(document).ready(
       		exportOnly: true,
       		hideControlContainer: true
 		}).addTo(map);
+
+        // Karte klickbar machen
+        map.on('contextmenu', function(e) {
+            //alert("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
+            getPolyByCoords(e.latlng.lat, e.latlng.lng);
+            //var gjLayer = L.geoJson(statesData);
+            //var results = leafletPip.pointInLayer([e.latlng.lng, e.latlng.lat], gjLayer);
+        });
 
     return map;}
 );
@@ -206,17 +214,29 @@ function getCityPoly (cityName, osmId=false ) {
                 lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
                 //pegel_layer = L.layerGroup(getOpenData('pegel'));
                 pegel_layer = L.layerGroup();
+
+                document.getElementById('laermpegel').checked = false;
+                /*$(function() {
+                        $('#laermpegel').bootstrapToggle("off");
+                    });*/
                 if (data[0].admin_level != '10' && data[0].admin_level != '9') {
-                    //document.getElementById('laermpegel').disabled = true;
-                    $('#laermpegel').bootstrapToggle('disable');
-                    $('#opendata_toggle').bootstrapToggle('disable');
+                    //@todo: button ausschalten wenn ausgegraut
+                    $('#laermpegel').bootstrapToggle('off');
+                    $('#opendata_toggle').bootstrapToggle('off');
+                    document.getElementById('opendata_toggle').checked = false;
+                    document.getElementById('laermpegel').checked = false;
+                    /*$(function() {
+                        $('#opendata_toggle').bootstrapToggle("off");
+                    });*/
+                    document.getElementById('laermpegel').disabled = true;
+                    document.getElementById('opendata_toggle').disabled = true;
                     //document.getElementById('opendata_toggle').disabled = true;
                 }
                 else {
+                    $('#laermpegel').bootstrapToggle('off');
+                    document.getElementById('laermpegel').checked = false;
                     document.getElementById('laermpegel').disabled = false;
                     document.getElementById('opendata_toggle').disabled = false;
-                    $('#laermpegel').bootstrapToggle('enable');
-                    $('#opendata_toggle').bootstrapToggle('enable');
                 }
                 open_data_layer = L.layerGroup(getOpenData('opendata'));
                 // hierarchische Suche ohne Erfolg
@@ -467,7 +487,7 @@ function getOpenData  (type_data) {
                     deleteLayer(map, pegel_layer);
                     //console.log('Zeichne Polygone für Lärmpegel:', data.length);
                     if (data == 'undefined' || data == 'empty') {
-                        //document.getElementById('laermpegel').disabled = true;
+                        document.getElementById('laermpegel').disabled = true;
                         //document.getElementById('laermpegel').style.opacity="1.0";
                         swal('Für diesen Suchbereich sind keine Lärmpegel verfügbar.', 'error')
                     }
@@ -476,16 +496,19 @@ function getOpenData  (type_data) {
                         if (data[0].length > 0) {
                             for (i = 0; i < data[0].length; i++) {
                                 var latlngs = data[0][i].rings;
-                                if (data[0][i].dezibel === '55') {
-                                    var color = '#99c4d8';
+                                if (data[0][i].dezibel === 55) {
+                                    //var color = '#99c4d8';
+                                    var classname_dezibel = dezibel_55;
                                 }
-                                else if (data[0][i].dezibel === '70') {
-                                    var color = '#0047ab';
+                                else if (data[0][i].dezibel === 70) {
+                                    //var color = '#0047ab';
+                                    var classname_dezibel = dezibel_70;
                                 }
                                 else {
-                                    var color = '#093253';
+                                    //var color = '#093253';
+                                    var classname_dezibel = dezibel_other;
                                 }
-                                var polygon = L.polygon(latlngs, {color: color, className: 'deselected'});
+                                var polygon = L.polygon(latlngs, {color: color, className: classname_dezibel});
                                 var tooltip = L.tooltip({
                                     sticky: true,
                                     direction: 'top'
@@ -494,6 +517,7 @@ function getOpenData  (type_data) {
                                 /*var popup = L.popup({closeOnClick: true, className: 'map-popup'});
                                 polygon.bindPopup(popup);*/
                                 polygon.addTo(pegel_layer);
+                                console.log('polygon laermpegel');
                             }
                         }
                         // zeichnen der path als polylines
@@ -518,6 +542,7 @@ function getOpenData  (type_data) {
                                 /*var popup = L.popup({closeOnClick: true, className: 'map-popup'});
                                 polygon.bindPopup(popup);*/
                                 polygon.addTo(pegel_layer);
+                                console.log('laermpegel polyline');
                             }
                         }
                         pegel_layer.addTo(map);
@@ -529,6 +554,7 @@ function getOpenData  (type_data) {
                     $(function() {
                         $('#opendata_toggle').bootstrapToggle("off");
                     });
+                    document.getElementById('opendata_toggle').checked = false;
                     var anzahl_fehlende_open_data = 0;
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].way;
@@ -577,7 +603,9 @@ function getOpenData  (type_data) {
                         // wenn zu keinem polygon OpenData vorhanden sind, Funktion des Schalters ausgrauen
                         if (anzahl_fehlende_open_data === data.length) {
                             //document.getElementById('opendata_toggle').disabled = true;
-                            $('#opendata_toggle').bootstrapToggle('disable');
+                            //$('#opendata_toggle').bootstrapToggle('disable');
+                            document.getElementById('opendata_toggle').checked = false;
+                            document.getElementById('opendata_toggle').disabled = true;
                         }
                     }
                 }
@@ -588,6 +616,40 @@ function getOpenData  (type_data) {
                     + "\nStatus: " + textStatus
                     + "\njqXHR: " + JSON.stringify(jqXHR)
                 );*/
+            },
+            complete: function (jqXHR, textStatus) {}
+        }
+    );
+}
+
+function getPolyByCoords(lat, lng) {
+    $.ajax(
+        './search/PolyByCoords',
+        {
+            cache: false,
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: csrftoken,
+                lat_point: lat,
+                lng_point: lng
+            },
+            method: 'POST',
+            success: function (data, textStatus, jqXHR) {
+                if (data[1] != 'undefined') {
+                    document.getElementById('town').value = data[0];
+                    clearMap(map);
+                    enableAllFilter();
+                    deleteLayer(map, markerClusters);
+                    deleteLayer(map, intersectLayer);
+                    deleteLayer(map, stadtteilLayer);
+                    getCityPoly(data[1], true);
+                }
+                else {
+                    console.log('punkt kann nicht zugeordnet werden')
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                swal("Error", "Error: " + errorThrown + "\nStatus: " + textStatus + "\njqXHR: " + JSON.stringify(jqXHR), "error")
             },
             complete: function (jqXHR, textStatus) {}
         }
