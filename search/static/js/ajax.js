@@ -218,6 +218,7 @@ function getCityPoly (cityName, osmId=false ) {
                 deleteLayer(map, pegel_layer);
                 //Berechnen der Werte der Ein-und Auszublendenden OpenData
                 lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
+                //console.log('lkwverbot');
                 //pegel_layer = L.layerGroup(getOpenData('pegel'));
                 pegel_layer = L.layerGroup();
 
@@ -237,14 +238,14 @@ function getCityPoly (cityName, osmId=false ) {
                     $('#opendata_toggle').siblings('.toggle-group').children().each(function() {
                         $(this).addClass('disabled');
                     });
-                    document.getElementById('opendata_toggle').checked = false;
+                    //document.getElementById('opendata_toggle').checked = false;
 
-                    document.getElementById('laermpegel').checked = false;
+                    //document.getElementById('laermpegel').checked = false;
                     /*$(function() {
                         $('#opendata_toggle').bootstrapToggle("off");
                     });*/
-                    document.getElementById('laermpegel').disabled = true;
-                    document.getElementById('opendata_toggle').disabled = true;
+                    //document.getElementById('laermpegel').disabled = true;
+                    //document.getElementById('opendata_toggle').disabled = true;
                     //document.getElementById('opendata_toggle').disabled = true;
                 }
                 else {
@@ -253,9 +254,10 @@ function getCityPoly (cityName, osmId=false ) {
                     $('#laermpegel').siblings('.toggle-group').children().each(function() {
                         $(this).removeClass('disabled');
                     });
-                    document.getElementById('laermpegel').checked = false;
-                    document.getElementById('laermpegel').disabled = false;
-                    document.getElementById('opendata_toggle').disabled = false;
+                    //document.getElementById('laermpegel').checked = false;
+                    //document.getElementById('laermpegel').disabled = false;
+                    //document.getElementById('opendata_toggle').disabled = false;
+                    $('#laermpegel').bootstrapToggle('off');
                     $('#opendata_toggle').parent().removeClass('disabled');
                     $('#opendata_toggle').siblings('.toggle-group').children().each(function() {
                         $(this).removeClass('disabled');
@@ -510,7 +512,7 @@ function getOpenData  (type_data) {
                     deleteLayer(map, pegel_layer);
                     //console.log('Zeichne Polygone für Lärmpegel:', data.length);
                     if (data == 'undefined' || data == 'empty') {
-                        document.getElementById('laermpegel').disabled = true;
+                        //document.getElementById('laermpegel').disabled = true;
                         $('#laermpegel').parent().addClass('disabled');
                         $('#laermpegel').siblings('.toggle-group').children().each(function() {
                         $(this).addClass('disabled');
@@ -544,7 +546,7 @@ function getOpenData  (type_data) {
                                 /*var popup = L.popup({closeOnClick: true, className: 'map-popup'});
                                 polygon.bindPopup(popup);*/
                                 polygon.addTo(pegel_layer);
-                                console.log('polygon laermpegel');
+                                //console.log('polygon laermpegel');
                             }
                         }
                         // zeichnen der path als polylines
@@ -569,7 +571,7 @@ function getOpenData  (type_data) {
                                 /*var popup = L.popup({closeOnClick: true, className: 'map-popup'});
                                 polygon.bindPopup(popup);*/
                                 polygon.addTo(pegel_layer);
-                                console.log('laermpegel polyline');
+                                //console.log('laermpegel polyline');
                             }
                         }
                         pegel_layer.addTo(map);
@@ -631,8 +633,8 @@ function getOpenData  (type_data) {
                         if (anzahl_fehlende_open_data === data.length) {
                             //document.getElementById('opendata_toggle').disabled = true;
                             //$('#opendata_toggle').bootstrapToggle('disable');
-                            document.getElementById('opendata_toggle').checked = false;
-                            document.getElementById('opendata_toggle').disabled = true;
+                            //document.getElementById('opendata_toggle').checked = false;
+                            //document.getElementById('opendata_toggle').disabled = true;
                             $('#opendata_toggle').parent().addClass('disabled');
                             $('#opendata_toggle').siblings('.toggle-group').children().each(function() {
                             $(this).addClass('disabled');
@@ -775,7 +777,9 @@ function showLayer(map, layer, button_id) {
     }
     else {
         //layer.clearLayers();
-        map.removeLayer(layer);
+        if (map.hasLayer(layer)) {
+            map.removeLayer(layer);
+        }
     }
 }
 
