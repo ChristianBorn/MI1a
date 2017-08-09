@@ -144,6 +144,11 @@ function deselect () {
     }
 }*/
 
+function hideHirarchy() {
+    document.getElementById("stadtbezirk_auswahl").style.visibility="hidden";
+    document.getElementById("stadtebene_hoch_div").style.visibility="hidden";
+}
+
 function clearMap(map) {
     map.eachLayer(function(layer) {
         if( !(layer instanceof L.TileLayer) && (layer._path != undefined || layer._icon != undefined) ) {
@@ -157,6 +162,7 @@ function clearMap(map) {
             }
         }
     });
+    hideHirarchy();
 }
 
 /*function clearFilters(m) {

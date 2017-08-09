@@ -281,7 +281,8 @@ function searchOnClicks(){
         return;
     }
     clearMap(map);
-    enableAllFilter();
+    disableAllFilters();
+    //enableAllFilters();
     deleteLayer(map, markerClusters);
     deleteLayer(map, intersectLayer);
     deleteLayer(map, stadtteilLayer);
@@ -336,7 +337,6 @@ function hideIntersections() {
     document.getElementById("use_filter_div").style.visibility="hidden";
 }
 
-
 function toggleTransparency() {
     var toggle = document.getElementById("transparent").checked;
     if (toggle) {
@@ -344,12 +344,20 @@ function toggleTransparency() {
     }
 }
 
-function disableFilter(filterID) {
-    document.getElementById(filterID).disabled = true;
-    document.getElementById(filterID).style.opacity="0.6";
+function disableAllFilters() {
+    for (var i=1; i < 34; i++) {
+        document.getElementById(i).disabled = true;
+        document.getElementById(i).style.opacity="0.6";
+    }
 }
 
-function enableAllFilter() {
+function enableFilter(value) {
+    var filterID = getFilterValue(value);
+    document.getElementById(filterID).disabled = false;
+    document.getElementById(filterID).style.opacity="1.0";
+}
+
+function enableAllFilters() {
     for (var i=1; i < 34; i++) {
         document.getElementById(i).disabled = false;
         document.getElementById(i).style.opacity="1.0";
@@ -394,6 +402,46 @@ function getFilterName(x) {
     else if (x == 33){ result = "Restaurant"; }
 
     return result;
+}
+
+function getFilterValue(x) {
+    var amenity = 0;
+
+    if (x == "bus_stop"){ amenity = 1; }
+    else if (x == "bus_station"){ amenity = 2; }
+    else if (x == "station"){ amenity = 3; }
+    else if (x == "subway_entrance"){ amenity = 4; }
+    else if (x == "tram_stop"){ amenity = 5; }
+    else if (x == "terminal"){ amenity = 6; }
+    else if (x == "park"){ amenity = 7; }
+    else if (x == "recreation_ground"){ amenity = 8; }
+    else if (x == "dog_park"){ amenity = 9; }
+    else if (x == "playground"){ amenity = 10; }
+    else if (x == "fitness_centre"){ amenity = 11; }
+    else if (x == "cinema"){ amenity = 12; }
+    else if (x == "theatre"){ amenity = 13; }
+    else if (x == "nightclub"){ amenity = 14; }
+    else if (x == "kindergarten"){ amenity = 15; }
+    else if (x == "school"){ amenity = 16; }
+    else if (x == "college"){ amenity = 17; }
+    else if (x == "university"){ amenity = 18; }
+    else if (x == "doctors"){ amenity = 19; }
+    else if (x == "clinic"){ amenity = 20; }
+    else if (x == "dentist"){ amenity= 21; }
+    else if (x == "hospital"){ amenity = 22; }
+    else if (x == "social_facility"){ amenity = 23; }
+    else if (x == "nursing_home"){ amenity = 24; }
+    else if (x == "veterinary"){ amenity = 25; }
+    else if (x == "place_of_worship"){ amenity = 26; }
+    else if (x == "supermarket"){ amenity = 27; }
+    else if (x == "chemist"){ amenity = 28; }
+    else if (x == "pharmacy"){ amenity = 29; }
+    else if (x == "mall"){ amenity = 30; }
+    else if (x == "bank"){ amenity = 31; }
+    else if (x == "atm"){ amenity = 32; }
+    else if (x == "restaurant"){ amenity = 33; }
+
+    return amenity;
 }
 
 
