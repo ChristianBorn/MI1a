@@ -81,18 +81,7 @@ function jsUcfirst(string)
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 function getColor(x) {
-    var color = "";
-
-    if (x == "bus_stop" || x == "bus_station" || x == "subway_entrance" || x == "tram_stop" || x == "terminal"){ color = "purple"; }
-    else if (x == "park" || x == "recreation_ground" || x == "dog_park" || x == "playground"){ color = "green"; }
-    else if (x == "fitness_centre" || x == "cinema" || x == "theatre" || x == "nightclub" || x == "restaurant"){ color = "cadetblue"; }
-    else if (x == "kindergarten" || x == "school" || x == "college" || x == "university") { color = "darkred"; }
-    else if (x == "doctors" || x == "clinic" || x == "dentist" || x == "hospital" || x == "social_facility" || x == "nursing_home" || x == "veterinary"){ color = "blue"; }
-    else if (x == "supermarket" || x == "chemist" || x == "pharmacy" || x == "mall") { color = "darkgreen"; }
-    else if (x == "place_of_worship") { color = "darkpurple";}
-    else if (x == "atm" || x == "bank") { color = "orange";}
-    else if (x == "station") { color = "purple";}
-    else {color = "darkred";}
+    var color = "#e9993b";
 
     return color;
 }
@@ -286,7 +275,7 @@ function getCityPoly (cityName, osmId=false ) {
                     }
                     var latlngs = data[i].way;
                     //var onclickPoly = "onclick("+data[i].osm_id+",true)";
-                    var polygon = L.polygon(latlngs, {color: 'red', className: 'cityPoly selected', 'osmId': data[i].osm_id});
+                    var polygon = L.polygon(latlngs, {color: '#2d5e92', className: 'cityPoly selected', 'osmId': data[i].osm_id});
                     // Falls der Transparenz-Button aktiv ist, wird den neuen Polygonen die Transparenz-Klasse mitgegeben
                     // Check, ob der Transparenz-Button Aktiv ist
                     if ($('#transparent').parent().hasClass('btn-success')){
@@ -495,7 +484,7 @@ function getOpenData  (type_data) {
                     //console.log('Zeichne Polygone für LKW-Verbot:', data.length);
                     for (i = 0; i < data.length; i++) {
                         var latlngs = data[i].rings;
-                        var polygon = L.polygon(latlngs, {color: 'black'});
+                        var polygon = L.polygon(latlngs, {color: '#50555c'});
                         var tooltip = L.tooltip({
                             sticky: true,
                             direction: 'top'
@@ -552,13 +541,13 @@ function getOpenData  (type_data) {
                             for (i = 0; i < data[1].length; i++) {
                                 var latlngs = data[1][i].path;
                                 if (data[1][i].dezibel === 55) {
-                                    var color = '#99c4d8';
+                                    var color = '#f6a68d';
                                 }
                                 else if (data[1][i].dezibel === 70) {
-                                    var color = '#0047ab';
+                                    var color = '#e92f15';
                                 }
                                 else {
-                                    var color = '#093253';
+                                    var color = '#941e0d';
                                 }
                                 var polygon = L.polyline(latlngs, {color: color, className: 'deselected'});
                                 var tooltip = L.tooltip({

@@ -623,7 +623,7 @@
 	border-right-color: #fff;
 	}
 .cityPoly:hover, .cityPoly:focus {
-    fill: #337ab7;
+    fill: #8ec7e6;
     transition: fill-opacity 0.2s;
     fill-opacity: 0.4;
 }

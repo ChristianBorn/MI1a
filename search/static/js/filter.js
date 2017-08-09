@@ -264,7 +264,7 @@ function getCityOsmId() {
  */
 function changeAuswahlName(cityName = getCityName()){
     console.log(getCityName());
-    document.getElementById("stadtbezirk_auswahl").innerHTML= cityName;
+    document.getElementById("stadtbezirk_auswahl").innerHTML= cityName + "<span class=\"caret\"></span>";
     console.log("Auswahlname geändert!");
 }
 
