@@ -85,9 +85,9 @@ function getColor(x) {
 
     return color;
 }
-function alphanum(a, b) {
-  a = String(a).slice(94,-4);
-  b = String(b).slice(94,-4);
+function alphanum(a, b, lenOsmId) {
+  a = String(a).replace(/<(?:.|\n)*?>/gm, '').replace(/.* - /gm,'');
+  b = String(b).replace(/<(?:.|\n)*?>/gm, '').replace(/.* - /gm,'');
   function chunkify(t) {
     var tz = [], x = 0, y = -1, n = 0, i, j;
 
