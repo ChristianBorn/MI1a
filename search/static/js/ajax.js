@@ -190,6 +190,24 @@ function clickPoly (event) {
     getCityPoly(event.target.options.osmId, true);
     map.fitBounds(this.getBounds());
 }
+function disableToggle (id) {
+    $(id).bootstrapToggle('off');
+    $(id).prop('disabled', true);
+    $(id).parent().addClass('disabled');
+    $(id).siblings('.toggle-group').children().each(function() {
+        $(this).addClass('disabled');
+        });
+    /*$(id).prop('title', 'Keine Daten verfügbar');
+    $(id).tooltip();*/
+}
+function enableToggle (id) {
+    $(id).bootstrapToggle('off');
+    $(id).prop('disabled', false);
+    $(id).parent().removeClass('disabled');
+    $(id).siblings('.toggle-group').children().each(function() {
+        $(this).removeClass('disabled');
+        });
+}
 function getCityPoly (cityName, osmId=false ) {
     $.ajax(
         './search/cityPolygon',
@@ -212,21 +230,9 @@ function getCityPoly (cityName, osmId=false ) {
                 pegel_layer = L.layerGroup();
 
                 document.getElementById('laermpegel').checked = false;
-                /*$(function() {
-                        $('#laermpegel').bootstrapToggle("off");
-                    });*/
                 if (data[0].admin_level != '10' && data[0].admin_level != '9') {
-                    //@todo: button ausschalten wenn ausgegraut
-                    $('#laermpegel').bootstrapToggle('off');
-                    $('#laermpegel').parent().addClass('disabled');
-                    $('#laermpegel').siblings('.toggle-group').children().each(function() {
-                        $(this).addClass('disabled');
-                    });
-                    $('#opendata_toggle').bootstrapToggle('off');
-                    $('#opendata_toggle').parent().addClass('disabled');
-                    $('#opendata_toggle').siblings('.toggle-group').children().each(function() {
-                        $(this).addClass('disabled');
-                    });
+                    disableToggle('#laermpegel');
+                    disableToggle('#opendata_toggle');
                     //document.getElementById('opendata_toggle').checked = false;
 
                     //document.getElementById('laermpegel').checked = false;
@@ -238,19 +244,12 @@ function getCityPoly (cityName, osmId=false ) {
                     //document.getElementById('opendata_toggle').disabled = true;
                 }
                 else {
-                    $('#laermpegel').bootstrapToggle('off');
-                    $('#laermpegel').parent().removeClass('disabled');
-                    $('#laermpegel').siblings('.toggle-group').children().each(function() {
-                        $(this).removeClass('disabled');
-                    });
+                    enableToggle('#laermpegel');
                     //document.getElementById('laermpegel').checked = false;
                     //document.getElementById('laermpegel').disabled = false;
                     //document.getElementById('opendata_toggle').disabled = false;
-                    $('#laermpegel').bootstrapToggle('off');
-                    $('#opendata_toggle').parent().removeClass('disabled');
-                    $('#opendata_toggle').siblings('.toggle-group').children().each(function() {
-                        $(this).removeClass('disabled');
-                    });
+                    enableToggle('#opendata_toggle');
+                    enableToggle('#lkw_verbot');
                 }
                 open_data_layer = L.layerGroup(getOpenData('opendata'));
                 // hierarchische Suche ohne Erfolg
@@ -276,13 +275,19 @@ function getCityPoly (cityName, osmId=false ) {
                         sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + dropdownEntry + '</a>');
                     }
                     var latlngs = data[i].way;
-                    //var onclickPoly = "onclick("+data[i].osm_id+",true)";
-                    var polygon = L.polygon(latlngs, {color: '#2d5e92', className: 'cityPoly selected', 'osmId': data[i].osm_id});
+                    if (i == 0) {
+                        var polyClassName = 'cityPoly selected';
+                    }
+                    else {
+                        var polyClassName = 'cityPoly deselected';
+                    }
+                    var polygon = L.polygon(latlngs, {color: '#2d5e92', className: polyClassName, 'osmId': data[i].osm_id});
                     // Falls der Transparenz-Button aktiv ist, wird den neuen Polygonen die Transparenz-Klasse mitgegeben
                     // Check, ob der Transparenz-Button Aktiv ist
                     if ($('#transparent').parent().hasClass('btn-success')){
-                        polygon.setStyle({className: 'cityPoly selected transparent'});
-                    }
+                        polyClassName = polyClassName+' transparent'
+                        polygon.setStyle({className: polyClassName});
+                        }
                     var tooltip = L.tooltip({
                         sticky: true,
                         direction: 'top'
@@ -320,10 +325,18 @@ function getCityPoly (cityName, osmId=false ) {
                     document.getElementById("stadtebene_hoch_div").style.visibility="visible";
                     if (data[0].affil_city_name != data[0].name) {
                             changeAuswahlName(data[0].affil_city_name + ' - ' + data[0].name);
-                    }
+                    }  
                 }
                 else {
                     document.getElementById("stadtebene_hoch_div").style.visibility="hidden";
+                }
+                if (data[0].affil_city_name.toLowerCase() != 'köln') {
+                    disableToggle('#laermpegel');
+                    disableToggle('#opendata_toggle');
+                    disableToggle('#lkw_verbot');
+                }
+                if (data[0].name == 'Köln') {
+                    enableToggle('#lkw_verbot');
                 }
                 console.log(data[0].affil_city_name.length);
                 $('#stadtauswahl').append(sortList.join(''));
@@ -502,10 +515,7 @@ function getOpenData  (type_data) {
                     //console.log('Zeichne Polygone für Lärmpegel:', data.length);
                     if (data == 'undefined' || data == 'empty') {
                         //document.getElementById('laermpegel').disabled = true;
-                        $('#laermpegel').parent().addClass('disabled');
-                        $('#laermpegel').siblings('.toggle-group').children().each(function() {
-                        $(this).addClass('disabled');
-                        });
+                        disableToggle('#laermpegel');
                         //document.getElementById('laermpegel').style.opacity="1.0";
                         swal('Für diesen Suchbereich sind keine Lärmpegel verfügbar.', 'error')
                     }
