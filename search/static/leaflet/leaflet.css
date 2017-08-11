@@ -652,3 +652,10 @@
 	opacity: 0.6;
 	cursor: not-allowed;
 }
+.warning {
+	background-color: rgb(233, 153, 59) !important;
+}
+.glyphicon {
+	margin-left: 10px;
+	font-size: 18px;
+}

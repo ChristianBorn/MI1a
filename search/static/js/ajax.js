@@ -221,34 +221,20 @@ function getCityPoly (cityName, osmId=false ) {
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
+                console.log(data[0]);
                 disableAllFilters();
                 deleteLayer(map, open_data_layer);
                 deleteLayer(map, pegel_layer);
                 //Berechnen der Werte der Ein-und Auszublendenden OpenData
                 lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
-                //console.log('lkwverbot');
-                //pegel_layer = L.layerGroup(getOpenData('pegel'));
                 pegel_layer = L.layerGroup();
-
                 document.getElementById('laermpegel').checked = false;
                 if (data[0].admin_level != '10' && data[0].admin_level != '9') {
                     disableToggle('#laermpegel');
                     disableToggle('#opendata_toggle');
-                    //document.getElementById('opendata_toggle').checked = false;
-
-                    //document.getElementById('laermpegel').checked = false;
-                    /*$(function() {
-                        $('#opendata_toggle').bootstrapToggle("off");
-                    });*/
-                    //document.getElementById('laermpegel').disabled = true;
-                    //document.getElementById('opendata_toggle').disabled = true;
-                    //document.getElementById('opendata_toggle').disabled = true;
                 }
                 else {
                     enableToggle('#laermpegel');
-                    //document.getElementById('laermpegel').checked = false;
-                    //document.getElementById('laermpegel').disabled = false;
-                    //document.getElementById('opendata_toggle').disabled = false;
                     enableToggle('#opendata_toggle');
                     enableToggle('#lkw_verbot');
                 }
@@ -263,14 +249,30 @@ function getCityPoly (cityName, osmId=false ) {
                 // Wenn nur ein Ergebnis in Ergebnismenge
                 var sortList = []
                 // erfolgreiche Suche im Suchfeld
-                changeAuswahlName(data[0].name);
+                if (data[0].ambiguous == undefined) {
+                    changeAuswahlName(data[0].name);
+                }
+                else {
+                    changeAuswahlName('Mehrere gleiche Orte in Treffermenge');
+                }
                 deselect();
+                // Filter werden freigeschaltet
                 for (j = 0; j < data[0].osm_data_filter.length; j++) {
-                    console.log(data[0].osm_data_filter[j])
                     enableFilter(data[0].osm_data_filter[j]);
                 }
-                for (i = 0; i < data.length; i++) {
-                    if (i != 0) {
+                for (i=0; i < data.length; i++) {
+                    if (data[0].ambiguous == undefined) {    
+                        if (i != 0) {
+                            if (data[i].affil_city_name.length != 0) {
+                                var dropdownEntry = data[i].affil_city_name + ' - ' + data[i].name;
+                            }
+                            else {
+                                var dropdownEntry = data[i].name
+                            }
+                            sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + dropdownEntry + '</a>');
+                        }
+                    }
+                    else {
                         if (data[i].affil_city_name.length != 0) {
                             var dropdownEntry = data[i].affil_city_name + ' - ' + data[i].name;
                         }
@@ -280,7 +282,8 @@ function getCityPoly (cityName, osmId=false ) {
                         sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + dropdownEntry + '</a>');
                     }
                     var latlngs = data[i].way;
-                    if (i == 0) {
+                    // erstes Elemen in Date wird selected
+                    if (i == 0 & data[0].ambiguous == undefined) {
                         var polyClassName = 'cityPoly selected';
                     }
                     else {
@@ -308,7 +311,7 @@ function getCityPoly (cityName, osmId=false ) {
                 }
                 stadtteilLayer.addTo(map);
                 //Falls ein Stadtteil ausgewählt wurde, wird auf den Stadtteil gezoomt.
-                if (data.length == 1) {
+                if (data.length == 1 & data[0].ambiguous == undefined) {
                     $('#stadtauswahl').html('<a href="javascript:void(0)" class="list-group-item list-group-item-action" style="pointer-events: none;">Keine Stadtteile unter aktuellem Ergebnis</a>');
                     map.fitBounds(polygon.getBounds());
                 }
@@ -316,14 +319,18 @@ function getCityPoly (cityName, osmId=false ) {
                 else if (data.length > 1 & osmId == false) {
                     map.fitBounds(stadtteilLayer.getBounds());
                 }
-                //console.log(data.length)
-                //console.log(data)
                 // erfolgreiche hierarchische Suche und befüllen des DropDownMenüs
-                //changeAuswahlName();
                 showAuswahl();
+                if (data[0].ambiguous != undefined) {
+                    $('#stadtbezirk_auswahl').addClass('warning');
+                    $('#stadtbezirk_auswahl').children('span').removeClass('caret').addClass('glyphicon glyphicon-warning-sign');
+                }
+                else if ($('#stadtbezirk_auswahl').hasClass('warning')) {
+                    $('#stadtbezirk_auswahl').removeClass('warning');
+                }
                 showOpenData();
                 sortList.sort(alphanum);
-                if (data[0].parent_osm != 0) {
+                if (data[0].parent_osm != 0 & data[0].ambiguous == undefined) {
                     var onclickHigher = "getCityPoly("+data[0].parent_osm+",true)";
                     changeStadtebeneName(data[0].parent_name);
                     $("#stadtebene_hoch").attr("onclick",onclickHigher);
@@ -343,7 +350,6 @@ function getCityPoly (cityName, osmId=false ) {
                 if (data[0].name == 'Köln') {
                     enableToggle('#lkw_verbot');
                 }
-                console.log(data[0].affil_city_name.length);
                 $('#stadtauswahl').append(sortList.join(''));
                 $('html, body').animate({
                     scrollTop:$('#mapid').offset().top*0.7
@@ -675,7 +681,7 @@ function getPolyByCoords(lat, lng) {
                 if (data[1] != 'undefined') {
                     document.getElementById('town').value = data[0];
                     clearMap(map);
-                    enableAllFilter();
+                    disableAllFilters();
                     deleteLayer(map, markerClusters);
                     deleteLayer(map, intersectLayer);
                     deleteLayer(map, stadtteilLayer);

@@ -292,7 +292,6 @@ function searchOnClicks(){
 
 function showAuswahl() {
     document.getElementById("stadtbezirk_auswahl").style.visibility="visible";
-
     document.getElementById("filter1").style.display="block";
     document.getElementById("filter2").style.display="block";
     document.getElementById("filter3").style.display="block";

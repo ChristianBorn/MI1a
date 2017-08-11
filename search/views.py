@@ -57,6 +57,12 @@ def search_cityPolygon(request):
 
     if city is not None:
         city_polygons = PlanetOsmPolygon.get_city_polygon(city, osmId)
+        city_names = []
+        ambiguous = False
+        for elem in city_polygons:
+            city_names.append(elem['name'])
+        if len(set(city_names)) == 1 and len(city_names) != 1:
+            ambiguous = True;
         # Setzt die Liste der Polygone in der Session zurück, sodass immer nur die letzte Anfrage in der Session ist
         request.session['polygons'] = []
         for elem_nr, elem in enumerate(city_polygons):
@@ -82,6 +88,8 @@ def search_cityPolygon(request):
                                                     'laermpegel': 'undefined', 'parent_osm': elem['parent_osm'],
                                                     'parent_name': elem['parent_name'],
                                                     'affil_city_name': elem['affil_city_name']})
+            if ambiguous:
+                request.session['polygons'][0]['ambiguous'] = ambiguous
             request.session.modified = True
         print("Polygone in Session ",len(request.session['polygons']))
         return JsonResponse(request.session['polygons'], safe=False)
