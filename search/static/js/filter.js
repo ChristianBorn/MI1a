@@ -346,15 +346,23 @@ function toggleTransparency() {
 
 function disableAllFilters() {
     for (var i=1; i < 34; i++) {
+        document.getElementById(i).parentElement.classList.add("dropdownDisabled");
+        document.getElementById(i).classList.add("dropdownDisabled");
+        document.getElementById(i).nextSibling.classList.add("dropdownDisabled");
         document.getElementById(i).disabled = true;
-        document.getElementById(i).style.opacity="0.6";
     }
 }
 
 function enableFilter(value) {
     var filterID = getFilterValue(value);
+    try {
+    document.getElementById(filterID).parentElement.classList.remove("dropdownDisabled");
+    document.getElementById(filterID).classList.remove("dropdownDisabled");
+    document.getElementById(filter_id).nextSibling.classList.remove("dropdownDisabled");
     document.getElementById(filterID).disabled = false;
-    document.getElementById(filterID).style.opacity="1.0";
+    //document.getElementById(filterID).parentElement.style.opacity="1.0";
+    }
+    catch(err) {}
 }
 
 function enableAllFilters() {

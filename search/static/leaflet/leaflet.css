@@ -643,8 +643,12 @@
     fill-opacity: 0 !important;
 }
 .partyMarker {
-  width: 10px; 
-  height: 10px; 
-  display: inline-block; 
-  margin-right: 5px;
+	width: 10px; 
+	height: 10px; 
+	display: inline-block; 
+	margin-right: 5px;
+}
+.dropdownDisabled {
+	opacity: 0.6;
+	cursor: not-allowed;
 }

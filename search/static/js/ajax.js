@@ -221,6 +221,7 @@ function getCityPoly (cityName, osmId=false ) {
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
+                disableAllFilters();
                 deleteLayer(map, open_data_layer);
                 deleteLayer(map, pegel_layer);
                 //Berechnen der Werte der Ein-und Auszublendenden OpenData
@@ -264,6 +265,10 @@ function getCityPoly (cityName, osmId=false ) {
                 // erfolgreiche Suche im Suchfeld
                 changeAuswahlName(data[0].name);
                 deselect();
+                for (j = 0; j < data[0].osm_data_filter.length; j++) {
+                    console.log(data[0].osm_data_filter[j])
+                    enableFilter(data[0].osm_data_filter[j]);
+                }
                 for (i = 0; i < data.length; i++) {
                     if (i != 0) {
                         if (data[i].affil_city_name.length != 0) {

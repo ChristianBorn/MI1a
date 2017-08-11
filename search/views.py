@@ -84,7 +84,7 @@ def search_cityPolygon(request):
                                                     'affil_city_name': elem['affil_city_name']})
             request.session.modified = True
         print("Polygone in Session ",len(request.session['polygons']))
-        return JsonResponse(city_polygons, safe=False)
+        return JsonResponse(request.session['polygons'], safe=False)
     return JsonResponse([], safe=False)
 
 
