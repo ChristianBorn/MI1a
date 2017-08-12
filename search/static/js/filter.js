@@ -357,7 +357,7 @@ function enableFilter(value) {
     try {
     document.getElementById(filterID).parentElement.classList.remove("dropdownDisabled");
     document.getElementById(filterID).classList.remove("dropdownDisabled");
-    document.getElementById(filter_id).nextSibling.classList.remove("dropdownDisabled");
+    document.getElementById(filterID).nextSibling.classList.remove("dropdownDisabled");
     document.getElementById(filterID).disabled = false;
     //document.getElementById(filterID).parentElement.style.opacity="1.0";
     }
