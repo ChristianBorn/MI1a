@@ -10,41 +10,45 @@ from search.models import *
 def opendata_von_stadtteil(request):
     column_name = request.POST.get('table_name').lower()
     stadtteile = request.session['polygons']
+    # übeprüfen ob übergebener Wert nicht leer ist.
+    if len(stadtteile) > 0:
+        if column_name == 'lkw_verbot':
+            lkw_verbot = LkwVerbotszonen.get_verbotszone()
+            return JsonResponse(lkw_verbot, safe=False)
 
-    if column_name == 'lkw_verbot':
-        lkw_verbot = LkwVerbotszonen.get_verbotszone()
-        return JsonResponse(lkw_verbot, safe=False)
-
-    elif column_name == 'pegel':
-        admin_level = 9 #anzeige für stadtbezirke und stadtteile
-        #admin_level = 10 #anzeige nur für stadtteile
-        laermpegel = 'undefined'
-        if stadtteile[0]['admin_level'] >= admin_level:
-            if stadtteile[0]['laermpegel'] == 'undefined':
-                laermpegel = Laermpegel.get_learmpegel(stadtteile[0]['osm_id'], stadtteile[0]['admin_level'])
-                request.session['polygons'][0]['laermpegel'] = laermpegel
-            else:
-                laermpegel = stadtteile[0]['laermpegel']
-        request.session.modified = True
-        return JsonResponse(laermpegel, safe=False)
+        elif column_name == 'pegel':
+            admin_level = 9 #anzeige für stadtbezirke und stadtteile
+            #admin_level = 10 #anzeige nur für stadtteile
+            laermpegel = 'undefined'
+            if stadtteile[0]['admin_level'] >= admin_level:
+                if stadtteile[0]['laermpegel'] == 'undefined':
+                    laermpegel = Laermpegel.get_learmpegel(stadtteile[0]['osm_id'], stadtteile[0]['admin_level'])
+                    request.session['polygons'][0]['laermpegel'] = laermpegel
+                else:
+                    laermpegel = stadtteile[0]['laermpegel']
+            request.session.modified = True
+            return JsonResponse(laermpegel, safe=False)
 
 
-    # alle anderen OpenData zusammen berechnen, da gemeinsam als Tooltip angezeigt werden
+        # alle anderen OpenData zusammen berechnen, da gemeinsam als Tooltip angezeigt werden
+        else:
+            for polygon_nr, polygon in enumerate(stadtteile):
+                if polygon['admin_level'] == 10 and polygon['open_data']=='undefined':
+                    beschaeftigte = Beschaeftigte.get_arbeitslosenquote(polygon['name'])
+                    durchschnittsalter = Durchschnittsalter.get_durchschnittsalter(polygon['name'])
+                    mietpreise = DurchschnittlicheMietpreise.get_mietpreise(polygon['name'])
+                    landtag = Landtagswahl.get_parteiverteilung_in_stadtteil(polygon['name'])
+                    if landtag and beschaeftigte and durchschnittsalter and mietpreise:
+                        open_data_dict = {'wahl': landtag, 'beschaeftigte': beschaeftigte,
+                                          'durchschnittsalter': durchschnittsalter,
+                                          'mietpreis': mietpreise}
+                        request.session['polygons'][polygon_nr]['open_data'] = open_data_dict
+            request.session.modified = True
+            #print(len(request.session['polygons']))
+            return JsonResponse(request.session['polygons'], safe=False)
+    # Falls leer, gib ??? zurück
     else:
-        for polygon_nr, polygon in enumerate(stadtteile):
-            if polygon['admin_level'] == 10 and polygon['open_data']=='undefined':
-                beschaeftigte = Beschaeftigte.get_arbeitslosenquote(polygon['name'])
-                durchschnittsalter = Durchschnittsalter.get_durchschnittsalter(polygon['name'])
-                mietpreise = DurchschnittlicheMietpreise.get_mietpreise(polygon['name'])
-                landtag = Landtagswahl.get_parteiverteilung_in_stadtteil(polygon['name'])
-                if landtag and beschaeftigte and durchschnittsalter and mietpreise:
-                    open_data_dict = {'wahl': landtag, 'beschaeftigte': beschaeftigte,
-                                      'durchschnittsalter': durchschnittsalter,
-                                      'mietpreis': mietpreise}
-                    request.session['polygons'][polygon_nr]['open_data'] = open_data_dict
-        request.session.modified = True
-        #print(len(request.session['polygons']))
-        return JsonResponse(request.session['polygons'], safe=False)
+        return JsonResponse([], safe=False)
 
 
 def search_cityPolygon(request):
@@ -70,7 +74,6 @@ def search_cityPolygon(request):
             # Ergäzze Dictionary um weiteren Schlüssel "osm_data_filter" und Liste von OSM Filtern
             if elem_nr == 0:
                 osm_data_values = PlanetOsmPoint.get_osm_data(elem['osm_id'])
-                print (osm_data_values)
                 request.session['polygons'].append({'osm_id': elem['osm_id'],
                                                     'name': elem['name'],
                                                     'admin_level': elem['admin_level'],
@@ -99,7 +102,7 @@ def search_cityPolygon(request):
 def index(request):
     # Beim initialen Laden der Seite wird die Session komplett gelöscht
     request.session.flush()
-    print("flushed session")
+    #print("flushed session")
     return render(request, 'search/index.html')
 
 def about(request):

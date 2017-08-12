@@ -379,7 +379,7 @@ class PlanetOsmPoint(models.Model):
                 for element in session_filter_dict[type_filter]:
                     data.append(element)
                 count_marker = len(session_filter_dict[type_filter])
-                print('Anzahl Marker:',count_marker, 'für', type_filter)
+                #print('Anzahl Marker:',count_marker, 'für', type_filter)
                 continue
 
             conn = connect_to_db(path='mysite/settings.py')
@@ -414,8 +414,8 @@ class PlanetOsmPoint(models.Model):
                     return (type_filter, session_filter_dict)
             session_filter_dict[type_filter] = data_type_filter
             count_marker = len(data_type_filter)
-            print('Anzahl Marker:', count_marker, 'für', type_filter)
-        print('Anzahl Marker insgesamt: ', len(data))
+            #print('Anzahl Marker:', count_marker, 'für', type_filter)
+        #print('Anzahl Marker insgesamt: ', len(data))
         return (data, session_filter_dict)
 
 
@@ -657,12 +657,11 @@ class PlanetOsmPolygon(models.Model):
 
     @staticmethod
     def insert_stadtteile_to_results(results):
-        new_admin_level = 0
-        if results[0].admin_level == '6' or results[0].admin_level == '8':
-            new_admin_level = 9
-        elif results[0].admin_level == '9':
-            new_admin_level = 10
-        if 5 < int(new_admin_level) <= 10:
+        new_admin_level = int(results[0].admin_level)
+        results_size= len(results)
+
+        while len(results) == results_size and new_admin_level < 11:
+            new_admin_level+=1
             for p in PlanetOsmPolygon.objects.raw("SELECT osm_id, name, admin_level, "
                                                       "ST_asText(way) AS way  "
                                                   "FROM planet_osm_polygon "
@@ -726,7 +725,7 @@ class PlanetOsmPolygon(models.Model):
                                                   "GROUP BY city.osm_id, city.name, city.admin_level, way "
                                                   "ORDER BY city.admin_level::integer ASC", [city_var]):
                 results.append(p)
-                print(p.name)
+                #print(p.name)
             if len(results) > 0:
                 results = copy.deepcopy([results[0]])
                 PlanetOsmPolygon.insert_stadtteile_to_results(results)
@@ -749,13 +748,6 @@ class PlanetOsmPolygon(models.Model):
                          'parent_name': parent_name,
                          'affil_city_name': affil_city_name,
                          'affil_city_osm': affil_city_osm})
-        print("Gesuchter Ort    |     Name d. nächsthäheren Ortes    |     osm_id des Ortes     |     Name der zugehörigen Stadt    |     +osm_id der Stadt")
-        print("key in dictionary|     parent_name    |     parent_osm     |     affil_city_name     |     +affil_city_osm")
-
-        for d in data:
-            print(d['name'] + "    |    " + str(d['parent_name']) + "    |    " + str(
-                d['parent_osm']) + "    |    " + str(d['affil_city_name']) + "    |    " + str(
-                d['affil_city_osm']))
         return data
 
         # gibt osm_id und Name der nächsten übergeordneten Ortschaft eines Ortes zurück. Falls kein Fund, Leer-String
