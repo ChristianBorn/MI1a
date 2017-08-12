@@ -659,7 +659,7 @@ class PlanetOsmPolygon(models.Model):
     def insert_stadtteile_to_results(results):
         new_admin_level = int(results[0].admin_level)
         results_size= len(results)
-
+        tmp_results = []
         while len(results) == results_size and new_admin_level < 11:
             new_admin_level+=1
             for p in PlanetOsmPolygon.objects.raw("SELECT osm_id, name, admin_level, "
@@ -671,12 +671,15 @@ class PlanetOsmPolygon(models.Model):
                                                   "(ST_SetSRID(ST_GeomFromText(%s),3857), way)"
                                                   "GROUP BY osm_id, name, admin_level, way "
                                                   "ORDER BY admin_level::integer ASC ",[new_admin_level, results[0].way]):
-                results.append(p)
+                tmp_results.append(p)
+                tmp_results.sort(key=lambda poly: poly.name)
+                results.extend(tmp_results)
         return results
 
     @staticmethod
     def get_city_polygon(city_var, osm_id):
         results = []
+        multi_results = True
         plz = re.findall(r"[0-9]{4,5}", str(city_var))
         if not osm_id:
             if len(plz) == 1:
@@ -706,15 +709,32 @@ class PlanetOsmPolygon(models.Model):
                                                       "ST_asText(city.way) AS way "
                                                       "FROM planet_osm_polygon city "
                                                       "WHERE city.boundary = 'administrative' "
-                                                      "AND city.admin_level = ANY ('{6,8,9,10}') "
+                                                      "AND city.admin_level::integer = ANY ('{6,7,8,9,10}') "
                                                       "AND city.name ILIKE %s "
                                                       "GROUP BY city.osm_id, city.name, city.admin_level, way "
                                                       "ORDER BY city.admin_level::integer ASC", [city_var]):
                     results.append(p)
-                if len(results) > 0 and results[0].admin_level in ['6','8','9']:
+
+                if len(results) == 1:
+                    multi_results = False
                     results = copy.deepcopy([results[0]])
                     PlanetOsmPolygon.insert_stadtteile_to_results(results)
-
+                '''
+                if len(results) > 0:
+                    first_adm = results[0].admin_level
+                    for e in results[1:]:
+                        print("check  "+e.admin_level+ "  |  "+first_adm+"     "+str(multi_results))
+                        if e.admin_level == first_adm:
+                            multi_results = True
+                            break
+                    if not multi_results:
+                        results = copy.deepcopy([results[0]])
+                        PlanetOsmPolygon.insert_stadtteile_to_results(results)
+                for e in results:
+                    print (e.name)
+                print ("----")
+                print (multi_results)
+                '''
         else:
     # gibt alle PLZ & Polygone einer Stadt zurück. Vielleicht nützlich für später.
             for p in PlanetOsmPolygon.objects.raw("SELECT city.osm_id, city.name, city.admin_level, "
@@ -729,7 +749,6 @@ class PlanetOsmPolygon(models.Model):
             if len(results) > 0:
                 results = copy.deepcopy([results[0]])
                 PlanetOsmPolygon.insert_stadtteile_to_results(results)
-
         results = set(results)
         results = list(results)
 
@@ -739,9 +758,10 @@ class PlanetOsmPolygon(models.Model):
         data = []
         for element in results:
             parent_osm, parent_name = PlanetOsmPolygon.get_osm_of_next_higher_place(element.osm_id, False)
-
             #name / osm_id der zugehörigen Stadt (ggf. auch Landkreis).
             affil_city_osm, affil_city_name = PlanetOsmPolygon.get_osm_of_next_higher_place(element.osm_id,True)
+            if multi_results and affil_city_name != parent_name:
+                affil_city_name += " - "+parent_name
             data.append({'name': element.name, 'osm_id': element.osm_id, 'admin_level': element.admin_level,
                          'way': str_coords_to_array_coords(transform_coords(element.way)), 'open_data': 'undefined',
                          'parent_osm': parent_osm,
