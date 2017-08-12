@@ -221,12 +221,17 @@ function getCityPoly (cityName, osmId=false ) {
             },
             method: 'POST',
             success: function (data, textStatus, jqXHR) {
+                //kein Ergebnis bei Suche
+                $('#stadtauswahl').text('');
+                if (data.length == 0) {
+                    swal("Suche erfolglos", "Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.", "error");
+                    return;
+                }
                 console.log(data[0]);
                 disableAllFilters();
                 deleteLayer(map, open_data_layer);
                 deleteLayer(map, pegel_layer);
-                //Berechnen der Werte der Ein-und Auszublendenden OpenData
-                lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
+                //Ein-und Auszublenden der  OpenData
                 pegel_layer = L.layerGroup();
                 document.getElementById('laermpegel').checked = false;
                 if (data[0].admin_level != '10' && data[0].admin_level != '9') {
@@ -238,14 +243,12 @@ function getCityPoly (cityName, osmId=false ) {
                     enableToggle('#opendata_toggle');
                     enableToggle('#lkw_verbot');
                 }
-                open_data_layer = L.layerGroup(getOpenData('opendata'));
-                // hierarchische Suche ohne Erfolg
 
-                $('#stadtauswahl').text('');
-                if (data.length == 0) {
-                    swal("Suche erfolglos", "Die Suche war nicht erfolgreich. Bitte die Schreibweise im Suchfeld überprüfen.", "error");
-                    return;
-                }
+
+                //berechnen der OpenData
+                open_data_layer = L.layerGroup(getOpenData('opendata'));
+                lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
+
                 // Wenn nur ein Ergebnis in Ergebnismenge
                 var sortList = []
                 // erfolgreiche Suche im Suchfeld
@@ -688,7 +691,9 @@ function getPolyByCoords(lat, lng) {
                     getCityPoly(data[1], true);
                 }
                 else {
-                    console.log('punkt kann nicht zugeordnet werden')
+                    //console.log('punkt kann nicht zugeordnet werden');
+                    swal("Suche erfolglos", "Die Suche war nicht erfolgreich. Bitte einen anderen Punkt auswählen.", "error");
+
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
