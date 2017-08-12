@@ -747,6 +747,7 @@ class PlanetOsmPolygon(models.Model):
                 results.append(p)
                 #print(p.name)
             if len(results) > 0:
+                multi_results = False
                 results = copy.deepcopy([results[0]])
                 PlanetOsmPolygon.insert_stadtteile_to_results(results)
         results = set(results)
