@@ -76,8 +76,7 @@ $(document).ready(
 /**
  * @global map
  */
-function jsUcfirst(string)
-{
+function jsUcfirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 function getColor(x) {
@@ -250,7 +249,7 @@ function getCityPoly (cityName, osmId=false ) {
                 lkw_verbot_layer = L.layerGroup(getOpenData('lkw_verbot'));
 
                 // Wenn nur ein Ergebnis in Ergebnismenge
-                var sortList = []
+                var sortList = [];
                 // erfolgreiche Suche im Suchfeld
                 if (data[0].ambiguous == undefined) {
                     changeAuswahlName(data[0].name);
@@ -270,9 +269,12 @@ function getCityPoly (cityName, osmId=false ) {
                                 var dropdownEntry = data[i].affil_city_name + ' - ' + data[i].name;
                             }
                             else {
-                                var dropdownEntry = data[i].name
+                                var dropdownEntry = data[i].name;
                             }
                             sortList.push('<a href="javascript:void(0)" class="list-group-item list-group-item-action" onclick="getCityPoly(' + data[i].osm_id + ',true)">' + dropdownEntry + '</a>');
+                        }
+                        else {
+                            var dropdownEntry = data[i].name;
                         }
                     }
                     else {
@@ -296,14 +298,10 @@ function getCityPoly (cityName, osmId=false ) {
                     // Falls der Transparenz-Button aktiv ist, wird den neuen Polygonen die Transparenz-Klasse mitgegeben
                     // Check, ob der Transparenz-Button Aktiv ist
                     if ($('#transparent').parent().hasClass('btn-success')){
-                        polyClassName = polyClassName+' transparent'
+                        polyClassName = polyClassName+' transparent';
                         polygon.setStyle({className: polyClassName});
                         }
-                    var tooltip = L.tooltip({
-                        sticky: true,
-                        direction: 'top'
-                    })
-                        .setContent(jsUcfirst(data[i].name));
+                    var tooltip = L.tooltip({sticky: true, direction: 'top'}).setContent(jsUcfirst(dropdownEntry));
                     polygon.bindTooltip(tooltip);
                     polygon.on('click', clickPoly);
                     polygon.addTo(stadtteilLayer);
