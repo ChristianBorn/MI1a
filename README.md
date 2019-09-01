@@ -1,1 +1,5 @@
 # MI1a
+Map application for finding and displaying locations or areas based on strictly facetted search. The idea was to give users the possibility to find areas for living that fulfill their needs by having important locations nearby. The user can choose the city and eventually the part of the city he or she wants to live in. Then it can be defined, which localities (like kindergartens, bars, hospitals etc.) should be available and how far should each of them be away at max. The system takes the resulting radiusses and finds areas that fit the specified criteria.
+The basis is a database by openstreetmap. Because of the size of the database the application was implemented as a PoC only for Cologne so far. The addition of more areas is possible though.
+
+As additional information we took available open data sets and enriched the map with it. The map can show results of recent elections, the measured level of noise and streets, where trucks are forbidden. Integration of more data like the average renting prices were considered, but no sufficient data could be found in a reasonable amount of time. 
